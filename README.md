@@ -31,7 +31,7 @@ OSCP+ | CRTO | CRTP | CRTE | eWPT | CKA/CKAD/CKS | AZ-500 | CAIPT-RT | C-AI/MLPe
 
 ## Author
 
-**hik3nR00t** (Nadyr) — 20 years sysadmin experience, transitioning to offensive security.
+**hik3nR00t** 
 
 ---
 *Private repository — Do not distribute*
