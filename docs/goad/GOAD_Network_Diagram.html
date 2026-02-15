@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOAD Network Diagram - HikenRoot Forge</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            min-height: 100vh;
+            font-family: 'JetBrains Mono', monospace;
+            color: #e0e0e0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(145deg, rgba(0, 255, 136, 0.1), rgba(0, 200, 255, 0.05));
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            to { left: 100%; }
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            color: #00c8ff;
+        }
+
+        .header .author {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .network-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(20, 20, 35, 0.8);
+            border-radius: 15px;
+            border-left: 4px solid;
+        }
+
+        .section-internet { border-color: #ff6b6b; }
+        .section-maison { border-color: #ffd93d; }
+        .section-proxmox { border-color: #6bcb77; }
+        .section-goad { border-color: #4d96ff; }
+        .section-vpn { border-color: #9b59b6; }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .device {
+            background: linear-gradient(145deg, rgba(40, 40, 60, 0.9), rgba(30, 30, 50, 0.9));
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .device:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .device-name {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .device-ip {
+            font-size: 0.95em;
+            color: #00ff88;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 4px 8px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .device-role {
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        .device-vm {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.75em;
+            background: rgba(0, 200, 255, 0.2);
+            color: #00c8ff;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .dc { border-left: 3px solid #ff6b6b; }
+        .server { border-left: 3px solid #6bcb77; }
+        .firewall { border-left: 3px solid #ffd93d; }
+        .storage { border-left: 3px solid #9b59b6; }
+        .attacker { border-left: 3px solid #ff4757; }
+
+        .connection-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .connection-line .arrow {
+            color: #00ff88;
+            margin: 0 15px;
+            font-size: 1.5em;
+        }
+
+        .domain-box {
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .domain-title {
+            font-size: 1em;
+            color: #ffd93d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(20, 20, 35, 0.8);
+            border-radius: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85em;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .vpn-tunnel {
+            background: linear-gradient(90deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.4), rgba(155, 89, 182, 0.2));
+            border: 2px dashed #9b59b6;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .vpn-tunnel h3 {
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(20, 20, 35, 0.8);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 30px;
+            background: rgba(15, 15, 25, 0.8);
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .flow-box {
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .flow-arrow {
+            font-size: 2em;
+            color: #00ff88;
+        }
+
+        .kali-box { background: linear-gradient(145deg, #c0392b, #e74c3c); }
+        .pfsense-box { background: linear-gradient(145deg, #2980b9, #3498db); }
+        .goad-box { background: linear-gradient(145deg, #27ae60, #2ecc71); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🗺️ GOAD NETWORK DIAGRAM</h1>
+            <div class="subtitle">HikenRoot Forge - Infrastructure Pentest Lab</div>
+            <div class="author">Nadyr CHOUARHI | 03/12/2025</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value">5</div>
+                <div class="stat-label">VMs GOAD</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Domaines AD</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Réseaux</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">7.66</div>
+                <div class="stat-label">TB Backup</div>
+            </div>
+        </div>
+
+        <!-- Pentest Flow -->
+        <div class="flow-diagram">
+            <div class="flow-box kali-box">
+                <div style="font-weight: bold;">🐉 KALI</div>
+                <div style="font-size: 0.8em;">192.168.50.x</div>
+                <div style="font-size: 0.8em;">10.10.10.2</div>
+            </div>
+            <div class="flow-arrow">⟶</div>
+            <div class="flow-box" style="background: linear-gradient(145deg, #8e44ad, #9b59b6);">
+                <div style="font-weight: bold;">🔒 WireGuard</div>
+                <div style="font-size: 0.8em;">UDP 51820</div>
+            </div>
+            <div class="flow-arrow">⟶</div>
+            <div class="flow-box pfsense-box">
+                <div style="font-weight: bold;">🛡️ pfSense</div>
+                <div style="font-size: 0.8em;">192.168.50.250</div>
+                <div style="font-size: 0.8em;">10.10.10.1</div>
+            </div>
+            <div class="flow-arrow">⟶</div>
+            <div class="flow-box goad-box">
+                <div style="font-weight: bold;">🏰 GOAD</div>
+                <div style="font-size: 0.8em;">192.168.10.0/24</div>
+            </div>
+        </div>
+
+        <!-- Réseau Maison -->
+        <div class="network-section section-maison">
+            <div class="section-title">
+                <span class="icon" style="background: #ffd93d; color: #000;">🏠</span>
+                RÉSEAU MAISON - 192.168.50.0/24
+            </div>
+            <div class="devices-grid">
+                <div class="device attacker">
+                    <div class="device-name">🐉 KALI LINUX</div>
+                    <div class="device-ip">192.168.50.x</div>
+                    <div class="device-role">Machine d'attaque (VMware)</div>
+                </div>
+                <div class="device storage">
+                    <div class="device-name">💾 SYNOLOGY DS923+</div>
+                    <div class="device-ip">192.168.50.130</div>
+                    <div class="device-role">NAS - Stockage NFS 7.66 TB</div>
+                </div>
+                <div class="device server">
+                    <div class="device-name">🖥️ PROXMOX VE</div>
+                    <div class="device-ip">192.168.50.227</div>
+                    <div class="device-role">Hyperviseur (Beelink)</div>
+                </div>
+                <div class="device firewall">
+                    <div class="device-name">🛡️ pfSense PENTEST</div>
+                    <div class="device-ip">192.168.50.250</div>
+                    <div class="device-role">Interface WireGuard Endpoint</div>
+                    <div class="device-vm">VM 101</div>
+                </div>
+                <div class="device storage">
+                    <div class="device-name">📦 PBS</div>
+                    <div class="device-ip">192.168.50.129</div>
+                    <div class="device-role">Proxmox Backup Server</div>
+                    <div class="device-vm">VM 110</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VPN Tunnel -->
+        <div class="vpn-tunnel">
+            <h3>🔐 WIREGUARD VPN TUNNEL</h3>
+            <div>10.10.10.0/24 | Port UDP 51820</div>
+            <div style="margin-top: 10px; font-size: 0.9em; color: #aaa;">
+                Kali (10.10.10.2) ⟷ pfSense (10.10.10.1) → Accès GOAD isolé
+            </div>
+        </div>
+
+        <!-- pfSense Interfaces -->
+        <div class="network-section section-proxmox">
+            <div class="section-title">
+                <span class="icon" style="background: #6bcb77; color: #000;">🛡️</span>
+                pfSense VM 101 - INTERFACES
+            </div>
+            <div class="devices-grid">
+                <div class="device">
+                    <div class="device-name">WAN</div>
+                    <div class="device-ip">10.0.0.2/30</div>
+                    <div class="device-role">vmbr1 - Liaison Proxmox</div>
+                </div>
+                <div class="device">
+                    <div class="device-name">LAN</div>
+                    <div class="device-ip">192.168.1.2/24</div>
+                    <div class="device-role">vmbr2 - Management</div>
+                </div>
+                <div class="device">
+                    <div class="device-name">VLAN10</div>
+                    <div class="device-ip">192.168.10.1/24</div>
+                    <div class="device-role">vmbr4 - GOAD Network</div>
+                </div>
+                <div class="device">
+                    <div class="device-name">PENTEST</div>
+                    <div class="device-ip">192.168.50.250/24</div>
+                    <div class="device-role">vmbr0 - LAN Maison</div>
+                </div>
+                <div class="device">
+                    <div class="device-name">WG_GOAD</div>
+                    <div class="device-ip">10.10.10.1/24</div>
+                    <div class="device-role">tun_wg0 - WireGuard</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Réseau GOAD -->
+        <div class="network-section section-goad">
+            <div class="section-title">
+                <span class="icon" style="background: #4d96ff; color: #000;">🏰</span>
+                RÉSEAU GOAD ISOLÉ - 192.168.10.0/24 (vmbr4)
+            </div>
+
+            <!-- Domain 1 -->
+            <div class="domain-box">
+                <div class="domain-title">👑 SEVENKINGDOMS.LOCAL (Forest Root)</div>
+                <div class="devices-grid">
+                    <div class="device dc">
+                        <div class="device-name">🏰 DC01 - KINGSLANDING</div>
+                        <div class="device-ip">192.168.10.10</div>
+                        <div class="device-role">Domain Controller - Forest Root</div>
+                        <div class="device-vm">VM 106</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Domain 2 -->
+            <div class="domain-box">
+                <div class="domain-title">❄️ NORTH.SEVENKINGDOMS.LOCAL (Child Domain)</div>
+                <div class="devices-grid">
+                    <div class="device dc">
+                        <div class="device-name">🐺 DC02 - WINTERFELL</div>
+                        <div class="device-ip">192.168.10.11</div>
+                        <div class="device-role">Child Domain Controller</div>
+                        <div class="device-vm">VM 107</div>
+                    </div>
+                    <div class="device server">
+                        <div class="device-name">⚔️ SRV02 - CASTELBLACK</div>
+                        <div class="device-ip">192.168.10.22</div>
+                        <div class="device-role">Member Server - MSSQL</div>
+                        <div class="device-vm">VM 105</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Domain 3 -->
+            <div class="domain-box">
+                <div class="domain-title">🐉 ESSOS.LOCAL (Separate Forest)</div>
+                <div class="devices-grid">
+                    <div class="device dc">
+                        <div class="device-name">🔥 DC03 - MEEREEN</div>
+                        <div class="device-ip">192.168.10.12</div>
+                        <div class="device-role">Domain Controller - Separate Forest</div>
+                        <div class="device-vm">VM 109</div>
+                    </div>
+                    <div class="device server">
+                        <div class="device-name">🗡️ SRV03 - BRAAVOS</div>
+                        <div class="device-ip">192.168.10.23</div>
+                        <div class="device-role">Member Server - MSSQL</div>
+                        <div class="device-vm">VM 108</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff6b6b;"></div>
+                <span>Domain Controller</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #6bcb77;"></div>
+                <span>Member Server</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffd93d;"></div>
+                <span>Firewall / Router</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9b59b6;"></div>
+                <span>Storage / Backup</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff4757;"></div>
+                <span>Attacker Machine</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4d96ff;"></div>
+                <span>GOAD Lab Network</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🔥 HikenRoot Forge | Nadyr CHOUARHI | Infrastructure déployée le 03/12/2025</p>
+            <p style="margin-top: 10px; color: #444;">Proxmox + Terraform + Ansible + Packer + pfSense + WireGuard + PBS</p>
+        </div>
+    </div>
+</body>
+</html>
