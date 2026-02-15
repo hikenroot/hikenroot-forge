@@ -1,68 +1,67 @@
-# 🐛 Troubleshooting Guide
+# Troubleshooting Guide
 
-Ce document recense les problèmes rencontrés durant le déploiement de HikenRoot Forge et leurs solutions.
-
----
-
-## 📋 Table des matières
+## Table of Contents
 
 - [Packer / Templates](#packer--templates)
 - [Terraform](#terraform)
 - [Ansible / GOAD](#ansible--goad)
 - [Proxmox](#proxmox)
-- [pfSense / Réseau](#pfsense--réseau)
+- [pfSense / Networking](#pfsense--networking)
 - [WireGuard VPN](#wireguard-vpn)
 - [PBS / Backup](#pbs--backup)
+- [General Guidelines](#general-guidelines)
 
 ---
 
 ## Packer / Templates
 
-### ❌ Erreur : "No images found matching ImageIndex"
+### "No images found matching ImageIndex"
 
-**Symptôme :**
+**Symptom:**
 ```
 Error: No images found matching ImageIndex: 1
 ```
 
-**Cause :** L'ISO Windows Server Evaluation contient plusieurs éditions. L'index 1 correspond à la version Core (sans GUI).
+**Cause:** Windows Server Evaluation ISO contains multiple editions. Index 1 corresponds to the Core edition (no GUI).
 
-**Solution :** Modifier le fichier `autounattend.xml` :
+**Solution:** Modify `autounattend.xml`:
+
 ```xml
 <InstallFrom>
     <MetaData wcm:action="add">
         <Key>/IMAGE/INDEX</Key>
-        <Value>2</Value>  <!-- 2 = Standard avec Desktop Experience -->
+        <Value>2</Value>  <!-- 2 = Standard with Desktop Experience -->
     </MetaData>
 </InstallFrom>
 ```
 
-### ❌ Erreur : "winrm connection timeout"
+### WinRM Connection Timeout During Build
 
-**Symptôme :** Packer ne peut pas se connecter à la VM pendant le build.
+**Symptom:** Packer cannot connect to the VM during template creation.
 
-**Cause :** WinRM n'est pas activé ou le firewall bloque la connexion.
+**Cause:** WinRM not enabled or firewall blocking the connection.
 
-**Solution :** Ajouter dans `autounattend.xml` :
+**Solution:** Add to `autounattend.xml`:
+
 ```powershell
-# Activer WinRM
 winrm quickconfig -q
 winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 winrm set winrm/config/service/auth '@{Basic="true"}'
 netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985
 ```
 
-### ❌ Erreur : "ISO not found"
+### "ISO file not found"
 
-**Symptôme :**
+**Symptom:**
 ```
 Error: ISO file not found: local:iso/windows_server_2019.iso
 ```
 
-**Solution :**
-1. Vérifier que l'ISO est uploadée dans Proxmox : `Datacenter → Storage → ISO Images`
-2. Vérifier le nom exact (sensible à la casse)
-3. Utiliser le bon storage dans Packer :
+**Solution:**
+- Verify the ISO is uploaded in Proxmox: Datacenter → Storage → ISO Images
+- Check the exact filename (case-sensitive)
+- Use the correct storage reference in Packer:
+
 ```hcl
 iso_file = "local:iso/SERVER_EVAL_x64FRE_en-us.iso"
 ```
@@ -71,16 +70,17 @@ iso_file = "local:iso/SERVER_EVAL_x64FRE_en-us.iso"
 
 ## Terraform
 
-### ❌ Erreur : "Provider telmate/proxmox incompatible"
+### "Provider telmate/proxmox incompatible"
 
-**Symptôme :**
+**Symptom:**
 ```
 Error: Incompatible provider version
 ```
 
-**Cause :** Le provider `telmate/proxmox` est obsolète.
+**Cause:** The telmate/proxmox provider is deprecated.
 
-**Solution :** Utiliser le provider `bpg/proxmox` :
+**Solution:** Migrate to bpg/proxmox:
+
 ```hcl
 terraform {
   required_providers {
@@ -92,28 +92,29 @@ terraform {
 }
 ```
 
-### ❌ Erreur : "VM template not found"
+### "VM template not found"
 
-**Symptôme :**
+**Symptom:**
 ```
 Error: 500 Configuration file 'nodes/xxx/qemu-server/xxx.conf' does not exist
 ```
 
-**Cause :** Le template référencé dans Terraform n'existe pas.
+**Cause:** The template referenced in Terraform does not exist.
 
-**Solution :**
-1. Vérifier que les templates Packer sont créés : `qm list | grep -i template`
-2. Vérifier les IDs dans la config Terraform
-3. S'assurer que le template est bien marqué comme "Template" dans Proxmox
+**Solution:**
+- Verify templates were created: `qm list | grep -i template`
+- Check VM IDs in Terraform configuration
+- Ensure the VM is marked as "Template" in Proxmox
 
-### ❌ Erreur : "Could not create VM, already exists"
+### "Could not create VM, already exists"
 
-**Solution :**
+**Solution:**
+
 ```bash
-# Supprimer les VMs existantes
+# Remove existing VMs
 terraform destroy
 
-# Ou forcer l'import
+# Or force import
 terraform import proxmox_vm_qemu.dc01 proxmox/qemu/106
 ```
 
@@ -121,58 +122,58 @@ terraform import proxmox_vm_qemu.dc01 proxmox/qemu/106
 
 ## Ansible / GOAD
 
-### ❌ Erreur : "unreachable: winrm connection refused"
+### "unreachable: winrm connection refused"
 
-**Symptôme :**
+**Symptom:**
 ```
 fatal: [dc01]: UNREACHABLE! => {"msg": "winrm connection refused"}
 ```
 
-**Causes possibles :**
-1. VM pas encore démarrée
-2. WinRM pas activé
-3. Mauvais credentials
+**Possible causes:** VM not started, WinRM not enabled, incorrect credentials.
 
-**Solutions :**
+**Solution:**
 
 ```bash
-# 1. Vérifier que la VM répond
+# 1. Verify VM is reachable
 ping 192.168.10.10
 
-# 2. Tester WinRM manuellement
+# 2. Test WinRM manually
 python3 -c "import winrm; s = winrm.Session('192.168.10.10', auth=('Administrator', 'Password'))"
 
-# 3. Vérifier l'inventaire Ansible
+# 3. Verify Ansible inventory
 cat inventory | grep -A5 dc01
 ```
 
-### ❌ Erreur : "Failed to install ADCS"
+### "Failed to install ADCS"
 
-**Cause :** Dépendances manquantes ou ordre d'exécution incorrect.
+**Cause:** Missing dependencies or incorrect execution order.
 
-**Solution :** Relancer le playbook ADCS seul :
+**Solution:** Re-run the ADCS playbook in isolation:
+
 ```bash
 ansible-playbook -i inventory adcs.yml -l dc01
 ```
 
-### ❌ Erreur : "The trust relationship failed"
+### "The trust relationship failed"
 
-**Cause :** Problème de relation d'approbation entre domaines.
+**Cause:** Trust relationship between domains is broken.
 
-**Solution :**
+**Solution:**
+
 ```powershell
-# Sur le DC concerné
+# On the affected Domain Controller
 Test-ComputerSecureChannel -Repair -Credential (Get-Credential)
 ```
 
-### ❌ Erreur : "Ansible variables undefined"
+### "Ansible variables undefined"
 
-**Symptôme :**
+**Symptom:**
 ```
 fatal: [dc01]: FAILED! => {"msg": "'dict object' has no attribute 'xxx'"}
 ```
 
-**Solution :** Vérifier que l'inventaire est bien chargé :
+**Solution:** Verify inventory is properly loaded:
+
 ```bash
 ansible-inventory -i inventory --list | jq .
 ```
@@ -181,30 +182,39 @@ ansible-inventory -i inventory --list | jq .
 
 ## Proxmox
 
-### ❌ Erreur : "TASK ERROR: can't lock file '/var/lock/qemu-server/lock-XXX.conf'"
+### "can't lock file"
 
-**Solution :**
+**Symptom:**
+```
+TASK ERROR: can't lock file '/var/lock/qemu-server/lock-XXX.conf'
+```
+
+**Solution:**
+
 ```bash
-# Supprimer le lock manuellement
+# Remove the lock manually
 rm /var/lock/qemu-server/lock-XXX.conf
 
-# Ou forcer l'arrêt
+# Or force stop
 qm stop XXX --skiplock
 ```
 
-### ❌ Erreur : "No valid subscription"
+### "No valid subscription" Popup
 
-**Solution :** Désactiver le popup (non recommandé en production) :
+**Solution** (lab environment only):
+
 ```bash
-sed -i.bak "s/data.status !== 'Active'/false/g" /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+sed -i.bak "s/data.status !== 'Active'/false/g" \
+    /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
 systemctl restart pveproxy
 ```
 
-### ❌ Bridge vmbr4 ne fonctionne pas
+### Bridge vmbr4 Not Working
 
-**Symptôme :** Les VMs sur vmbr4 n'ont pas de réseau.
+**Symptom:** VMs on vmbr4 have no network connectivity.
 
-**Solution :** Vérifier `/etc/network/interfaces` :
+**Solution:** Verify `/etc/network/interfaces`:
+
 ```
 auto vmbr4
 iface vmbr4 inet manual
@@ -213,191 +223,167 @@ iface vmbr4 inet manual
         bridge-fd 0
 ```
 
-Puis :
+Then reload:
+
 ```bash
 ifreload -a
 ```
 
 ---
 
-## pfSense / Réseau
+## pfSense / Networking
 
-### ❌ VMs obtiennent des IPs aléatoires
+### VMs Getting Random IP Addresses
 
-**Cause :** DHCP attribue des IPs dynamiques sans réservation.
+**Cause:** DHCP assigns dynamic IPs without static mappings.
 
-**Solution :** Créer des réservations DHCP statiques :
-1. `Services → DHCP Server → VLAN10`
-2. `Add Static Mapping` pour chaque VM
-3. Renseigner MAC Address + IP fixe
+**Solution:** Create static DHCP reservations:
 
-**Récupérer les MAC addresses :**
+1. Navigate to Services → DHCP Server → VLAN10
+2. Add Static Mapping for each VM with MAC address and fixed IP
+
+Retrieve MAC addresses:
+
 ```bash
-# Sur Proxmox
 for vmid in 105 106 107 108 109; do
-  echo "=== VM $vmid ==="
-  qm config $vmid | grep net0
+    echo "=== VM $vmid ==="
+    qm config $vmid | grep net0
 done
 ```
 
-### ❌ Pas d'accès Internet depuis les VMs GOAD
+### No Internet Access from GOAD VMs
 
-**Cause :** NAT ou règles firewall manquantes.
+**Cause:** Missing NAT or firewall rules.
 
-**Solution :**
-1. Vérifier NAT Outbound : `Firewall → NAT → Outbound`
-2. Ajouter une règle : Interface VLAN10 → Any → WAN Address
+**Solution:**
+1. Check NAT Outbound: Firewall → NAT → Outbound
+2. Add rule: Interface VLAN10 → Any → WAN Address
 
-### ❌ DNS ne résout pas
+### DNS Resolution Failure
 
-**Solution :** Configurer le DNS Forwarder :
-1. `Services → DNS Forwarder → Enable`
-2. Ajouter les forwarders : `8.8.8.8, 1.1.1.1`
+**Solution:** Configure DNS Forwarder:
+
+1. Services → DNS Forwarder → Enable
+2. Add forwarders: 8.8.8.8, 1.1.1.1
 
 ---
 
 ## WireGuard VPN
 
-### ❌ Tunnel UP mais pas de trafic (RX = 0)
+### Handshake Not Establishing
 
-**Symptôme :**
-```
-transfer: 0 B received, 1.30 KiB sent
-```
-
-**Causes possibles :**
-1. Clés publiques ne correspondent pas
-2. Firewall bloque le trafic
-
-**Solution :**
+**Checks:**
 
 ```bash
-# 1. Vérifier la clé publique côté client
-sudo wg show
+# Verify public keys match
+sudo cat /etc/wireguard/publickey
+# Compare with pfSense: VPN → WireGuard → Peers
 
-# 2. Comparer avec pfSense : VPN → WireGuard → Peers
-# Les clés doivent être IDENTIQUES
-
-# 3. Mettre à jour si nécessaire
-```
-
-### ❌ "Handshake did not complete"
-
-**Causes :**
-1. Endpoint incorrect
-2. Port UDP 51820 bloqué
-3. Clés incorrectes
-
-**Solution :**
-```bash
-# Vérifier l'endpoint
+# Verify endpoint is reachable
 ping 192.168.50.250
-
-# Tester le port
 nc -zvu 192.168.50.250 51820
 ```
 
-### ❌ Pas de route vers GOAD
+### "Transfer: 0 B received"
 
-**Symptôme :** Ping 10.10.10.1 OK mais pas 192.168.10.x
+**Possible causes:** Incorrect keys, firewall blocking traffic on WG_GOAD interface.
 
-**Solution :** Vérifier AllowedIPs dans la config client :
+**Solution:**
+- Check rules: Firewall → Rules → WG_GOAD
+- Ensure a Pass Any Any rule exists on the WG_GOAD interface
+
+### No Route to GOAD Network (192.168.10.x)
+
+**Symptom:** Ping 10.10.10.1 works but 192.168.10.x does not.
+
+**Solution:** Verify AllowedIPs in client configuration:
+
 ```ini
 [Peer]
-AllowedIPs = 10.10.10.0/24, 192.168.10.0/24  # Doit inclure le réseau GOAD
+AllowedIPs = 10.10.10.0/24, 192.168.10.0/24
 ```
+
+Must include both the WireGuard tunnel subnet and the GOAD lab subnet.
 
 ---
 
 ## PBS / Backup
 
-### ❌ Storage PBS indisponible dans Proxmox
+### PBS Storage Unavailable in Proxmox
 
-**Symptôme :**
+**Symptom:**
 ```
 Error: storage 'PBS' is not available
 ```
 
-**Causes :**
-1. PBS VM arrêtée
-2. IP changée
-3. Montage NFS échoué
+**Possible causes:** PBS VM stopped, IP changed, NFS mount failed.
 
-**Solution :**
+**Solution:**
 
 ```bash
-# 1. Vérifier que PBS est UP
+# Check PBS is running
 qm status 110
 
-# 2. Vérifier la connectivité
+# Check connectivity
 ping 192.168.50.129
 
-# 3. Vérifier le storage
+# Check storage status
 pvesm status
 ```
 
-### ❌ Montage NFS échoué sur PBS
+### NFS Mount Failure on PBS
 
-**Symptôme :** `/mnt/synology` vide ou inaccessible.
+**Symptom:** `/mnt/synology` is empty or inaccessible.
 
-**Solution :**
+**Solution:**
+
 ```bash
-# Sur PBS (VM 110)
-# 1. Vérifier /etc/fstab
+# On PBS (VM 110)
 cat /etc/fstab | grep synology
 
-# 2. Corriger l'IP si nécessaire
-sudo nano /etc/fstab
+# Correct IP if necessary
 # 192.168.50.130:/volume1/Backups /mnt/synology nfs defaults 0 0
 
-# 3. Remonter
+# Remount
 sudo umount /mnt/synology
 sudo mount -a
-
-# 4. Vérifier
 df -h | grep synology
 ```
 
-### ❌ IP du NAS changée
+### NAS IP Changed
 
-**Solution :**
+Update both locations:
 
-Sur PBS (`/etc/fstab`) :
+On PBS (`/etc/fstab`):
 ```
 192.168.50.130:/volume1/Backups /mnt/synology nfs defaults 0 0
 ```
 
-Sur Proxmox (`/etc/pve/storage.cfg`) :
+On Proxmox (`/etc/pve/storage.cfg`):
 ```
 pbs: PBS
     datastore Synology
-    server 192.168.50.129    # IP de PBS, pas du NAS !
+    server 192.168.50.129    # PBS IP, not NAS IP
     ...
 ```
 
 ---
 
-## 💡 Conseils généraux
+## General Guidelines
 
-1. **Toujours vérifier les logs** :
-   - Proxmox : `/var/log/pve/tasks/`
-   - pfSense : `Status → System Logs`
-   - Windows : Event Viewer
+**Log locations:**
+- Proxmox: `/var/log/pve/tasks/`
+- pfSense: Status → System Logs
+- Windows: Event Viewer
 
-2. **Sauvegarder avant de modifier** :
-   ```bash
-   cp /etc/pve/storage.cfg /etc/pve/storage.cfg.bak
-   ```
+**Before modifying any configuration:**
 
-3. **Tester étape par étape** :
-   - D'abord la connectivité réseau
-   - Puis les services
-   - Enfin l'application
+```bash
+cp /etc/pve/storage.cfg /etc/pve/storage.cfg.bak
+```
 
-4. **Documenter chaque changement** pour pouvoir revenir en arrière.
-
----
-
-<p align="center">
-  <em>Ce guide est basé sur mon expérience personnelle. N'hésitez pas à contribuer !</em>
-</p>
+**Troubleshooting methodology:**
+1. Verify network connectivity first
+2. Check service status
+3. Review application logs
+4. Document every change for rollback capability

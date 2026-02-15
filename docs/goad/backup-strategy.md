@@ -1,74 +1,57 @@
-# 📦 Stratégie de Backup
+# Backup Strategy
 
-Ce document décrit la stratégie de backup mise en place pour protéger l'infrastructure HikenRoot Forge.
-
----
-
-## 📋 Table des matières
+## Table of Contents
 
 - [Architecture](#architecture)
-- [Configuration PBS](#configuration-pbs)
-- [Backups automatiques](#backups-automatiques)
-- [Backups GOLDEN](#backups-golden)
-- [Restauration](#restauration)
+- [PBS Configuration](#pbs-configuration)
+- [Automated Backups](#automated-backups)
+- [Golden State Backups](#golden-state-backups)
+- [Restore Procedures](#restore-procedures)
 - [Maintenance](#maintenance)
-
----
+- [Troubleshooting](#troubleshooting)
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        ARCHITECTURE BACKUP                              │
-│                                                                         │
-│   ┌─────────────┐      API 8007     ┌─────────────┐       NFS          │
-│   │   PROXMOX   │ ────────────────► │     PBS     │ ────────────────►  │
-│   │             │                   │   VM 110    │                    │
-│   │ VMs GOAD    │                   │             │                    │
-│   │ VM 105-109  │                   │ Datastore:  │    ┌────────────┐  │
-│   │             │                   │ "Synology"  │    │  SYNOLOGY  │  │
-│   └─────────────┘                   │             │    │  DS923+    │  │
-│        │                            │ /mnt/       │    │            │  │
-│        │ vzdump                     │  synology   │───►│ /volume1/  │  │
-│        │                            │             │    │  Backups   │  │
-│        └────────────────────────────┤             │    │            │  │
-│                                     └─────────────┘    │  7.66 TB   │  │
-│                                                        └────────────┘  │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─────────────┐     API 8007     ┌─────────────┐      NFS       ┌─────────────┐
+│   PROXMOX   │ ───────────────► │     PBS     │ ──────────────► │  SYNOLOGY   │
+│  .50.227    │                  │   VM 110    │                 │   DS923+    │
+│             │    vzdump        │             │  /volume1/      │             │
+│  VMs GOAD   │    snapshot      │  Datastore: │  Backups        │  7.66 TB    │
+│  VM 105-109 │                  │  "Synology" │                 │             │
+└─────────────┘                  └─────────────┘                 └─────────────┘
 ```
 
-### Composants
+### Components
 
-| Composant | Rôle | IP |
-|-----------|------|-----|
-| **Proxmox VE** | Hyperviseur, lance les backups | 192.168.50.227 |
-| **PBS** | Proxmox Backup Server, déduplication | 192.168.50.129 |
-| **Synology** | Stockage NFS, rétention long terme | 192.168.50.130 |
+| Component | Role | IP |
+|-----------|------|----|
+| Proxmox VE | Hypervisor, initiates backups | 192.168.50.227 |
+| PBS | Proxmox Backup Server, deduplication | 192.168.50.129 |
+| Synology | NFS storage, long-term retention | 192.168.50.130 |
 
----
+## PBS Configuration
 
-## Configuration PBS
+### VM 110 Settings
 
-### VM PBS (110)
-
-| Paramètre | Valeur |
-|-----------|--------|
+| Parameter | Value |
+|-----------|-------|
 | OS | Proxmox Backup Server 3.x |
 | IP | 192.168.50.129 |
-| Interface web | https://192.168.50.129:8007 |
+| Web interface | https://192.168.50.129:8007 |
 | Datastore | Synology |
 
-### Montage NFS
+### NFS Mount
 
-Fichier `/etc/fstab` sur PBS :
+File `/etc/fstab` on PBS:
 
 ```
 192.168.50.130:/volume1/Backups /mnt/synology nfs defaults 0 0
 ```
 
-### Configuration storage sur Proxmox
+### Proxmox Storage Configuration
 
-Fichier `/etc/pve/storage.cfg` :
+File `/etc/pve/storage.cfg`:
 
 ```
 pbs: PBS
@@ -80,13 +63,11 @@ pbs: PBS
     username root@pam
 ```
 
----
+## Automated Backups
 
-## Backups automatiques
+### Job Configuration
 
-### Configuration du job
-
-Fichier `/etc/pve/jobs.cfg` :
+File `/etc/pve/jobs.cfg`:
 
 ```
 vzdump: backup-goad
@@ -99,55 +80,52 @@ vzdump: backup-goad
     storage PBS
 ```
 
-### Paramètres
+### Parameters
 
-| Paramètre | Valeur | Description |
-|-----------|--------|-------------|
-| **Schedule** | 03:00 quotidien | Tous les jours à 3h du matin |
-| **Mode** | Snapshot | Backup à chaud sans arrêt des VMs |
-| **Compression** | zstd | Compression rapide et efficace |
-| **Cibles** | Toutes les VMs | VMs 100-110 |
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| Schedule | Daily at 03:00 | Runs every night |
+| Mode | Snapshot | Hot backup, no VM downtime |
+| Compression | zstd | Fast and efficient |
+| Targets | All VMs | VM 100-110 |
 
-### Rétention automatique
-
-```
-keep-last=7      # Garde les 7 derniers backups
-keep-weekly=2    # Garde 2 backups hebdomadaires
-```
-
-**Exemple de rotation :**
+### Retention Policy
 
 ```
-Semaine 1:
-├── Lun 03:00 ✓ (keep-last)
-├── Mar 03:00 ✓ (keep-last)
-├── Mer 03:00 ✓ (keep-last)
-├── Jeu 03:00 ✓ (keep-last)
-├── Ven 03:00 ✓ (keep-last)
-├── Sam 03:00 ✓ (keep-last)
-└── Dim 03:00 ✓ (keep-last + keep-weekly)
+keep-last=7      # Keep the 7 most recent backups
+keep-weekly=2    # Keep 2 weekly backups
+```
 
-Semaine 2:
-├── Lun 03:00 → Supprime Lun S1
+Rotation example:
+
+```
+Week 1:
+├── Mon 03:00 ✓ (keep-last)
+├── Tue 03:00 ✓ (keep-last)
+├── Wed 03:00 ✓ (keep-last)
+├── Thu 03:00 ✓ (keep-last)
+├── Fri 03:00 ✓ (keep-last)
+├── Sat 03:00 ✓ (keep-last)
+└── Sun 03:00 ✓ (keep-last + keep-weekly)
+
+Week 2:
+├── Mon 03:00 → Deletes Mon W1
 ├── ...
-└── Dim 03:00 ✓ (keep-weekly)
+└── Sun 03:00 ✓ (keep-weekly)
 
-Semaine 3:
-└── Dim 03:00 → Supprime Dim S1
+Week 3:
+└── Sun 03:00 → Deletes Sun W1
 ```
 
----
+## Golden State Backups
 
-## Backups GOLDEN
+### Purpose
 
-### Objectif
+Create a clean snapshot of the GOAD lab after successful installation, enabling rapid restore after penetration testing exercises.
 
-Créer un **snapshot propre** du lab GOAD après installation réussie, pour pouvoir restaurer rapidement après avoir "cassé" le lab pendant les tests de pentest.
-
-### Création
+### Creation
 
 ```bash
-# Sur Proxmox
 vzdump 105 106 107 108 109 \
     --storage PBS \
     --mode snapshot \
@@ -155,178 +133,150 @@ vzdump 105 106 107 108 109 \
     --notes-template "GOAD-GOLDEN-STATE-CLEAN"
 ```
 
-### Protection
+### Write Protection
 
-Les backups GOLDEN doivent être **protégés** contre la suppression automatique :
+Golden backups must be protected against automatic pruning:
 
-1. Accéder à PBS : https://192.168.50.129:8007
-2. Datastore → Synology → Content
-3. Déplier vm/105, vm/106, etc.
-4. Clic droit sur le backup "GOAD-GOLDEN-STATE-CLEAN"
-5. **Modifier la protection** → Activer 🔒
+1. Access PBS: https://192.168.50.129:8007
+2. Navigate to Datastore → Synology → Content
+3. Expand vm/105, vm/106, etc.
+4. Right-click on "GOAD-GOLDEN-STATE-CLEAN" backup
+5. Edit protection → Enable
 
-### Backups GOLDEN actuels
+### Current Golden Backups
 
-| VM | Nom | Date | Taille | Status |
-|----|-----|------|--------|--------|
-| 105 | SRV02 | 2025-12-03 16:58 | 40 GB | 🔒 Protégé |
-| 106 | DC01 | 2025-12-03 17:00 | 40 GB | 🔒 Protégé |
-| 107 | DC02 | 2025-12-03 17:01 | 40 GB | 🔒 Protégé |
-| 108 | SRV03 | 2025-12-03 17:02 | 40 GB | 🔒 Protégé |
-| 109 | DC03 | 2025-12-03 17:03 | 40 GB | 🔒 Protégé |
+| VM | Name | Date | Size | Status |
+|----|------|------|------|--------|
+| 105 | SRV02 | 2025-12-03 16:58 | 40 GB | Protected |
+| 106 | DC01 | 2025-12-03 17:00 | 40 GB | Protected |
+| 107 | DC02 | 2025-12-03 17:01 | 40 GB | Protected |
+| 108 | SRV03 | 2025-12-03 17:02 | 40 GB | Protected |
+| 109 | DC03 | 2025-12-03 17:03 | 40 GB | Protected |
 
----
+## Restore Procedures
 
-## Restauration
+### Via Proxmox Web Interface
 
-### Via l'interface Proxmox
-
-1. **Datacenter → Storage → PBS → Content**
-2. Sélectionner le backup à restaurer
-3. Cliquer sur **Restore**
-4. Options :
-   - **Target VM ID** : ID de la VM cible (ex: 106)
-   - **Overwrite** : ☑️ si la VM existe déjà
-5. Cliquer sur **Restore**
+1. Navigate to Datacenter → Storage → PBS → Content
+2. Select the backup to restore
+3. Click Restore
+4. Set Target VM ID and enable Overwrite if the VM already exists
+5. Click Restore
 
 ### Via CLI
 
 ```bash
-# Lister les backups disponibles
+# List available backups
 pvesm list PBS | grep GOLDEN
 
-# Restaurer DC01 depuis le backup GOLDEN
+# Restore DC01 from Golden backup
 qmrestore "pbs:backup/vm/106/2025-12-03T16:00:15Z" 106 --force
 
-# Restaurer toutes les VMs GOAD
+# Restore all GOAD VMs
 for vmid in 105 106 107 108 109; do
     qmrestore "pbs:backup/vm/$vmid/GOLDEN" $vmid --force
 done
 ```
 
-### Temps de restauration estimé
+### Estimated Restore Times
 
-| VM | Taille | Durée estimée |
-|----|--------|---------------|
+| VM | Size | Duration |
+|----|------|----------|
 | DC01 | 40 GB | ~5 min |
 | DC02 | 40 GB | ~5 min |
 | DC03 | 40 GB | ~5 min |
 | SRV02 | 40 GB | ~5 min |
 | SRV03 | 40 GB | ~5 min |
-| **Total** | 200 GB | **~25 min** |
-
----
+| **Total** | **200 GB** | **~25 min** |
 
 ## Maintenance
 
-### Vérification quotidienne
+### Daily Verification
 
 ```bash
-# Sur Proxmox - Vérifier le status du storage
+# Check PBS storage status
 pvesm status | grep PBS
 
-# Vérifier les tâches récentes
+# Check recent backup tasks
 cat /var/log/pve/tasks/index | tail -20
 ```
 
-### Vérification du montage NFS (sur PBS)
+### NFS Mount Verification (on PBS)
 
 ```bash
-# Se connecter à PBS
 ssh root@192.168.50.129
-
-# Vérifier le montage
 df -h | grep synology
 
-# Si démonté, remonter
+# If unmounted, remount
 mount -a
 ```
 
-### Vérification de l'intégrité (PBS)
+### Integrity Verification
 
-1. Accéder à https://192.168.50.129:8007
-2. Datastore → Synology → Content
-3. Sélectionner un backup
-4. **Verify** pour vérifier l'intégrité
+1. Access https://192.168.50.129:8007
+2. Navigate to Datastore → Synology → Content
+3. Select a backup
+4. Click Verify to check integrity
 
 ### Garbage Collection
 
-PBS effectue automatiquement le garbage collection pour supprimer les chunks non référencés.
-
-Pour forcer manuellement :
+PBS automatically runs garbage collection to remove unreferenced chunks. To force manually:
 
 ```bash
-# Sur PBS
+# On PBS
 proxmox-backup-manager garbage-collection start Synology
 ```
 
----
+### Best Practices
 
-## Bonnes pratiques
+**Do:**
+- Verify automated backups are running regularly
+- Test a full restore at least once per month
+- Keep Golden backups write-protected
+- Monitor disk space on the NAS
 
-### ✅ À faire
-
-- Vérifier régulièrement que les backups automatiques fonctionnent
-- Tester une restauration complète au moins une fois par mois
-- Garder les backups GOLDEN protégés
-- Monitorer l'espace disque sur le NAS
-
-### ❌ À éviter
-
-- Ne pas supprimer les backups GOLDEN sans en créer de nouveaux
-- Ne pas modifier la configuration PBS sans backup de la config
-- Ne pas oublier de mettre à jour les IPs si elles changent
-
----
+**Avoid:**
+- Deleting Golden backups without creating new ones first
+- Modifying PBS configuration without backing up the config
+- Ignoring NAS IP changes (will break NFS mount)
 
 ## Troubleshooting
 
-### Le storage PBS est indisponible
+### PBS Storage Unavailable
 
 ```bash
-# Vérifier la connectivité
+# Check connectivity
 ping 192.168.50.129
 
-# Vérifier que PBS est UP
+# Check PBS VM status
 qm status 110
 
-# Redémarrer PBS si nécessaire
+# Restart PBS if necessary
 qm restart 110
 ```
 
-### Le montage NFS échoue
+### NFS Mount Failure
 
 ```bash
-# Sur PBS
-# Vérifier l'IP du NAS
+# On PBS
 ping 192.168.50.130
-
-# Vérifier /etc/fstab
 cat /etc/fstab | grep synology
 
-# Remonter
+# Remount
 umount /mnt/synology
 mount -a
-
-# Vérifier
 df -h | grep synology
 ```
 
-### Les backups automatiques ne se lancent pas
+### Automated Backups Not Running
 
 ```bash
-# Vérifier le job
+# Check job configuration
 cat /etc/pve/jobs.cfg
 
-# Vérifier les logs
+# Check logs
 journalctl -u pvedaemon | grep vzdump
 
-# Lancer manuellement pour tester
+# Manual test run
 vzdump 106 --storage PBS --mode snapshot
 ```
-
----
-
-<p align="center">
-  <em>Un bon backup est un backup testé ! 💾</em>
-</p>

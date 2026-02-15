@@ -1,234 +1,210 @@
-# 🔐 Configuration WireGuard VPN
+# WireGuard VPN Configuration
 
-Ce guide explique comment configurer WireGuard sur pfSense pour accéder au lab GOAD de manière sécurisée depuis une machine d'attaque.
-
----
-
-## 📋 Table des matières
+## Table of Contents
 
 - [Architecture](#architecture)
-- [Prérequis](#prérequis)
-- [Configuration pfSense](#configuration-pfsense)
-- [Configuration Client (Kali)](#configuration-client-kali)
-- [Test et Validation](#test-et-validation)
+- [Prerequisites](#prerequisites)
+- [pfSense Configuration](#pfsense-configuration)
+- [Client Configuration (Kali)](#client-configuration-kali)
+- [Testing and Validation](#testing-and-validation)
 - [Troubleshooting](#troubleshooting)
-
----
+- [Configuration Summary](#configuration-summary)
 
 ## Architecture
 
 ```
 ┌─────────────┐     WireGuard      ┌─────────────┐           ┌─────────────┐
 │    KALI     │ ◄────────────────► │   pfSense   │ ◄───────► │    GOAD     │
-│ 192.168.50.x│     UDP 51820      │ 10.10.10.1  │           │ 192.168.10.x│
+│ 192.168.50.x│     UDP 51820      │ 10.10.10.1  │  Routing  │ 192.168.10.x│
 │ 10.10.10.2  │                    │ 192.168.50. │           │ DC01, DC02  │
 │             │                    │     250     │           │ DC03, SRV02 │
 │             │                    │             │           │ SRV03       │
 └─────────────┘                    └─────────────┘           └─────────────┘
 ```
 
-**Avantages de cette architecture :**
+**Design principles:**
+- Secure access to the lab from the home LAN
+- Complete isolation of the GOAD network
+- No direct exposure of Windows VMs to the LAN
+- Encrypted traffic between attack machine and lab
 
-- ✅ Accès sécurisé au lab depuis le LAN
-- ✅ Isolation complète du réseau GOAD
-- ✅ Pas besoin d'exposer les VMs Windows
-- ✅ Chiffrement du trafic
+## Prerequisites
 
----
+### pfSense
 
-## Prérequis
+- pfSense 2.5+ installed
+- Interface on the LAN network (192.168.50.x)
+- Admin access to the web interface
 
-### Sur pfSense
+### Attack Machine
 
-- pfSense 2.5+ installé
-- Interface sur le réseau LAN (192.168.50.x)
-- Accès admin à l'interface web
+- WireGuard installed
+- Connectivity to 192.168.50.x network
 
-### Sur la machine d'attaque
+## pfSense Configuration
 
-- WireGuard installé
-- Accès au réseau 192.168.50.x
+### Step 1: Install WireGuard Package
 
----
+1. Navigate to System → Package Manager → Available Packages
+2. Search for "WireGuard"
+3. Click Install
+4. Wait for installation to complete
 
-## Configuration pfSense
+### Step 2: Add a Network Interface for VPN Access
 
-### Étape 1 : Installer le package WireGuard
+On Proxmox, add a NIC to pfSense on vmbr0:
 
-1. **System → Package Manager → Available Packages**
-2. Chercher "WireGuard"
-3. Cliquer sur **Install**
-4. Attendre la fin de l'installation
-
-### Étape 2 : Ajouter une interface pour l'accès VPN
-
-> ⚠️ Cette étape est nécessaire si pfSense n'a pas d'interface sur votre réseau LAN.
-
-Sur Proxmox :
 ```bash
-# Ajouter une carte réseau à pfSense sur vmbr0
 qm set 101 --net4 virtio,bridge=vmbr0
 ```
 
-Sur pfSense :
-1. **Interfaces → Assignments**
-2. **Add** la nouvelle interface
-3. Cliquer sur la nouvelle interface (OPTx)
-4. Configurer :
-   - **Enable** : ☑️
-   - **Description** : PENTEST
-   - **IPv4 Configuration** : Static IPv4
-   - **IPv4 Address** : 192.168.50.250 / 24
-5. **Save → Apply Changes**
+On pfSense:
 
-### Étape 3 : Créer le tunnel WireGuard
+1. Navigate to Interfaces → Assignments
+2. Add the new interface
+3. Configure:
 
-1. **VPN → WireGuard → Tunnels**
-2. **Add Tunnel**
-3. Configurer :
+| Parameter | Value |
+|-----------|-------|
+| Enable | Yes |
+| Description | PENTEST |
+| IPv4 Configuration | Static IPv4 |
+| IPv4 Address | 192.168.50.250 / 24 |
 
-| Paramètre | Valeur |
-|-----------|--------|
-| Enable | ☑️ |
+4. Save → Apply Changes
+
+### Step 3: Create the WireGuard Tunnel
+
+1. Navigate to VPN → WireGuard → Tunnels
+2. Click Add Tunnel
+3. Configure:
+
+| Parameter | Value |
+|-----------|-------|
+| Enable | Yes |
 | Description | GOAD-VPN |
 | Listen Port | 51820 |
-| Interface Keys | Cliquer sur **Generate** |
+| Interface Keys | Click Generate |
 
-4. **Save Tunnel**
-5. **Copier la Public Key** (vous en aurez besoin pour le client)
+4. Save Tunnel
+5. Copy the Public Key (required for client configuration)
 
-### Étape 4 : Assigner l'interface WireGuard
+### Step 4: Assign the WireGuard Interface
 
-1. **Interfaces → Assignments**
-2. **Add** → Sélectionner `tun_wg0`
-3. Cliquer sur la nouvelle interface
-4. Configurer :
+1. Navigate to Interfaces → Assignments
+2. Add → Select tun_wg0
+3. Configure:
 
-| Paramètre | Valeur |
-|-----------|--------|
-| Enable | ☑️ |
+| Parameter | Value |
+|-----------|-------|
+| Enable | Yes |
 | Description | WG_GOAD |
 | IPv4 Configuration | Static IPv4 |
 | IPv4 Address | 10.10.10.1 / 24 |
 
-5. **Save → Apply Changes**
+4. Save → Apply Changes
 
-### Étape 5 : Ajouter le Peer (client)
+### Step 5: Add the Peer (Client)
 
-1. **VPN → WireGuard → Peers**
-2. **Add Peer**
-3. Configurer :
+1. Navigate to VPN → WireGuard → Peers
+2. Click Add Peer
+3. Configure:
 
-| Paramètre | Valeur |
-|-----------|--------|
+| Parameter | Value |
+|-----------|-------|
 | Tunnel | GOAD-VPN |
 | Description | Kali-Attacker |
-| Dynamic Endpoint | ☑️ |
-| Public Key | [Clé publique du client - voir ci-dessous] |
+| Dynamic Endpoint | Yes |
+| Public Key | Client public key (see below) |
 | Allowed IPs | 10.10.10.2/32 |
 
-4. **Save Peer**
+4. Save Peer
 
-### Étape 6 : Règles Firewall
+### Step 6: Firewall Rules
 
-#### Sur l'interface PENTEST (192.168.50.250)
+**On the PENTEST interface (192.168.50.250):**
 
-1. **Firewall → Rules → PENTEST**
-2. **Add** :
+Firewall → Rules → PENTEST → Add:
 
-| Paramètre | Valeur |
-|-----------|--------|
+| Parameter | Value |
+|-----------|-------|
 | Action | Pass |
 | Protocol | UDP |
 | Destination Port | 51820 |
 | Description | Allow WireGuard |
 
-#### Sur l'interface WG_GOAD
+**On the WG_GOAD interface:**
 
-1. **Firewall → Rules → WG_GOAD**
-2. **Add** :
+Firewall → Rules → WG_GOAD → Add:
 
-| Paramètre | Valeur |
-|-----------|--------|
+| Parameter | Value |
+|-----------|-------|
 | Action | Pass |
 | Protocol | Any |
 | Source | Any |
 | Destination | Any |
 | Description | Allow all WireGuard traffic |
 
-3. **Save → Apply Changes**
+Save → Apply Changes
 
----
+## Client Configuration (Kali)
 
-## Configuration Client (Kali)
-
-### Étape 1 : Installer WireGuard
+### Step 1: Install WireGuard
 
 ```bash
 sudo apt update
 sudo apt install wireguard -y
 ```
 
-### Étape 2 : Générer les clés
+### Step 2: Generate Keys
 
 ```bash
 cd /etc/wireguard
 sudo wg genkey | sudo tee privatekey | wg pubkey | sudo tee publickey
 
-# Afficher la clé publique (à copier dans pfSense)
+# Display public key (copy to pfSense)
 sudo cat publickey
 ```
 
-### Étape 3 : Créer la configuration
+### Step 3: Create Configuration File
 
 ```bash
 sudo nano /etc/wireguard/wg-goad.conf
 ```
 
-Contenu :
+Content:
 
 ```ini
 [Interface]
-# Clé privée générée à l'étape 2
-PrivateKey = VOTRE_CLÉ_PRIVÉE_ICI
-# IP assignée dans le tunnel
+PrivateKey = YOUR_PRIVATE_KEY_HERE
 Address = 10.10.10.2/24
-# DNS optionnel
 DNS = 192.168.10.1
 
 [Peer]
-# Clé publique de pfSense (copiée à l'étape 3 de la config pfSense)
-PublicKey = CLÉ_PUBLIQUE_PFSENSE_ICI
-# Endpoint : IP de l'interface PENTEST + port WireGuard
+PublicKey = PFSENSE_PUBLIC_KEY_HERE
 Endpoint = 192.168.50.250:51820
-# Réseaux accessibles via le tunnel
 AllowedIPs = 10.10.10.0/24, 192.168.10.0/24
-# Keepalive pour maintenir le tunnel actif
 PersistentKeepalive = 25
 ```
 
-### Étape 4 : Mettre à jour le Peer sur pfSense
+### Step 4: Update Peer on pfSense
 
-1. Retourner sur pfSense : **VPN → WireGuard → Peers**
-2. Éditer le peer "Kali-Attacker"
-3. Coller la **Public Key** de Kali
-4. **Save Peer → Apply Changes**
+1. Go to VPN → WireGuard → Peers
+2. Edit "Kali-Attacker" peer
+3. Paste the Kali public key
+4. Save Peer → Apply Changes
 
----
+## Testing and Validation
 
-## Test et Validation
-
-### Démarrer le tunnel
+### Start the Tunnel
 
 ```bash
-# Démarrer
 sudo wg-quick up wg-goad
-
-# Vérifier le status
 sudo wg show
 ```
 
-Output attendu :
+Expected output:
+
 ```
 interface: wg-goad
   public key: xxxxx
@@ -238,17 +214,19 @@ interface: wg-goad
 peer: xxxxx
   endpoint: 192.168.50.250:51820
   allowed ips: 10.10.10.0/24, 192.168.10.0/24
-  latest handshake: X seconds ago    ← Important !
+  latest handshake: X seconds ago
   transfer: X KiB received, X KiB sent
 ```
 
-### Tester la connectivité
+Key indicator: `latest handshake` must show a recent timestamp and `received` must be > 0.
+
+### Connectivity Tests
 
 ```bash
 # Ping pfSense via WireGuard
 ping -c 3 10.10.10.1
 
-# Ping les VMs GOAD
+# Ping GOAD VMs
 ping -c 3 192.168.10.10   # DC01
 ping -c 3 192.168.10.11   # DC02
 ping -c 3 192.168.10.12   # DC03
@@ -256,112 +234,89 @@ ping -c 3 192.168.10.22   # SRV02
 ping -c 3 192.168.10.23   # SRV03
 ```
 
-### Test pentest
+### Penetration Testing Validation
 
 ```bash
-# Scanner SMB
+# SMB enumeration
 crackmapexec smb 192.168.10.10-23
 
-# Nmap
+# Port scan
 nmap -sC -sV 192.168.10.10
 ```
 
-### Arrêter le tunnel
+### Stop the Tunnel
 
 ```bash
 sudo wg-quick down wg-goad
 ```
 
-### Démarrage automatique (optionnel)
+### Enable Auto-Start (Optional)
 
 ```bash
 sudo systemctl enable wg-quick@wg-goad
 ```
 
----
-
 ## Troubleshooting
 
-### Handshake ne s'établit pas
+### Handshake Not Completing
 
-**Vérifications :**
-
-1. Les clés publiques correspondent-elles ?
+**Check keys:**
 ```bash
-# Sur Kali
+# On Kali
 sudo cat /etc/wireguard/publickey
-
-# Sur pfSense : VPN → WireGuard → Peers → Vérifier Public Key
+# Compare with pfSense: VPN → WireGuard → Peers
 ```
 
-2. L'endpoint est-il joignable ?
+**Check endpoint reachability:**
 ```bash
 ping 192.168.50.250
 nc -zvu 192.168.50.250 51820
 ```
 
-3. Le firewall autorise-t-il UDP 51820 ?
+### Transfer Shows 0 B Received
 
-### Transfer: 0 B received
+**Possible causes:** Incorrect keys, firewall blocking traffic.
 
-**Causes possibles :**
-- Clés incorrectes
-- Firewall sur WG_GOAD bloque le trafic
+**Solution:** Verify firewall rules on WG_GOAD interface allow all traffic (Pass Any Any).
 
-**Solution :**
-- Vérifier les règles : **Firewall → Rules → WG_GOAD**
-- S'assurer qu'une règle "Pass Any Any" existe
+### No Route to GOAD Network
 
-### Pas de route vers 192.168.10.x
+**Symptom:** Ping 10.10.10.1 succeeds but 192.168.10.x fails.
 
-**Vérifier AllowedIPs :**
-```bash
-sudo wg show
-```
+**Solution:** Verify AllowedIPs includes the GOAD subnet:
 
-`allowed ips` doit inclure `192.168.10.0/24`.
-
-Si non, modifier `/etc/wireguard/wg-goad.conf` :
 ```ini
 AllowedIPs = 10.10.10.0/24, 192.168.10.0/24
 ```
 
----
+## Configuration Summary
 
-## Configuration finale
+### pfSense Tunnel
 
-### pfSense - Tunnel
+| Parameter | Value |
+|-----------|-------|
+| Description | GOAD-VPN |
+| Listen Port | 51820 |
+| Interface IP | 10.10.10.1/24 |
 
-```
-Description  : GOAD-VPN
-Listen Port  : 51820
-Interface IP : 10.10.10.1/24
-```
+### pfSense Peer
 
-### pfSense - Peer
+| Parameter | Value |
+|-----------|-------|
+| Description | Kali-Attacker |
+| Public Key | Kali public key |
+| Allowed IPs | 10.10.10.2/32 |
 
-```
-Description  : Kali-Attacker
-Public Key   : [clé publique Kali]
-Allowed IPs  : 10.10.10.2/32
-```
-
-### Kali - /etc/wireguard/wg-goad.conf
+### Kali Client
 
 ```ini
 [Interface]
-PrivateKey = [clé privée Kali]
+PrivateKey = [Kali private key]
 Address = 10.10.10.2/24
 
 [Peer]
-PublicKey = [clé publique pfSense]
+PublicKey = [pfSense public key]
 Endpoint = 192.168.50.250:51820
 AllowedIPs = 10.10.10.0/24, 192.168.10.0/24
 PersistentKeepalive = 25
 ```
-
----
-
-<p align="center">
-  <em>Happy Hacking! 🐉</em>
-</p>
