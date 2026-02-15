@@ -59,6 +59,13 @@ OSCP+ | CRTO | CRTP | CRTE | eWPT | CKA/CKAD/CKS | AZ-500 | CAIPT-RT | C-AI/MLPe
 | Phase 3 | DFIR + OT/ICS + Mobile | Planned |
 | Phase 4 | Documentation & GitBook | Planned |
 
+## Documentation
+
+| Lab | Description | Link |
+|-----|-------------|------|
+| AD Lab (GOAD) | Multi-forest Active Directory environment with IaC deployment | [docs/goad](docs/goad/) |
+| Session Reports | Technical troubleshooting and architecture decisions | [docs/reports](docs/reports/) |
+
 ## Author
 
 **hik3nR00t**
