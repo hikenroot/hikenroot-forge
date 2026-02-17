@@ -6,15 +6,15 @@
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-K3s%20%2B%20Kubeadm-blue.svg)](https://kubernetes.io)
 [![GPU](https://img.shields.io/badge/GPU-RTX%20PRO%204000%20Blackwell-76b900.svg)](https://www.nvidia.com)
 
-> **Enterprise-grade cybersecurity lab — Offensive & Defensive security training platform**
+> **Home lab multi-domaines pour l'entraînement pentest et red team — AD, Web, K8s, AI — sur Proxmox bare-metal avec scénarios réalistes.**
 >
-> Private cyber range covering ~95% of cybersecurity domains, built on bare-metal infrastructure with real enterprise scenarios.
+> Conçu autour d'une entreprise fictive (MediaTech Groupe SA) pour la préparation OSCP+/CRTO et la pratique pentest réaliste.
 
 ---
 
 ## 🎯 Objective
 
-Design and operate a **realistic enterprise environment** to practice the full attack-defense cycle:
+Home lab de cybersécurité couvrant plusieurs domaines, conçu pour pratiquer le cycle complet attaque-défense :
 
 - Active Directory attacks & defense (multi-forest)
 - Web application security (OWASP Top 10, API)
@@ -23,7 +23,7 @@ Design and operate a **realistic enterprise environment** to practice the full a
 - Network segmentation & monitoring (SIEM, EDR)
 - Incident response & digital forensics
 
-Built around a fictional company (**MediaTech Groupe SA**) with 40+ realistic penetration testing scenarios.
+Les scénarios sont construits autour d'une entreprise fictive (**MediaTech Groupe SA**) pour simuler des conditions de pentest réalistes.
 
 ---
 
@@ -83,8 +83,6 @@ graph TB
 | **Synology DS923+** | — | — | 7.6 To | — | NFS Backup |
 | **MikroTik CSS610** | — | — | — | — | 10G Backbone (8x 1G PoE + 2x SFP+) |
 
-**GPU Specs:** NVIDIA RTX PRO 4000 Blackwell — 24 Go GDDR7 ECC, 70W TDP, Tensor Cores Gen 5, FP4/FP8 native. Runs 72B parameter LLMs locally with zero cloud dependency.
-
 ---
 
 ## 🔒 Network Segmentation
@@ -140,23 +138,21 @@ Docker-based web application security lab with 7+ vulnerable applications: DVWA,
 
 ## 🤖 AI / LLM Stack
 
-Running **locally on GPU** — zero cloud, zero data leakage.
+Running **locally on GPU** — zero cloud dependency.
 
 | Model | VRAM | Role |
 |-------|------|------|
-| qwen3:72b (FP8) | ~20 Go | General purpose — best local model |
+| qwen3:72b (FP8) | ~20 Go | General purpose |
 | qwen3-coder:30b | ~18 Go | Exploit generation (Python, PowerShell, C#) |
 | deepseek-r1:8b | ~8 Go | Autonomous pentest agent |
 | phi4-reasoning:14b | ~10 Go | SOC investigation & log analysis |
 | mistral-small3.2:24b | ~14 Go | Report generation |
 
-AI modules: Autonomous Pentest Agent, Auto-Exploit Generator, SOC Copilot, Malware Analyzer, Pentest Report Generator.
-
 ---
 
 ## 🎯 Scenarios — MediaTech Groupe SA
 
-40+ realistic enterprise scenarios built around a fictional digital media company:
+Scénarios réalistes construits autour d'une entreprise fictive de presse numérique :
 
 | Category | Codes | Examples |
 |----------|-------|---------|
@@ -232,7 +228,7 @@ hikenroot-forge/
 
 **Nadyr Chouarhi** — hik3nR00t
 
-Penetration tester with 20 years of system administration experience. OSCP certified, preparing CRTO.
+Pentester, 20 ans d'expérience sysadmin. Certifié OSCP, en préparation CRTO.
 
 ---
 
