@@ -1,0 +1,77 @@
+# ============================================
+# HikenRoot Forge — .gitignore
+# ============================================
+
+# --- Secrets & Credentials ---
+*.key
+*.pem
+*.crt
+*.pfx
+*.p12
+*.env
+*.env.*
+vault-keys.txt
+id_rsa*
+*.ovpn
+wg*.conf
+!*.conf.example
+
+# --- VM Images & ISOs ---
+*.qcow2
+*.vmdk
+*.vdi
+*.iso
+*.img
+*.ova
+*.ovf
+*.raw
+
+# --- Proxmox / Backup ---
+*.zst
+*.lzo
+*.vma
+*.tar.gz
+dump/
+
+# --- OS & Editor ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# --- Node ---
+node_modules/
+package-lock.json
+
+# --- Terraform ---
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# --- Ansible ---
+*.retry
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- Kubernetes ---
+kubeconfig
+*.kubeconfig
