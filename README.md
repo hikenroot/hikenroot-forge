@@ -6,15 +6,15 @@
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-K3s%20%2B%20Kubeadm-blue.svg)](https://kubernetes.io)
 [![GPU](https://img.shields.io/badge/GPU-RTX%20PRO%204000%20Blackwell-76b900.svg)](https://www.nvidia.com)
 
-> **Home lab multi-domaines pour l'entraînement pentest et red team — AD, Web, K8s, AI — sur Proxmox bare-metal avec scénarios réalistes.**
+> **Enterprise-grade cybersecurity lab — Offensive & Defensive security training platform**
 >
-> Conçu autour d'une entreprise fictive (MediaTech Groupe SA) pour la préparation OSCP+/CRTO et la pratique pentest réaliste.
+> Private cyber range covering ~95% of cybersecurity domains, built on bare-metal infrastructure with real enterprise scenarios.
 
 ---
 
 ## 🎯 Objective
 
-Home lab de cybersécurité couvrant plusieurs domaines, conçu pour pratiquer le cycle complet attaque-défense :
+Design and operate a **realistic enterprise environment** to practice the full attack-defense cycle:
 
 - Active Directory attacks & defense (multi-forest)
 - Web application security (OWASP Top 10, API)
@@ -23,7 +23,7 @@ Home lab de cybersécurité couvrant plusieurs domaines, conçu pour pratiquer l
 - Network segmentation & monitoring (SIEM, EDR)
 - Incident response & digital forensics
 
-Les scénarios sont construits autour d'une entreprise fictive (**MediaTech Groupe SA**) pour simuler des conditions de pentest réalistes.
+Built around a fictional company (**MediaTech Groupe SA**) with 40+ realistic penetration testing scenarios.
 
 ---
 
@@ -83,6 +83,8 @@ graph TB
 | **Synology DS923+** | — | — | 7.6 To | — | NFS Backup |
 | **MikroTik CSS610** | — | — | — | — | 10G Backbone (8x 1G PoE + 2x SFP+) |
 
+**GPU Specs:** NVIDIA RTX PRO 4000 Blackwell — 24 Go GDDR7 ECC, 70W TDP, Tensor Cores Gen 5, FP4/FP8 native. Runs 32B dense / 30B MoE parameter LLMs locally with zero cloud dependency.
+
 ---
 
 ## 🔒 Network Segmentation
@@ -92,7 +94,7 @@ graph TB
 | 10 | 192.168.10.0/24 | Beelink | 🏰 AD Lab — GOAD v3 Multi-Forest | ✅ Operational |
 | 20 | 192.168.20.0/24 | Beelink | 🌐 Web Lab — DVWA, Juice Shop, WebGoat, VAmPI | ✅ Operational |
 | 30 | 192.168.30.0/24 | MS-02 | ☁️ Cloud Lab — K3s (pentest) + Kubeadm (certif) | 🔧 Deploying |
-| 40 | 192.168.40.0/24 | MS-02 | 🤖 AI Lab — Ollama, RAG, Hashcat, GPU Passthrough | 🔧 Deploying |
+| 40 | 192.168.40.0/24 | MS-02 | 🤖 AI Lab — Ollama, RAG, Hashcat, GPU native | 🔧 Deploying |
 | 50 | 192.168.50.0/24 | MS-02 | 🔍 DFIR Lab — SIFT, TheHive, MISP | 📋 Planned |
 | 60 | 192.168.60.0/24 | MS-02 | 🏭 OT/ICS Lab — GRFICSv2, SWaT, OpenPLC | 📋 Planned |
 | 70 | 192.168.70.0/24 | MS-02 | 📱 Mobile Lab — Android Emulator | 📋 Planned |
@@ -122,7 +124,7 @@ Docker-based web application security lab with 7+ vulnerable applications: DVWA,
 
 **Cloud Lab (VLAN 30)** — Dual Kubernetes cluster: K3s for pentesting (Kubernetes Goat, 20 scenarios) + Kubeadm for certification prep (CKA/CKAD/CKS).
 
-**AI Lab (VLAN 40)** — Local LLM stack with GPU passthrough: Ollama serving 72B models (Qwen3, DeepSeek-R1), vulnerable RAG pipeline, autonomous pentest agents, Hashcat GPU cracking.
+**AI Lab (VLAN 40)** — Local LLM stack with GPU native deployment: Ollama serving 32B dense models (Qwen3, DeepSeek-R1), vulnerable RAG pipeline, autonomous pentest agents, Hashcat GPU cracking.
 
 ### 📋 Planned
 
@@ -138,21 +140,24 @@ Docker-based web application security lab with 7+ vulnerable applications: DVWA,
 
 ## 🤖 AI / LLM Stack
 
-Running **locally on GPU** — zero cloud dependency.
+Running **locally on GPU** — zero cloud, zero data leakage.
 
 | Model | VRAM | Role |
 |-------|------|------|
-| qwen3:72b (FP8) | ~20 Go | General purpose |
+| qwen3:32b | ~22 Go | General purpose — best local dense model |
+| qwen3:30b-a3b | ~3 Go active | Fast agent & AI Red Team loops |
 | qwen3-coder:30b | ~18 Go | Exploit generation (Python, PowerShell, C#) |
 | deepseek-r1:8b | ~8 Go | Autonomous pentest agent |
 | phi4-reasoning:14b | ~10 Go | SOC investigation & log analysis |
 | mistral-small3.2:24b | ~14 Go | Report generation |
 
+AI modules: Autonomous Pentest Agent, Auto-Exploit Generator, SOC Copilot, Malware Analyzer, Pentest Report Generator.
+
 ---
 
 ## 🎯 Scenarios — MediaTech Groupe SA
 
-Scénarios réalistes construits autour d'une entreprise fictive de presse numérique :
+40+ realistic enterprise scenarios built around a fictional digital media company:
 
 | Category | Codes | Examples |
 |----------|-------|---------|
@@ -187,7 +192,7 @@ Each scenario follows the full cycle: **Threat Model → Exploitation → Detect
 
 | Phase | Scope | Status | Timeline |
 |-------|-------|--------|----------|
-| **Phase 1** | Infrastructure foundation (Beelink + MS-02 + Network) | ~80% | Feb 2026 |
+| **Phase 1** | Infrastructure foundation (Beelink + MS-02 + Network) | ✅ Complete | Feb 2026 |
 | **Phase 2** | Cloud Lab + AI Lab + SOC Lab | 🔧 In Progress | Feb–Mar 2026 |
 | **Phase 3** | DFIR + OT/ICS + Mobile Labs | 📋 Planned | Mar–Apr 2026 |
 | **Phase 4** | Advanced AI modules + GOAD-KUBE | 📋 Planned | Apr 2026 |
@@ -228,7 +233,7 @@ hikenroot-forge/
 
 **Nadyr Chouarhi** — hik3nR00t
 
-Pentester, 20 ans d'expérience sysadmin. Certifié OSCP, en préparation CRTO.
+Penetration tester with 20 years of system administration experience. OSCP certified, preparing CRTO.
 
 ---
 
