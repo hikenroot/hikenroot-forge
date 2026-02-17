@@ -80,7 +80,7 @@ graph TB
 |------|-----|-----|---------|-----|------|
 | **Beelink EQR6** | AMD Ryzen 9 6900HX | 128 Go DDR5 | 1 To NVMe | — | AD Lab, Web Lab, pfSense, PBS |
 | **MS-02 Ultra** | Intel Core Ultra 9 285HX | 192 Go DDR5 ECC | 9 To NVMe | RTX PRO 4000 Blackwell 24 Go | Cloud, AI, DFIR, OT/ICS, SOC |
-| **Synology DS923+** | — | — | 7.6 To | — | NFS Backup |
+| **Synology DS923+** | AMD Ryzen R1600 | 32 Go DDR4 | 3x 4 To IronWolf RAID 5 (7 To utile | — | NFS Backup |
 | **MikroTik CSS610** | — | — | — | — | 10G Backbone (8x 1G PoE + 2x SFP+) |
 
 **GPU Specs:** NVIDIA RTX PRO 4000 Blackwell — 24 Go GDDR7 ECC, 70W TDP, Tensor Cores Gen 5, FP4/FP8 native. Runs 32B dense / 30B MoE parameter LLMs locally with zero cloud dependency.
