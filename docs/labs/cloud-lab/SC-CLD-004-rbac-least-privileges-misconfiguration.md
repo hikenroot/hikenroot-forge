@@ -76,12 +76,14 @@ graph TB
 
 ```mermaid
 graph LR
-    A["1. Accès initial<br/>Compromission du pod<br/>hunger-check-deployment"] --> B["2. Découverte<br/>Token JWT auto-monté<br/>/var/run/secrets/.../token"]
+    A0["0. Compromission initiale<br/>RCE applicative / SSRF / injection<br/>→ Shell dans le pod"] --> A["1. Post-exploitation<br/>Reconnaissance interne<br/>hunger-check-deployment"]
+    A --> B["2. Découverte<br/>Token JWT auto-monté<br/>/var/run/secrets/.../token"]
     B --> C["3. Énumération RBAC<br/>curl API → list secrets<br/>→ 200 OK (devrait être 403)"]
     C --> D["4. Exfiltration<br/>GET /secrets/vaultapikey<br/>base64 decode → flag"]
     D --> E["5. Reconnaissance étendue<br/>Pods, services, configmaps<br/>Tout le namespace lisible"]
     E --> F["6. Vérification scope<br/>Cross-namespace → 403<br/>Dommage contenu"]
 
+    style A0 fill:#3498db,color:#fff
     style A fill:#e74c3c,color:#fff
     style C fill:#e74c3c,color:#fff
     style D fill:#e67e22,color:#fff
@@ -183,9 +185,10 @@ Deux secrets : `webhookapikey` (accès légitime) et `vaultapikey` (accès illé
 
 ### Phase 1 — Accès au pod et reconnaissance
 
-**Objectif :** Simuler un attaquant qui a compromis l'application dans le pod `hunger-check-deployment` et qui découvre le token JWT auto-monté.
+**Contexte :** Ce scénario est une **phase de post-exploitation**. L'attaquant a déjà obtenu un shell dans le pod `hunger-check-deployment` via une vulnérabilité applicative (RCE, injection de commande, SSRF chaîné, ou compromission de l'image Docker). Le `kubectl exec` ci-dessous simule cette compromission initiale. L'exploitation RBAC qui suit est l'**escalade de privilèges** à l'intérieur du cluster.
 
 ```bash
+# Simulation de l'accès initial (équivalent d'un RCE sur l'application)
 $ sudo kubectl exec -it -n big-monolith hunger-check-deployment-68d68dc578-4vvnf -- /bin/bash
 
 root@hunger-check-deployment-68d68dc578-4vvnf:/# hostname
@@ -702,8 +705,6 @@ graph TB
 | RBAC Manager | https://github.com/FairwindsOps/rbac-manager |
 | kubectl-who-can | https://github.com/aquasecurity/kubectl-who-can |
 | Kubernetes Goat — RBAC Scenario | https://madhuakula.com/kubernetes-goat/ |
-
----
 
 ---
 
