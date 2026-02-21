@@ -155,11 +155,11 @@ K3s cluster (3 nodes) on VLAN 30 running Kubernetes Goat — 5 exploitation scen
 
 | Scenario | Attack Vector | Severity | Write-up |
 |----------|--------------|----------|----------|
-| SC-CLD-001 | Sensitive Keys in Codebases | High | [Read](docs/labs/cloud-lab/SC-CLD-001-sensitive-keys-in-codebases.md) |
+| SC-CLD-001 | Sensitive Keys in Codebases | Critical | [Read](docs/labs/cloud-lab/SC-CLD-001-sensitive-keys-in-codebases.md) |
 | SC-CLD-002 | SSRF in Kubernetes | Critical | [Read](docs/labs/cloud-lab/SC-CLD-002-ssrf-in-the-kubernetes-world.md) |
 | SC-CLD-003 | Container Escape to Host System | Critical | [Read](docs/labs/cloud-lab/SC-CLD-003-container-escape-to-host-system.md) |
 | SC-CLD-004 | RBAC Least Privileges Misconfiguration | High | [Read](docs/labs/cloud-lab/SC-CLD-004-rbac-least-privileges-misconfiguration.md) |
-| SC-CLD-005 | DIND Exploitation — Exposed Git Repository | Critical | [Read](docs/labs/cloud-lab/SC-CLD-005-dind-exploitation-exposed-git-repository.md) |
+| SC-CLD-005 | Attacking Private Registry | Critical | [Read](docs/labs/cloud-lab/SC-CLD-005-attacking-private-registry.md) |
 
 Each write-up follows a professional pentest deliverable format:
 
