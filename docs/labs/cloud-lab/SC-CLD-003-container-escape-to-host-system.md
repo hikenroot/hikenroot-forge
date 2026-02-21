@@ -755,8 +755,6 @@ graph TB
 
 ---
 
-*"Un seul pod avec privileged: true peut défaire un cluster entier." — Raziel*
-
 ---
 
 *HikenRoot Forge — SC-CLD-003 — hik3nR00t — Février 2026*

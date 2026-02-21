@@ -705,8 +705,6 @@ graph TB
 
 ---
 
-*"Un wildcard dans un Role RBAC, c'est une porte ouverte qui ressemble à un mur." — Raziel*
-
 ---
 
 *HikenRoot Forge — SC-CLD-004 — hik3nR00t — Février 2026*
