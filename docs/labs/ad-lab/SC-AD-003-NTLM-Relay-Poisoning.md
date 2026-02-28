@@ -363,7 +363,7 @@ logsource:
 detection:
   selection:
     EventID: 5156
-    ApplicationName|endswith: '\\python.exe'
+    ApplicationName|endswith: '\python.exe'
     Direction: 'Outbound'
     DestPort: 5355
   condition: selection
