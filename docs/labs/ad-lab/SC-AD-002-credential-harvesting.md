@@ -485,7 +485,7 @@ tags:
 title: Password Spray Detection
 id: sc-ad-002-003
 status: experimental
-description: Détecte un password spray — même mot de passe sur plusieurs comptes
+description: Détecte un password spray — échecs d'authentification réseau sur plusieurs comptes distincts
 logsource:
     product: windows
     service: security
@@ -493,12 +493,17 @@ detection:
     selection:
         EventID: 4625
         LogonType: 3
-    condition: selection | count(TargetUserName) > 10
+    condition: selection
     timeframe: 2m
+falsepositives:
+    - Systèmes de monitoring avec comptes de service mal configurés
+    - Outils de synchronisation AD légitimes
 level: critical
 tags:
     - attack.credential_access
     - attack.t1110.003
+# Note : l'agrégation (>10 TargetUserName distincts en 2 min) est à configurer
+# côté SIEM (Wazuh / Splunk / Elastic) via règle de corrélation dédiée.
 ```
 
 ### Indicateurs de compromission (IOC)

@@ -515,8 +515,9 @@ tags:
     - attack.t1611
 falsepositives:
     - Outils de debugging légitimes (rares en production)
----
+```
 
+```yaml
 # Sigma Rule 2 — Lecture de /etc/shadow depuis un container
 title: Credential Access via Shadow File Read from Container
 id: sc-cld-003-002
@@ -539,8 +540,9 @@ level: high
 tags:
     - attack.credential_access
     - attack.t1003.008
----
+```
 
+```yaml
 # Sigma Rule 3 — Pod déployé avec privileged: true
 title: Privileged Kubernetes Pod Deployment
 id: sc-cld-003-003
@@ -776,8 +778,6 @@ graph TB
 | Kubernetes Goat — Container Escape | https://madhuakula.com/kubernetes-goat/ |
 | nsenter(1) — Linux man page | https://man7.org/linux/man-pages/man1/nsenter.1.html |
 | Red Hat State of K8s Security 2024 | https://www.redhat.com/en/resources/kubernetes-adoption-security-market-trends-overview |
-
----
 
 ---
 
