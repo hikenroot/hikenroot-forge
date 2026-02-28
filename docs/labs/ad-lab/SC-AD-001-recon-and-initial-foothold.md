@@ -306,6 +306,72 @@ BloodHound révèle les attack paths critiques :
 
 ---
 
+## Impact métier — MediaTech Groupe SA
+
+### Synthèse
+
+Un attaquant sans aucun credential obtient en moins de 30 minutes une cartographie complète de l'infrastructure Active Directory de MediaTech Groupe SA, incluant la structure organisationnelle, les comptes utilisateurs et des mots de passe en clair. Ces informations constituent le socle de toutes les attaques ultérieures (Kerberoasting, ACL Abuse, ransomware, exfiltration). La probabilité d'occurrence est élevée — cette technique ne génère aucune alerte sans monitoring LDAP spécifique et est systématiquement utilisée en phase de reconnaissance par tout attaquant ciblant un SI d'entreprise.
+
+### Estimation financière
+
+| Impact | Estimation | Justification |
+|--------|-----------|---------------|
+| **Compromission SI complet** | 1 500 000 € à 6 000 000 € | Credentials exposés → socle pour Domain Admin, ransomware, exfiltration totale |
+| **Amende RGPD** | 500 000 € à 3 000 000 € | Structure AD = données personnelles (RH, direction, prestataires). Art. 83 RGPD |
+| **Perte d'exploitation** | 200 000 € à 800 000 € | Arrêt ou mode dégradé pendant investigation et remédiation (2–5 jours) |
+| **Investigation forensique** | 80 000 € à 200 000 € | Audit AD complet, rotation credentials, analyse SYSVOL, revue GPO |
+| **Atteinte réputationnelle** | 300 000 € à 1 500 000 € | Groupe de presse : perte de confiance sources, annonceurs, abonnés |
+| **TOTAL estimé** | **2 580 000 € à 11 500 000 €** | |
+
+### Matrice de risque
+
+```mermaid
+quadrantChart
+    title Matrice de risque SC-AD-001
+    x-axis Probabilité faible --> Probabilité élevée
+    y-axis Impact faible --> Impact élevé
+    quadrant-1 Risque critique
+    quadrant-2 Risque élevé
+    quadrant-3 Risque faible
+    quadrant-4 Risque moyen
+    Enum AD anonyme: [0.95, 0.75]
+    Password LDAP desc: [0.85, 0.80]
+    SYSVOL credentials: [0.80, 0.85]
+    BloodHound collect: [0.90, 0.70]
+    Pivot vers ransomware: [0.70, 0.95]
+```
+
+### Impact réglementaire
+
+- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 25 (protection dès la conception), 32 (mesures techniques appropriées). L'énumération LDAP anonyme expose des données personnelles (noms, fonctions, emails) sans aucune authentification.
+- **NIS2** — Non-conformité Article 21 (gestion des risques cyber). L'absence de contrôle sur l'accès LDAP et les scripts SYSVOL constitue un manquement aux obligations de sécurisation des systèmes d'information critiques.
+- **ISO 27001** — Non-conformité A.5.15 (Contrôle d'accès), A.8.2 (Droits d'accès privilégiés), A.5.14 (Transfert d'information).
+
+### Top 5 actions prioritaires
+
+**0–24h (urgence)**
+
+1. Purger immédiatement tous les mots de passe des descriptions d'objets AD (`Get-ADUser -Filter * -Properties Description`).
+2. Auditer et nettoyer les scripts SYSVOL contenant des credentials en clair.
+
+**Sous 1 semaine**
+
+3. Désactiver l'accès LDAP anonyme sur tous les DCs (`dsHeuristics`).
+4. Activer SMB signing sur CASTELBLACK et BRAAVOS — bloquer le vecteur NTLM relay identifié.
+
+**Sous 1 mois**
+
+5. Déployer Microsoft Defender for Identity (MDI) ou Wazuh avec règles LDAP pour détecter toute énumération AD en temps réel.
+
+### Décisions attendues du COMEX
+
+- **Valider un budget** pour l'audit AD complet et le déploiement d'une solution de monitoring Identity (MDI ou équivalent open source).
+- **Prioriser ce chantier** comme risque critique infrastructure — une compromission AD = compromission totale du SI de MediaTech Groupe SA.
+- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Admin AD) pour piloter les actions 0–24h, 1 semaine et 1 mois.
+- **Déclencher une notification préventive** auprès du DPO pour évaluation du risque RGPD suite à l'exposition des données d'annuaire.
+
+---
+
 ## Analyse des risques
 
 ### Tableau CVSS

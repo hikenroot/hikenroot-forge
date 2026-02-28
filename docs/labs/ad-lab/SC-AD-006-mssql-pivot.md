@@ -462,6 +462,74 @@ Hash admin local non partagé — pas de réutilisation entre machines. Résulta
 
 ---
 
+## Impact métier — MediaTech Groupe SA
+
+### Synthèse
+
+Via un linked server MSSQL cross-domain mal configuré, un attaquant disposant d'un simple credential utilisateur NORTH obtient les droits sysadmin sur le serveur SQL ESSOS, exécute des commandes OS arbitraires, et escalade vers NT AUTHORITY\SYSTEM sur BRAAVOS. La chaîne complète — de jon.snow jusqu'à SYSTEM avec SAM dumpé — s'effectue sans aucun exploit CVE, uniquement par exploitation de misconfigurations cumulatives. L'impact est une compromission totale de BRAAVOS avec accès aux bases de données métier hébergées sur le SQL Server ESSOS.
+
+### Estimation financière
+
+| Impact | Estimation | Justification |
+|--------|-----------|---------------|
+| **Accès SYSTEM BRAAVOS + bases SQL** | 1 000 000 € à 4 000 000 € | Données métier, RH, finance sur MSSQL ESSOS — lecture, modification, exfiltration |
+| **Compromission cross-domain** | 2 000 000 € à 7 000 000 € | NORTH → ESSOS sans credential ESSOS → pivot vers Domain Admin ESSOS |
+| **Amende RGPD** | 1 000 000 € à 5 000 000 € | Données personnelles dans bases SQL (abonnés, salariés). Art. 83 RGPD |
+| **Perte d'exploitation** | 400 000 € à 1 500 000 € | Arrêt services numériques MediaTech (4–8 jours) |
+| **Investigation forensique** | 150 000 € à 400 000 € | DFIR BRAAVOS, audit MSSQL, rotation credentials, analyse linked servers |
+| **Atteinte réputationnelle** | 500 000 € à 2 500 000 € | Groupe de presse : données sources compromises, perte contrats annonceurs |
+| **TOTAL estimé** | **5 050 000 € à 20 400 000 €** | |
+
+### Matrice de risque
+
+```mermaid
+quadrantChart
+    title Matrice de risque SC-AD-006
+    x-axis Probabilité faible --> Probabilité élevée
+    y-axis Impact faible --> Impact élevé
+    quadrant-1 Risque critique
+    quadrant-2 Risque élevé
+    quadrant-3 Risque faible
+    quadrant-4 Risque moyen
+    Linked server cross-domain: [0.85, 0.90]
+    xp_cmdshell RCE: [0.80, 0.88]
+    SeImpersonatePrivilege SYSTEM: [0.90, 0.92]
+    SAM dump + PTH: [0.85, 0.85]
+    Pivot ransomware ESSOS: [0.75, 0.98]
+```
+
+### Impact réglementaire
+
+- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 25 (protection dès la conception), 32 (mesures techniques). Accès non autorisé aux bases SQL contenant données personnelles abonnés et salariés. Notification CNIL obligatoire sous 72h.
+- **NIS2** — Non-conformité Article 21. Linked servers cross-domain avec mapping privilégié, xp_cmdshell activable, SeImpersonatePrivilege sur compte de service — triple manquement aux obligations de sécurisation des systèmes critiques.
+- **ISO 27001** — Non-conformité A.8.5 (Authentification sécurisée), A.8.6 (Contrôle d'accès aux ressources), A.8.28 (Codage sécurisé).
+
+### Top 5 actions prioritaires
+
+**0–24h (urgence)**
+
+1. Supprimer le linked server BRAAVOS sur CASTELBLACK (`sp_dropserver 'BRAAVOS', 'droplogins'`).
+2. Désactiver xp_cmdshell sur tous les serveurs SQL (`sp_configure 'xp_cmdshell', 0`).
+
+**Sous 1 semaine**
+
+3. Migrer les comptes de service MSSQL vers **gMSA** — supprime SeImpersonatePrivilege exploitable.
+4. Auditer et supprimer tous les linked servers non nécessaires — inventaire exhaustif requis.
+
+**Sous 1 mois**
+
+5. Segmenter MSSQL sur VLAN dédié avec firewall strict — interdire les connexions SQL inter-domaines non documentées.
+
+### Décisions attendues du COMEX
+
+- **Déclencher une notification CNIL** sous 72h — accès non autorisé à des bases SQL contenant données personnelles constitue une violation RGPD notifiable.
+- **Mandater un audit MSSQL complet** — inventaire de tous les linked servers, logins, SPNs, et permissions cross-domain dans l'environnement de production.
+- **Valider un budget remédiation** pour la migration gMSA, la segmentation réseau MSSQL, et le déploiement d'un monitoring SQL (SQL Server Audit + Wazuh).
+- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (DBA / Admin Infra) pour piloter les actions 0–24h en priorité absolue.
+- **Évaluer l'exposition réelle** : vérifier si des linked servers similaires existent en production et si des connexions cross-domain non documentées sont actives.
+
+---
+
 ## Analyse des risques
 
 ### Tableau CVSS
