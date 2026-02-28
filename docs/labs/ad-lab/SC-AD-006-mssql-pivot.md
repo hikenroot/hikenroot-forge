@@ -26,7 +26,14 @@ Ce test démontre comment un attaquant disposant de credentials valides peut piv
 
 ### Pour un auditeur ISO 27001 / NIS2
 
-Non-conformité A.8.5 (Authentification sécurisée), A.8.6 (Contrôle d'accès aux ressources), A.8.28 (Codage sécurisé). Le serveur MSSQL CASTELBLACK est configuré avec un linked server vers BRAAVOS mappant automatiquement le compte NORTH\jon.snow sur le compte sa (sysadmin) ESSOS. Cette misconfiguration permet une escalade de privilèges cross-domain sans credential ESSOS. L'activation de xp_cmdshell et SeImpersonatePrivilege sur le compte de service MSSQL complète la chaîne vers SYSTEM.
+Ce scénario illustre une chaîne de risques qui dépasse le seul périmètre technique MSSQL :
+
+- **Mauvaise segmentation des domaines et des responsabilités** : un compte utilisateur du domaine NORTH permet, via des linked servers mal configurés, d'atteindre directement un serveur SQL critique du domaine ESSOS, en contournant les frontières logiques entre environnements.
+- **Abus de privilèges sur les comptes de service** : le mapping d'un compte de domaine vers `sa` sur un linked server et l'attribution de `SeImpersonatePrivilege` à un compte de service MSSQL vont à l'encontre du principe de moindre privilège (A.9.2 Gestion des droits d'accès utilisateurs).
+- **Absence de gouvernance sur les flux inter-applicatifs** : les connexions inter-domaines MSSQL ne sont ni inventoriées, ni auditées. Aucune politique formelle ne définit qui peut créer / modifier des linked servers et avec quels niveaux de privilèges.
+- **Défaut de supervision des activités à fort impact** : l'usage de `xp_cmdshell`, la désactivation de Defender, l'exécution d'outils de privesc et l'export des ruches SAM ne déclenchent pas d'alertes corrélées, alors qu'il s'agit d'actions typiques d'un attaquant.
+
+Dans le cadre NIS2, ce type de pivot MSSQL entre domaines est critique : il remet en cause le **confinement des incidents** et augmente fortement le risque d'attaque en chaîne. L'organisation doit traiter les bases SQL inter-domaines comme des éléments d'infrastructure essentiels, avec des exigences renforcées en termes d'inventaire, de durcissement, de supervision et de tests réguliers (red team / purple team).
 
 ### Pour un RSSI
 

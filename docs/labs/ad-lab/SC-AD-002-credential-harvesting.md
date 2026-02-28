@@ -26,7 +26,14 @@ Ce test démontre comment un attaquant disposant d'un **premier credential valid
 
 ### Pour un auditeur ISO 27001 / NIS2
 
-Non-conformité A.5.17 (Informations d'authentification), A.8.5 (Authentification sécurisée), A.5.15 (Contrôle d'accès). Des comptes utilisateurs sont configurés sans pré-authentification Kerberos (DoNotRequirePreAuth), exposant leurs hash à une attaque hors ligne sans interaction avec la cible. Des comptes de service possèdent des SPNs avec des mots de passe faibles crackables en quelques secondes. L'absence de politique de mots de passe forte et de monitoring Kerberos rend ces attaques invisibles.
+Ce scénario montre que l'annuaire Active Directory n'est pas gouverné comme un **système d'authentification critique** :
+
+- **Comptes sans pré-authentification Kerberos (AS-REP Roasting)** : des comptes utilisateurs sont configurés sans pré-auth, permettant l'extraction de hash crackables hors ligne. Cela traduit une absence de politique de durcissement Kerberos.
+- **Comptes de service avec SPN et mots de passe faibles ou anciens** : les comptes associés à des SPN (services MSSQL, HTTP…) sont directement exposés au Kerberoasting. Leur compromission donne accès à des services critiques (bases de données, applicatifs métier) sans contrôle compensatoire.
+- **Password Spray sans verrouillage de compte** : l'absence de mécanisme efficace de détection / limitation des tentatives d'authentification distribuées permet de tester un mot de passe commun sur l'ensemble des comptes sans déclencher d'alarme.
+- **Manque de revue périodique des comptes** : la présence de multiples comptes exposés (utilisateurs, services, admins locaux) montre que la revue de droits, l'identification des comptes à haut risque et la rotation des secrets ne sont pas industrialisées.
+
+Au regard de NIS2, l'exposition de multiples credentials à partir d'un seul compte initial révèle une **résilience insuffisante** des mécanismes d'authentification et une vulnérabilité forte aux attaques par mouvement latéral. Les mesures d'identification (inventaire des comptes sensibles), de protection (durcissement Kerberos, gMSA) et de détection (journalisation Kerberos, corrélation d'échecs d'authentification) sont incomplètes.
 
 ### Pour un RSSI
 

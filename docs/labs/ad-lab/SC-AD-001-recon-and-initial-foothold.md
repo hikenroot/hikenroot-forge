@@ -26,7 +26,14 @@ Ce test démontre comment un attaquant **sans aucun credential** peut cartograph
 
 ### Pour un auditeur ISO 27001 / NIS2
 
-Non-conformité A.5.15 (Contrôle d'accès), A.8.2 (Droits d'accès privilégiés), A.5.14 (Transfert d'information). L'énumération LDAP anonyme expose la structure organisationnelle complète (utilisateurs, groupes, OUs). Des mots de passe sont stockés en clair dans les descriptions d'objets LDAP et dans des scripts PowerShell accessibles via SYSVOL sans authentification. Ces données permettent une compromission initiale sans aucun bruit détectable.
+Ce scénario met en évidence plusieurs écarts majeurs vis-à-vis des bonnes pratiques ISO 27001 et des exigences NIS2 pour les environnements AD :
+
+- **Manque de contrôle d'accès logique** : la possibilité d'effectuer des requêtes LDAP anonymes permettant d'énumérer utilisateurs et groupes contrevient au principe *need-to-know* (A.9 Contrôle d'accès).
+- **Fuite d'informations sensibles dans les descriptions LDAP** : la présence de mots de passe en clair dans l'attribut `description` constitue une exposition directe de secrets (A.8 Gestion des actifs, A.18 Protection des informations).
+- **Scripts SYSVOL contenant des credentials** : les GPO et scripts accessibles en lecture à tous les utilisateurs authentifiés ne sont pas contrôlés, ce qui va à l'encontre des bonnes pratiques de gestion des comptes à privilèges.
+- **Absence de supervision adaptée** : les activités de reconnaissance (LDAP anonyme, énumération SMB, collecte d'ACL via BloodHound) ne génèrent ni alertes, ni corrélation d'événements dans un SIEM.
+
+Dans une optique NIS2, ce scénario illustre un **manque de maîtrise de l'annuaire** utilisé comme composant critique : mauvaise hygiène des comptes, absence de revue régulière des descriptions et scripts, défaut de journalisation exploitable. Un attaquant externe peut construire une vue quasi complète de l'organisation sans aucun exploit logiciel, uniquement via des faiblesses de configuration et de gouvernance.
 
 ### Pour un RSSI
 
