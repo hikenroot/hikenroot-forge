@@ -302,6 +302,30 @@ quadrantChart
 - **NIS2** — Non-conformité Article 21 (sécurité de la chaîne d'approvisionnement). Pipeline CI/CD exposé met en danger toute la chaîne de production logicielle.
 - **ISO 27001** — Non-conformité A.8.4 (Accès au code source), A.5.33 (Protection des enregistrements), A.8.25 (Cycle de vie de développement sécurisé).
 
+### Top 5 actions prioritaires
+
+**0–24h (urgence)**
+
+1. Rotation immédiate de toutes les clés AWS exposées dans l'historique Git — invalider les access key ID via la console IAM AWS.
+2. Auditer les logs CloudTrail pour identifier toute utilisation frauduleuse des credentials sur la période d'exposition.
+
+**Sous 1 semaine**
+
+3. Ajouter `.git` et `.env` au `.dockerignore` et `.gitignore` — empêcher toute inclusion dans les images futures.
+4. Déployer un scanner de secrets dans la CI/CD (Gitleaks, truffleHog) — blocage automatique avant merge.
+
+**Sous 1 mois**
+
+5. Migrer tous les secrets vers un gestionnaire dédié (HashiCorp Vault, AWS Secrets Manager) — zéro secret en clair dans le code ou les images.
+
+### Décisions attendues du COMEX
+
+- **Déclencher une évaluation d'impact RGPD** — si les credentials AWS donnaient accès à des données personnelles (S3, RDS), la violation est notifiable à la CNIL sous 72h.
+- **Valider un budget** pour le déploiement de HashiCorp Vault et l'intégration de scanners de secrets dans tous les pipelines CI/CD de MediaTech Groupe SA.
+- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Lead DevSecOps) pour piloter les actions 0–24h et la rotation des credentials.
+- **Mandater un audit du parc CI/CD complet** — vérifier si d'autres pipelines exposent des répertoires `.git` ou embarquent des secrets dans des images Docker.
+- **Mettre en place une politique formelle** de gestion des secrets dans le cycle de développement (SDLC) — formation obligatoire des développeurs sur les risques de credential leakage.
+
 ---
 
 ## Détection SOC / SIEM

@@ -428,6 +428,30 @@ Un attaquant qui exploite cette vulnérabilité obtient :
 - **NIS2** — Non-conformité aux exigences de gestion des risques cyber (Article 21). Les containers privilégiés sans contrôle d'admission violent l'obligation de mesures techniques appropriées.
 - **ISO 27001** — Non-conformité A.8.31 (Séparation des environnements), A.8.9 (Gestion de la configuration), A.5.15 (Contrôle d'accès).
 
+### Top 5 actions prioritaires
+
+**0–24h (urgence)**
+
+1. Supprimer immédiatement le pod `system-monitor-deployment` ou reconfigurer sans `privileged: true`, `hostPID`, `hostIPC`, `hostPath`.
+2. Rotation immédiate de tous les secrets exposés : certificats kubelet, 5 tokens JWT de service accounts, hash `/etc/shadow`.
+
+**Sous 1 semaine**
+
+3. Activer **Pod Security Admission en mode `restricted`** sur tous les namespaces — bloque automatiquement tout déploiement de pod privilégié.
+4. Déployer **Kyverno** avec politiques ClusterPolicy : deny privileged, deny hostPID/hostIPC, deny hostPath.
+
+**Sous 1 mois**
+
+5. Déployer **Falco** pour la détection runtime des container escapes (nsenter, lecture `/etc/shadow`, shell dans container).
+
+### Décisions attendues du COMEX
+
+- **Déclencher une notification CNIL sous 72h** — accès non autorisé au filesystem hôte constitue une violation RGPD notifiable si des données personnelles étaient accessibles via les pods applicatifs.
+- **Valider un budget** pour le déploiement de Kyverno (admission control), Falco (runtime detection) et l'activation du chiffrement des secrets at rest dans K3s.
+- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Admin K8s / SRE) pour piloter les actions 0–24h en priorité absolue.
+- **Mandater un audit complet** du cluster : inventaire de tous les pods avec `privileged: true`, `hostPID`, `hostIPC` ou `hostPath` — en production et en développement.
+- **Évaluer l'exposition réelle** : vérifier si des pods similaires existent sur les clusters de production de MediaTech Groupe SA et si des terminaux web (gotty, ttyd) sont exposés sans authentification.
+
 ---
 
 ## Matrice de risque

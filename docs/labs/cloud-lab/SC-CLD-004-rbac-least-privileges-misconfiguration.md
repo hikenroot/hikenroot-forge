@@ -367,6 +367,30 @@ Un attaquant qui exploite cette misconfiguration RBAC obtient :
 - **NIS2** — Non-conformité aux exigences de gestion des risques cyber (Article 21). Le wildcard RBAC viole l'obligation de contrôle d'accès proportionné.
 - **ISO 27001** — Non-conformité A.5.15 (Contrôle d'accès), A.5.18 (Droits d'accès), A.8.3 (Restriction d'accès à l'information).
 
+### Top 5 actions prioritaires
+
+**0–24h (urgence)**
+
+1. Restreindre le Role `secret-reader` avec `resourceNames: [webhookapikey]` — limiter l'accès au seul secret légitime.
+2. Rotation immédiate de `vaultapikey` et `webhookapikey` — considérer les deux comme compromis.
+
+**Sous 1 semaine**
+
+3. Auditer **tous les Roles et ClusterRoles** du cluster — identifier tout wildcard `resources: "*"` ou `verbs: "*"` et les remplacer par des permissions granulaires.
+4. Désactiver `automountServiceAccountToken: false` sur tous les pods qui n'utilisent pas l'API Kubernetes.
+
+**Sous 1 mois**
+
+5. Déployer un outil de gouvernance RBAC (RBAC Manager, Kyverno) avec alertes automatiques sur toute création de Role avec wildcard.
+
+### Décisions attendues du COMEX
+
+- **Valider un audit RBAC complet** du cluster K8s de production — inventaire exhaustif des Roles, ClusterRoles, RoleBindings et ClusterRoleBindings avec identification de toutes les permissions excessives.
+- **Déclencher une évaluation d'impact RGPD** — si `vaultapikey` donnait accès à des données personnelles via HashiCorp Vault, la violation est potentiellement notifiable à la CNIL.
+- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Admin K8s / IAM) pour piloter la remédiation RBAC et la rotation des credentials.
+- **Mettre en place une politique formelle** de gouvernance RBAC : principe de moindre privilège obligatoire, revue trimestrielle des droits, interdiction des wildcards en production.
+- **Valider un budget** pour le déploiement d'outils de gouvernance RBAC et de détection des déviations de configuration (Kubescape, Kyverno policies).
+
 ---
 
 ## Matrice de risque
