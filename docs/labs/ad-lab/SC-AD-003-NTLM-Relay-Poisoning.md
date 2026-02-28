@@ -50,7 +50,7 @@ graph TD
     CASTELBLACK["⚔️ CASTELBLACK\n192.168.10.22\nSRV MSSQL+IIS\nsigning:False ❌"]
     BRAAVOS["🗡️ BRAAVOS\n192.168.10.23\nSRV MSSQL\nsigning:False ❌"]
 
-    WINTERFELL -->|"LLMNR broadcast\n'Qui est BRAVOS ?'"| KALI
+    WINTERFELL -->|"LLMNR broadcast\n'Qui est BRAAVOS ?'"| KALI
     KALI -->|"Responder répond :\n'C'est moi !'"| WINTERFELL
     WINTERFELL -->|"Auth NTLM\neddard.stark / robb.stark"| KALI
     KALI -->|"ntlmrelayx\nRelay NTLM"| CASTELBLACK
@@ -67,7 +67,7 @@ graph LR
     A["Reconnaissance\nnetexec smb scan\nsigning:False identifié"] --> B["Empoisonnement\nResponder LLMNR/NBT-NS\nens18 VLAN10"]
     B --> C["Capture NTLM\nrobb.stark\neddard.stark"]
     C --> D["Relay\nntlmrelayx\nvers CASTELBLACK + BRAAVOS"]
-    D --> E["SAM Dump\nCASELBLACK\nAdministrator hash"]
+    D --> E["SAM Dump\nCASTELBLACK\nAdministrator hash"]
     E --> F["Pass-the-Hash\nPwn3d! CASTELBLACK\nPwn3d! BRAAVOS"]
 ```
 
@@ -251,6 +251,8 @@ SMB  192.168.10.23  BRAAVOS  [+] BRAAVOS\Administrator:ba5fa75e6a4c5da5ff2d682a9
 - **Vecteur de pivot** vers les domaines north.sevenkingdoms.local et essos.local
 - **Services exposés :** MSSQL (CASTELBLACK + BRAAVOS), IIS (CASTELBLACK)
 
+> Ce scénario NTLM Relay alimente directement le scénario **SC-AD-006 — MSSQL Pivot**, en fournissant un accès administrateur local sur les serveurs MSSQL CASTELBLACK et BRAAVOS, préalable au pivot applicatif via linked servers.
+
 ---
 
 ## 9. Impact Métier — MediaTech Groupe SA
@@ -345,6 +347,29 @@ detection:
 falsepositives:
   - Administration légitime via RemoteRegistry
 level: high
+tags:
+  - attack.credential_access
+  - attack.t1557.001
+```
+
+### Règle Sigma — LLMNR Traffic from Non-DC Host
+
+```yaml
+title: Suspicious LLMNR Traffic from Non-DC Host
+status: experimental
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 5156
+    ApplicationName|endswith: '\\python.exe'
+    Direction: 'Outbound'
+    DestPort: 5355
+  condition: selection
+falsepositives:
+  - Scripts internes utilisant LLMNR (rare)
+level: medium
 tags:
   - attack.credential_access
   - attack.t1557.001
