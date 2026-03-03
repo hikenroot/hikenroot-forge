@@ -1,4 +1,4 @@
-# HikenRoot Forge
+# HikenRoot Forge 🔥
 
 **Enterprise-inspired cybersecurity lab — Offensive, defensive, cloud and AI security training platform**
 
@@ -20,7 +20,7 @@ Built around a fictional company (MediaTech Groupe SA) with realistic penetratio
 | Node | CPU | RAM | Storage | GPU | Role |
 |------|-----|-----|---------|-----|------|
 | **Beelink EQR6** | AMD Ryzen 9 6900HX | 128 Go DDR5 | 1 To NVMe | — | AD Lab, Web Lab, pfSense, PBS |
-| **MS-02 Ultra** | Intel Core Ultra 9 285HX | 192 Go DDR5 ECC | 9 To NVMe | RTX PRO 4000 Blackwell 24 Go | Cloud, AI, DFIR, OT/ICS, SOC |
+| **MS-02 Ultra** | Intel Core Ultra 9 285HX | 192 Go DDR5 ECC | Samsung 990 PRO 1 To + WD BLACK 4 To NVMe | RTX PRO 4000 Blackwell 24 Go | Cloud, AI, DFIR, OT/ICS, SOC |
 | **Synology DS923+** | AMD Ryzen R1600 | 32 Go DDR4 | 3x 4 To IronWolf RAID 5 | — | NFS Backup |
 | **MikroTik CSS610** | — | — | — | — | 10G Backbone (8x 1G PoE + 2x SFP+) |
 
@@ -174,6 +174,16 @@ Each write-up follows a professional pentest deliverable format:
 ## AD Lab — GOAD v3
 
 Multi-forest Active Directory environment (5 VMs, 3 domain controllers) for OSCP+/CRTO/CRTP/CRTE preparation.
+6 exploitation scenarios completed — from initial recon to full domain compromise across north.sevenkingdoms.local and essos.local.
+
+| Scenario | Technique | CVE / Method | Severity | Write-up |
+|----------|-----------|-------------|----------|----------|
+| SC-AD-001 | Recon & Initial Foothold | nmap, BloodHound, LDAP anonymous | High | [Read](docs/labs/ad-lab/SC-AD-001-recon-and-initial-foothold.md) |
+| SC-AD-002 | Credential Harvesting | AS-REP Roasting, Kerberoasting, SYSVOL | Critical | [Read](docs/labs/ad-lab/SC-AD-002-credential-harvesting.md) |
+| SC-AD-003 | NTLM Relay & Poisoning | Responder, ntlmrelayx, mitm6 | Critical | [Read](docs/labs/ad-lab/SC-AD-003-NTLM-Relay-Poisoning.md) |
+| SC-AD-004 | ACL Abuse Chain | ForceChangePwd → GenericWrite → WriteDACL → DA | Critical | [Read](docs/labs/ad-lab/SC-AD-004-acl-abuse-chain.md) |
+| SC-AD-005 | Domain Privesc | CVE-2021-42278/42287 (noPac) + CVE-2021-1675 (PrintNightmare) | Critical | [Read](docs/labs/ad-lab/SC-AD-005-nopac-samaccountname-spoofing.md) |
+| SC-AD-006 | MSSQL Pivot | Linked servers, xp_cmdshell, UNC coerce | Critical | [Read](docs/labs/ad-lab/SC-AD-006-mssql-pivot.md) |
 
 | Document | Description | Link |
 |----------|-------------|------|
@@ -184,6 +194,7 @@ Multi-forest Active Directory environment (5 VMs, 3 domain controllers) for OSCP
 | WireGuard | VPN setup for remote access | [Read](docs/goad/wireguard-setup.md) |
 | Troubleshooting | Common issues & solutions | [Read](docs/goad/troubleshooting.md) |
 | Network Diagram | Interactive network topology | [Read](docs/goad/GOAD_Network_Diagram.html) |
+| ROADMAP | AD lab learning path & certif alignment | [Read](docs/labs/ad-lab/ROADMAP.md) |
 
 ## AI Lab — LLM Stack
 
@@ -191,9 +202,9 @@ Ollama running natively on MS-02 host with NVIDIA GPU acceleration:
 
 | Model | Size | VRAM | Usage |
 |-------|------|------|-------|
-| qwen3:32b | 20 GB | ~22 GB | General purpose, dense |
-| qwen3:30b-a3b | 18 GB | ~3 GB active | Fast inference, MoE agent |
-| deepseek-r1:8b | 5.2 GB | ~8 GB | Autonomous pentest agent |
+| qwen3.5:27b | 17 GB | ~18 GB | General purpose |
+| qwen3.5:35b | 24 GB | ~24 GB | High reasoning |
+| deepseek-r1:8b | 5 GB | ~8 GB | Autonomous pentest agent |
 
 ## Certifications Alignment
 
@@ -225,7 +236,7 @@ Ollama running natively on MS-02 host with NVIDIA GPU acceleration:
 | Architecture Overview | Full infrastructure diagrams | [Read](diagrams/architecture-overview.md) |
 | Network Topology | VLAN routing, attack & defense flows, backup architecture | [Read](diagrams/network-topology.md) |
 | MS-02 Architecture | Compute node setup & GPU configuration | [Read](docs/ms02-architecture.md) |
-| Session Reports | Technical troubleshooting and architecture decisions | [Read](docs/reports/) |
+| Session Reports | Technical troubleshooting and architecture decisions | [Read](docs/reports) |
 
 ## Author
 
