@@ -174,6 +174,8 @@ Each write-up follows a professional pentest deliverable format:
 ## AD Lab — GOAD v3
 
 Multi-forest Active Directory environment (5 VMs, 3 domain controllers) for OSCP+/CRTO/CRTP/CRTE preparation.
+
+![SC-AD-004 ACL Abuse Chain](assets/demo-sc-ad-004.gif)
 6 exploitation scenarios completed — from initial recon to full domain compromise across north.sevenkingdoms.local and essos.local.
 
 | Scenario | Technique | CVE / Method | Severity | Write-up |
