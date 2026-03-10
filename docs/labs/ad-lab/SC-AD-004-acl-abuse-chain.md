@@ -586,4 +586,12 @@ Le niveau de compromission constaté (Domain Admin + krbtgt) nécessite une déc
 
 ---
 
+---
+
+### Annexe — GPO Abuse pyGPOAbuse (non provisionné)
+
+pyGPOAbuse exploite les droits d'écriture sur une GPO pour ajouter une tâche planifiée exécutée sur toutes les machines liées. Aucun utilisateur compromis dans le lab GOAD n'a de droits d'écriture sur les GPOs — les permissions sont réservées aux Domain Admins, Enterprise Admins et Group Policy Creator Owners. La technique n'est pas exploitable sans re-provisioning des vulnérabilités GOAD.
+
+---
+
 *HikenRoot Forge — SC-AD-004 — hik3nR00t — Mars 2026*
