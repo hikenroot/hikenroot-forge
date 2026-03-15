@@ -50,6 +50,8 @@ Tous les scénarios techniques sont contextualisés autour de **MediaTech Groupe
 
 Environnement AD multi-forêts réaliste (sevenkingdoms.local, north.sevenkingdoms.local, essos.local) transposé dans l'infrastructure de MediaTech Groupe SA.
 
+![SC-AD-004 ACL Abuse Chain](../assets/demo-sc-ad-004.gif)
+
 | Scénario | Titre | Techniques | Statut |
 |---|---|---|---|
 | SC-AD-001 | [Recon & Initial Foothold](docs/labs/ad-lab/SC-AD-001-recon-and-initial-foothold.md) | nmap, LDAP anonyme, BloodHound, SYSVOL | ✅ |
