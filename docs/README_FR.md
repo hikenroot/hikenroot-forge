@@ -55,29 +55,29 @@ Environnement AD multi-forêts réaliste (sevenkingdoms.local, north.sevenkingdo
 
 | Scénario | Titre | Techniques | Statut |
 |---|---|---|---|
-| SC-AD-001 | [Recon & Initial Foothold](docs/labs/ad-lab/SC-AD-001-recon-and-initial-foothold.md) | nmap, LDAP anonyme, BloodHound, SYSVOL | ✅ |
-| SC-AD-002 | [Credential Harvesting](docs/labs/ad-lab/SC-AD-002-credential-harvesting.md) | AS-REP Roasting, Kerberoasting, Password Spray | ✅ |
-| SC-AD-003 | [NTLM Relay & Poisoning](docs/labs/ad-lab/SC-AD-003-NTLM-Relay-Poisoning.md) | Responder, ntlmrelayx, SMB relay | ✅ |
-| SC-AD-004 | [ACL Abuse Chain](docs/labs/ad-lab/SC-AD-004-acl-abuse-chain.md) | ForceChangePwd → GenericWrite → WriteDACL → DA | ✅ |
-| SC-AD-005 | [noPac / SamAccountName Spoofing](docs/labs/ad-lab/SC-AD-005-nopac-samaccountname-spoofing.md) | CVE-2021-42278/42287, PrintNightmare | ✅ |
-| SC-AD-006 | [MSSQL Pivot](docs/labs/ad-lab/SC-AD-006-mssql-pivot.md) | Impersonate, linked servers, xp_cmdshell | ✅ |
-| SC-AD-007 | [Kerberos Delegation](docs/labs/ad-lab/SC-AD-007-kerberos-delegation.md) | Unconstrained, Constrained, RBCD, Shadow Creds | ✅ |
-| SC-AD-008 | [ADCS Certificate Abuse](docs/labs/ad-lab/SC-AD-008-adcs-certificate-abuse.md) | ESC1/2/3/4/6/8, certipy, PetitPotam | ✅ |
-| SC-AD-009 | [Domain Dominance](docs/labs/ad-lab/SC-AD-009-domain-dominance.md) | Golden/Silver Ticket, AdminSDHolder, DCSync | ✅ |
-| SC-AD-010 | [Cross-Forest Trusts](docs/labs/ad-lab/SC-AD-010-cross-forest-trusts.md) | raiseChild, SID History, foreign groups | ✅ |
-| SC-AD-011 | [Coerce & File-based Attacks](docs/labs/ad-lab/SC-AD-011-coerce-file-based-attacks.md) | .lnk, .scf, .url, searchConnector-ms, WebDAV | ✅ |
-| SC-AD-012 | [ADCS Avancé](docs/labs/ad-lab/SC-AD-012-adcs-advanced.md) | ESC5 Golden Certificate, ESC9, ESC11 RPC Relay | ✅ |
+| SC-AD-001 | [Recon & Initial Foothold](labs/ad-lab/SC-AD-001-recon-and-initial-foothold.md) | nmap, LDAP anonyme, BloodHound, SYSVOL | ✅ |
+| SC-AD-002 | [Credential Harvesting](labs/ad-lab/SC-AD-002-credential-harvesting.md) | AS-REP Roasting, Kerberoasting, Password Spray | ✅ |
+| SC-AD-003 | [NTLM Relay & Poisoning](labs/ad-lab/SC-AD-003-NTLM-Relay-Poisoning.md) | Responder, ntlmrelayx, SMB relay | ✅ |
+| SC-AD-004 | [ACL Abuse Chain](labs/ad-lab/SC-AD-004-acl-abuse-chain.md) | ForceChangePwd → GenericWrite → WriteDACL → DA | ✅ |
+| SC-AD-005 | [noPac / SamAccountName Spoofing](labs/ad-lab/SC-AD-005-nopac-samaccountname-spoofing.md) | CVE-2021-42278/42287, PrintNightmare | ✅ |
+| SC-AD-006 | [MSSQL Pivot](labs/ad-lab/SC-AD-006-mssql-pivot.md) | Impersonate, linked servers, xp_cmdshell | ✅ |
+| SC-AD-007 | [Kerberos Delegation](labs/ad-lab/SC-AD-007-kerberos-delegation.md) | Unconstrained, Constrained, RBCD, Shadow Creds | ✅ |
+| SC-AD-008 | [ADCS Certificate Abuse](labs/ad-lab/SC-AD-008-adcs-certificate-abuse.md) | ESC1/2/3/4/6/8, certipy, PetitPotam | ✅ |
+| SC-AD-009 | [Domain Dominance](labs/ad-lab/SC-AD-009-domain-dominance.md) | Golden/Silver Ticket, AdminSDHolder, DCSync | ✅ |
+| SC-AD-010 | [Cross-Forest Trusts](labs/ad-lab/SC-AD-010-cross-forest-trusts.md) | raiseChild, SID History, foreign groups | ✅ |
+| SC-AD-011 | [Coerce & File-based Attacks](labs/ad-lab/SC-AD-011-coerce-file-based-attacks.md) | .lnk, .scf, .url, searchConnector-ms, WebDAV | ✅ |
+| SC-AD-012 | [ADCS Avancé](labs/ad-lab/SC-AD-012-adcs-advanced.md) | ESC5 Golden Certificate, ESC9, ESC11 RPC Relay | ✅ |
 
 ### Lab Cloud & Kubernetes
 
 | Scénario | Titre | Techniques | Statut |
 |---|---|---|---|
-| SC-CLD-001 | [Sensitive Keys in Codebases](docs/labs/cloud-lab/SC-CLD-001-sensitive-keys-in-codebases.md) | Secrets Git, fuites env, exposition registry | ✅ |
-| SC-CLD-002 | [SSRF in the Kubernetes World](docs/labs/cloud-lab/SC-CLD-002-ssrf-in-the-kubernetes-world.md) | SSRF → metadata, tokens service account | ✅ |
-| SC-CLD-003 | [Container Escape to Host](docs/labs/cloud-lab/SC-CLD-003-container-escape-to-host-system.md) | Container privilégié, montage host, nsenter | ✅ |
-| SC-CLD-004 | [RBAC Misconfiguration](docs/labs/cloud-lab/SC-CLD-004-rbac-least-privileges-misconfiguration.md) | Abus ClusterRole, vol de token, mouvement latéral | ✅ |
-| SC-CLD-005 | [Attacking Private Registry](docs/labs/cloud-lab/SC-CLD-005-attacking-private-registry.md) | Énumération registry, altération d'images | ✅ |
-| SC-CLD-005b | [DIND Exploitation](docs/labs/cloud-lab/SC-CLD-005-dind-exploitation-exposed-git-repository.md) | Docker-in-Docker, .git exposé | ✅ |
+| SC-CLD-001 | [Sensitive Keys in Codebases](labs/cloud-lab/SC-CLD-001-sensitive-keys-in-codebases.md) | Secrets Git, fuites env, exposition registry | ✅ |
+| SC-CLD-002 | [SSRF in the Kubernetes World](labs/cloud-lab/SC-CLD-002-ssrf-in-the-kubernetes-world.md) | SSRF → metadata, tokens service account | ✅ |
+| SC-CLD-003 | [Container Escape to Host](labs/cloud-lab/SC-CLD-003-container-escape-to-host-system.md) | Container privilégié, montage host, nsenter | ✅ |
+| SC-CLD-004 | [RBAC Misconfiguration](labs/cloud-lab/SC-CLD-004-rbac-least-privileges-misconfiguration.md) | Abus ClusterRole, vol de token, mouvement latéral | ✅ |
+| SC-CLD-005 | [Attacking Private Registry](labs/cloud-lab/SC-CLD-005-attacking-private-registry.md) | Énumération registry, altération d'images | ✅ |
+| SC-CLD-005b | [DIND Exploitation](labs/cloud-lab/SC-CLD-005-dind-exploitation-exposed-git-repository.md) | Docker-in-Docker, .git exposé | ✅ |
 
 ### Format des write-ups
 
@@ -96,13 +96,13 @@ Chaque scénario suit un format professionnel standardisé :
 
 | Document | Description | Lien |
 |---|---|---|
-| GOAD HLD (EN) | High-Level Design — Architecture lab AD | [docs/goad/HLD_GOAD_EN.md](docs/goad/HLD_GOAD_EN.md) |
-| GOAD HLD (FR) | Architecture macro — Lab AD | [docs/goad/HLD_GOAD_FR.md](docs/goad/HLD_GOAD_FR.md) |
-| Architecture MS-02 | Hardware, stockage, GPU, réseau | [docs/ms02-architecture.md](docs/ms02-architecture.md) |
-| Configuration WireGuard | VPN pour accès pentest | [docs/goad/wireguard-setup.md](docs/goad/wireguard-setup.md) |
-| Stratégie de sauvegarde | PBS + NAS Synology + snapshots GOLDEN | [docs/goad/backup-strategy.md](docs/goad/backup-strategy.md) |
-| Troubleshooting | 50+ problèmes résolus | [docs/goad/troubleshooting.md](docs/goad/troubleshooting.md) |
-| Roadmap Lab AD | Suivi de progression GOAD | [docs/labs/ad-lab/ROADMAP.md](docs/labs/ad-lab/ROADMAP.md) |
+| GOAD HLD (EN) | High-Level Design — Architecture lab AD | [docs/goad/HLD_GOAD_EN.md](goad/HLD_GOAD_EN.md) |
+| GOAD HLD (FR) | Architecture macro — Lab AD | [docs/goad/HLD_GOAD_FR.md](goad/HLD_GOAD_FR.md) |
+| Architecture MS-02 | Hardware, stockage, GPU, réseau | [docs/ms02-architecture.md](ms02-architecture.md) |
+| Configuration WireGuard | VPN pour accès pentest | [docs/goad/wireguard-setup.md](goad/wireguard-setup.md) |
+| Stratégie de sauvegarde | PBS + NAS Synology + snapshots GOLDEN | [docs/goad/backup-strategy.md](goad/backup-strategy.md) |
+| Troubleshooting | 50+ problèmes résolus | [docs/goad/troubleshooting.md](goad/troubleshooting.md) |
+| Roadmap Lab AD | Suivi de progression GOAD | [docs/labs/ad-lab/ROADMAP.md](labs/ad-lab/ROADMAP.md) |
 
 ## Alignement certifications
 
