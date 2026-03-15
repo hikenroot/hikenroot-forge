@@ -51,6 +51,7 @@ Tous les scénarios techniques sont contextualisés autour de **MediaTech Groupe
 Environnement AD multi-forêts réaliste (sevenkingdoms.local, north.sevenkingdoms.local, essos.local) transposé dans l'infrastructure de MediaTech Groupe SA.
 
 ![SC-AD-004 ACL Abuse Chain](../assets/demo-sc-ad-004.gif)
+*Démo : Chaîne d'abus ACL — ForceChangePassword → Kerberoast → WriteDACL → AddSelf → ShadowCreds → DCSync → Domain Admin*
 
 | Scénario | Titre | Techniques | Statut |
 |---|---|---|---|
