@@ -1,245 +1,130 @@
 # HikenRoot Forge 🔥
 
-**Enterprise-inspired cybersecurity lab — Offensive, defensive, cloud and AI security training platform**
+**Enterprise-grade cybersecurity lab built around a realistic company simulation**
 
-## Objective
+## About
 
-Design and operate a realistic enterprise environment to practice:
+HikenRoot Forge is a private cybersecurity training platform designed to simulate real-world enterprise attacks and defenses. Unlike typical CTF labs, every scenario is built around **MediaTech Groupe SA**, a fictional digital press group with realistic departments (IT, Legal, Finance, HR, Editorial), Active Directory infrastructure, cloud services, and business workflows.
 
-- Active Directory attacks & defense (on-premise + hybrid cloud)
-- Web application security
-- Cloud & Kubernetes security
-- AI/LLM security research
-- Network segmentation & monitoring
-- Incident response & digital forensics
+This approach bridges the gap between technical exploitation and business impact — every write-up includes CVSS scoring, MITRE ATT&CK mapping, financial risk estimation, regulatory analysis (GDPR/NIS2/ISO 27001), and COMEX-level remediation recommendations.
 
-Built around a fictional company (MediaTech Groupe SA) with realistic penetration testing scenarios.
+## MediaTech Groupe SA — Business Context
 
-## Hardware
+All technical scenarios are contextualized around **MediaTech Groupe SA**, a fictional digital press group (250 users, multi-department: IT, Legal, Finance, HR, Editorial, Contractors). This bridges the gap between raw exploitation and real-world business impact.
 
-| Node | CPU | RAM | Storage | GPU | Role |
-|------|-----|-----|---------|-----|------|
-| **Beelink EQR6** | AMD Ryzen 9 6900HX | 128 Go DDR5 | 1 To NVMe | — | AD Lab, Web Lab, pfSense, PBS |
-| **MS-02 Ultra** | Intel Core Ultra 9 285HX | 192 Go DDR5 ECC | Samsung 990 PRO 1 To + WD BLACK 4 To NVMe | RTX PRO 4000 Blackwell 24 Go | Cloud, AI, DFIR, OT/ICS, SOC |
-| **Synology DS923+** | AMD Ryzen R1600 | 32 Go DDR4 | 3x 4 To IronWolf RAID 5 | — | NFS Backup |
-| **MikroTik CSS610** | — | — | — | — | 10G Backbone (8x 1G PoE + 2x SFP+) |
+**In every write-up**, the "Business Impact" section maps technical findings to MediaTech's context:
+- Financial risk estimation (€) based on realistic press group operations
+- Regulatory analysis — GDPR, NIS2, ISO 27001 compliance impact
+- COMEX-level recommendations — executive decisions expected after incident
+- Risk matrix — probability vs. impact (Mermaid quadrant charts)
 
-## Architecture
+**Planned — AI-driven business simulation:**
+- LLM agents (Ollama + n8n) will simulate MediaTech employees: naive users responding to phishing, helpdesk interactions, vulnerable chatbots
+- Automated scenario generation — LLM creates realistic attack contexts adapted to certification targets (OSCP vs CRTO vs CRTE)
+- Business scenario library: fraud (SC-FIN), data exfiltration (SC-JUR), insider threat (SC-IT), supply chain (SC-SUP), spear phishing (SC-USR) — ~40 scenarios planned
+- Domain-joined Windows 11 workstations with realistic user profiles, deployed via Ansible + Terraform (Proxmox provider) — same IaC approach as GOAD
 
-```mermaid
-graph TB
-    subgraph INTERNET["Internet / External"]
-        ARCHER["Archer NX200 5G<br/>192.168.100.0/24"]
-        KALI_EXT["Kali External<br/>192.168.100.10"]
-    end
+## Infrastructure
 
-    subgraph BACKBONE["MikroTik CSS610-8P-2S+IN — 10G Backbone"]
-        direction LR
-        SW_PORT1["Port 1-4<br/>Beelink"]
-        SW_PORT2["Port 5-8<br/>MS-02"]
-        SW_SFP["SFP+ 10G"]
-    end
+| Node | Specs | Role |
+|---|---|---|
+| **Beelink EQR6** | Ryzen 9 6900HX, 128 GB DDR5, 1 TB NVMe | GOAD AD Lab, WebLab, pfSense, PBS |
+| **MS-02 Ultra** | Core Ultra 9 285HX, 192 GB DDR5 ECC, 9 TB NVMe, RTX PRO 4000 Blackwell 24 GB | Compute node, Ollama, Cloud/SOC labs |
+| **Battlebox** | Ryzen 9 9950X3D, RTX 5080 16 GB, 128 GB DDR5, 12 TB NVMe | Attack platform, Hashcat, Red Team |
 
-    subgraph BEELINK["Beelink EQR6 — Master Node<br/>Ryzen 9 6900HX | 128 Go DDR5 | 1 To NVMe"]
-
-        subgraph PFSENSE["pfSense — Central Firewall"]
-            PF_WAN["WAN 192.168.50.250"]
-            PF_VPN["WireGuard 10.10.10.0/24"]
-            PF_VLAN["Inter-VLAN Routing"]
-        end
-
-        subgraph VLAN10["VLAN 10 — AD Lab GOAD v3"]
-            DC01["DC01<br/>192.168.10.10"]
-            DC02["DC02<br/>192.168.10.11"]
-            DC03["DC03<br/>192.168.10.12"]
-            SRV02["SRV02<br/>192.168.10.22"]
-            SRV03["SRV03<br/>192.168.10.23"]
-        end
-
-        subgraph VLAN20["VLAN 20 — Web Lab"]
-            WEBLAB["Docker WebLab<br/>192.168.20.10"]
-            DVWA["DVWA :8081"]
-            JUICE["Juice Shop :8082"]
-            WEBGOAT["WebGoat :8083"]
-            VAMPI["VAmPI :8084"]
-            SQLI["SQLi-Labs :8086"]
-        end
-
-        PBS["PBS<br/>192.168.50.129"]
-    end
-
-    subgraph MS02["MS-02 Ultra — Compute Node<br/>Core Ultra 9 285HX | 192 Go DDR5 ECC | 9 To NVMe"]
-        GPU["RTX PRO 4000 Blackwell<br/>24 Go GDDR7 ECC | 70W TDP"]
-
-        subgraph VLAN30["VLAN 30 — Cloud Lab"]
-            K3S_M["K3s Master<br/>192.168.30.10"]
-            K3S_W1["K3s Worker 1<br/>192.168.30.11"]
-            K3S_W2["K3s Worker 2<br/>192.168.30.12"]
-            EXAM_M["Kubeadm Master<br/>192.168.30.20"]
-        end
-
-        subgraph VLAN40["VLAN 40 — AI Lab"]
-            OLLAMA["Ollama + Agents<br/>192.168.40.10<br/>GPU Passthrough"]
-            RAG["RAG Vulnerable<br/>192.168.40.11"]
-            HASHCAT["Hashcat<br/>192.168.40.12"]
-        end
-
-        subgraph VLAN50_DFIR["VLAN 50 — DFIR Lab"]
-            SIFT["SIFT Workstation<br/>192.168.50.10"]
-            THEHIVE["TheHive + Cortex<br/>192.168.50.11"]
-        end
-
-        subgraph VLAN60["VLAN 60 — OT/ICS Lab"]
-            GRFICS["GRFICSv2<br/>192.168.60.10"]
-            OPENPLC["OpenPLC<br/>192.168.60.12"]
-        end
-
-        subgraph SOC["SOC Lab — Multi-VLAN"]
-            WAZUH["Wazuh SIEM"]
-            SECONION["Security Onion"]
-            VELOCI["Velociraptor EDR"]
-        end
-    end
-
-    subgraph NAS["Synology DS923+"]
-        SYNO["7.6 To NFS<br/>192.168.50.130"]
-    end
-
-    KALI_EXT --> ARCHER
-    ARCHER -->|"Simulated External Attack"| BACKBONE
-    PF_VPN -->|"WireGuard Tunnel"| KALI_VPN["Kali VPN<br/>10.10.10.2"]
-    BACKBONE --- BEELINK
-    BACKBONE --- MS02
-    PBS -->|"NFS Backup"| SYNO
-    PFSENSE -->|"Route"| VLAN10
-    PFSENSE -->|"Route"| VLAN20
-    PFSENSE -->|"Route"| VLAN30
-    PFSENSE -->|"Route"| VLAN40
-
-    style BEELINK fill:#1a1a2e,stroke:#e94560,stroke-width:2px
-    style MS02 fill:#1a1a2e,stroke:#0f3460,stroke-width:2px
-    style VLAN10 fill:#16213e,stroke:#e94560
-    style VLAN20 fill:#16213e,stroke:#f39c12
-    style VLAN30 fill:#16213e,stroke:#3498db
-    style VLAN40 fill:#16213e,stroke:#9b59b6
-    style SOC fill:#16213e,stroke:#2ecc71
-    style PFSENSE fill:#0a3d62,stroke:#e94560,stroke-width:2px
-```
+**Network:** pfSense + MikroTik CSS610 10G backbone + WireGuard VPN
 
 ## Network Segmentation
 
-| VLAN | Name | Subnet | Purpose |
-|------|------|--------|---------|
-| 10 | AD Lab | 192.168.10.0/24 | Active Directory attacks & defense |
-| 20 | Web Lab | 192.168.20.0/24 | Web exploitation & secure coding |
-| 30 | Cloud Lab | 192.168.30.0/24 | Kubernetes & container security |
-| 40 | AI Lab | 192.168.40.0/24 | LLM security research |
-| 50 | Management | 192.168.50.0/24 | Infrastructure management |
-| 60 | OT/ICS | 192.168.60.0/24 | Industrial control systems |
-| 70 | Mobile | 192.168.70.0/24 | Mobile security |
-| 100 | External | 192.168.100.0/24 | Simulated external attack |
+| VLAN | Subnet | Purpose |
+|---|---|---|
+| 10 | 192.168.10.0/24 | AD Lab — GOAD v3 (5 DCs, 3 domains, 2 forests) |
+| 20 | 192.168.20.0/24 | Web Lab — 7 vulnerable applications |
+| 30 | 192.168.30.0/24 | Cloud Lab — K3s pentest + Kubeadm certification |
+| 40 | 192.168.40.0/24 | AI Lab — LLM security, n8n orchestration |
+| 50 | 192.168.50.0/24 | Management — Proxmox, PBS, NAS |
 
-## Technologies
+## Scenarios & Write-ups
 
-- **Virtualization:** Proxmox VE 9.1, QEMU/KVM
-- **Network:** pfSense, MikroTik 10G, WireGuard VPN, DAC SFP+
-- **Containers:** Docker, Kubernetes (K3s + Kubeadm)
-- **AI/ML:** NVIDIA RTX PRO 4000 Blackwell, Ollama (qwen3:32b, deepseek-r1:8b)
-- **Active Directory:** GOAD v3 (Game of Active Directory) — 5 VMs, multi-forest
-- **Monitoring:** Wazuh, Security Onion, Velociraptor (planned)
-- **Backup:** Proxmox Backup Server → Synology NAS via NFS
+### Active Directory Lab — GOAD v3
 
-## Cloud Lab — Kubernetes Penetration Testing
+Realistic multi-forest AD environment (sevenkingdoms.local, north.sevenkingdoms.local, essos.local) mapped to MediaTech Groupe SA's infrastructure.
 
-K3s cluster (3 nodes) on VLAN 30 running Kubernetes Goat — 5 exploitation scenarios with expert-level write-ups including SOC detection rules (Sigma/Falco), network diagrams, MITRE ATT&CK mapping, and financial impact analysis.
+| Scenario | Title | Techniques | Status |
+|---|---|---|---|
+| SC-AD-001 | [Recon & Initial Foothold](docs/labs/ad-lab/SC-AD-001-recon-and-initial-foothold.md) | nmap, LDAP anon, BloodHound, SYSVOL | ✅ |
+| SC-AD-002 | [Credential Harvesting](docs/labs/ad-lab/SC-AD-002-credential-harvesting.md) | AS-REP Roasting, Kerberoasting, Password Spray | ✅ |
+| SC-AD-003 | [NTLM Relay & Poisoning](docs/labs/ad-lab/SC-AD-003-NTLM-Relay-Poisoning.md) | Responder, ntlmrelayx, SMB relay | ✅ |
+| SC-AD-004 | [ACL Abuse Chain](docs/labs/ad-lab/SC-AD-004-acl-abuse-chain.md) | ForceChangePwd → GenericWrite → WriteDACL → DA | ✅ |
+| SC-AD-005 | [noPac / SamAccountName Spoofing](docs/labs/ad-lab/SC-AD-005-nopac-samaccountname-spoofing.md) | CVE-2021-42278/42287, PrintNightmare | ✅ |
+| SC-AD-006 | [MSSQL Pivot](docs/labs/ad-lab/SC-AD-006-mssql-pivot.md) | Impersonate, linked servers, xp_cmdshell | ✅ |
+| SC-AD-007 | [Kerberos Delegation](docs/labs/ad-lab/SC-AD-007-kerberos-delegation.md) | Unconstrained, Constrained, RBCD, Shadow Creds | ✅ |
+| SC-AD-008 | [ADCS Certificate Abuse](docs/labs/ad-lab/SC-AD-008-adcs-certificate-abuse.md) | ESC1/2/3/4/6/8, certipy, PetitPotam | ✅ |
+| SC-AD-009 | [Domain Dominance](docs/labs/ad-lab/SC-AD-009-domain-dominance.md) | Golden/Silver Ticket, AdminSDHolder, DCSync | ✅ |
+| SC-AD-010 | [Cross-Forest Trusts](docs/labs/ad-lab/SC-AD-010-cross-forest-trusts.md) | raiseChild, SID History, foreign groups | ✅ |
+| SC-AD-011 | [Coerce & File-based Attacks](docs/labs/ad-lab/SC-AD-011-coerce-file-based-attacks.md) | .lnk, .scf, .url, searchConnector-ms, WebDAV | ✅ |
+| SC-AD-012 | [ADCS Advanced](docs/labs/ad-lab/SC-AD-012-adcs-advanced.md) | ESC5 Golden Certificate, ESC9, ESC11 RPC Relay | ✅ |
 
-| Scenario | Attack Vector | Severity | Write-up |
-|----------|--------------|----------|----------|
-| SC-CLD-001 | Sensitive Keys in Codebases | Critical | [Read](docs/labs/cloud-lab/SC-CLD-001-sensitive-keys-in-codebases.md) |
-| SC-CLD-002 | SSRF in Kubernetes | Critical | [Read](docs/labs/cloud-lab/SC-CLD-002-ssrf-in-the-kubernetes-world.md) |
-| SC-CLD-003 | Container Escape to Host System | Critical | [Read](docs/labs/cloud-lab/SC-CLD-003-container-escape-to-host-system.md) |
-| SC-CLD-004 | RBAC Least Privileges Misconfiguration | High | [Read](docs/labs/cloud-lab/SC-CLD-004-rbac-least-privileges-misconfiguration.md) |
-| SC-CLD-005 | Attacking Private Registry | Critical | [Read](docs/labs/cloud-lab/SC-CLD-005-attacking-private-registry.md) |
+### Cloud & Kubernetes Lab
 
-Each write-up follows a professional pentest deliverable format:
+| Scenario | Title | Techniques | Status |
+|---|---|---|---|
+| SC-CLD-001 | [Sensitive Keys in Codebases](docs/labs/cloud-lab/SC-CLD-001-sensitive-keys-in-codebases.md) | Git secrets, env leaks, registry exposure | ✅ |
+| SC-CLD-002 | [SSRF in the Kubernetes World](docs/labs/cloud-lab/SC-CLD-002-ssrf-in-the-kubernetes-world.md) | SSRF → metadata, service account tokens | ✅ |
+| SC-CLD-003 | [Container Escape to Host](docs/labs/cloud-lab/SC-CLD-003-container-escape-to-host-system.md) | Privileged container, host mount, nsenter | ✅ |
+| SC-CLD-004 | [RBAC Misconfiguration](docs/labs/cloud-lab/SC-CLD-004-rbac-least-privileges-misconfiguration.md) | ClusterRole abuse, token theft, lateral movement | ✅ |
+| SC-CLD-005 | [Attacking Private Registry](docs/labs/cloud-lab/SC-CLD-005-attacking-private-registry.md) | Registry enumeration, image tampering | ✅ |
+| SC-CLD-005b | [DIND Exploitation](docs/labs/cloud-lab/SC-CLD-005-dind-exploitation-exposed-git-repository.md) | Docker-in-Docker, exposed .git | ✅ |
 
-- CVSS scoring & CWE/MITRE ATT&CK classification
-- Executive summary (recruiter / auditor / CISO)
-- Network diagram with real IPs
-- Full exploitation walkthrough with command outputs
-- SOC detection rules (Sigma, Falco, IOCs)
-- Financial impact estimation (MediaTech Groupe SA)
-- Remediation roadmap (immediate / short-term / long-term)
+### Write-up Format
 
-## AD Lab — GOAD v3
+Every scenario follows a standardized professional format:
 
-Multi-forest Active Directory environment (5 VMs, 3 domain controllers) for OSCP+/CRTO/CRTP/CRTE preparation.
+1. **Classification** — Severity, CVSS 3.1, affected systems
+2. **Executive Summary** — For recruiter / ISO 27001 auditor / CISO
+3. **Kill Chain** — Mermaid diagram with attack flow
+4. **Exploitation** — Step-by-step with real commands and outputs
+5. **Business Impact — MediaTech Groupe SA** — Financial estimation, risk matrix, regulatory impact (GDPR/NIS2/ISO 27001), COMEX decisions
+6. **Detection** — Event IDs, Sigma rules, IOCs
+7. **Remediation** — Secure by Design (0-24h / 1 week / 1 month)
+8. **Target Architecture** — Mermaid diagram
 
-![SC-AD-004 ACL Abuse Chain](assets/demo-sc-ad-004.gif)
-6 exploitation scenarios completed — from initial recon to full domain compromise across north.sevenkingdoms.local and essos.local.
-
-| Scenario | Technique | CVE / Method | Severity | Write-up |
-|----------|-----------|-------------|----------|----------|
-| SC-AD-001 | Recon & Initial Foothold | nmap, BloodHound, LDAP anonymous | High | [Read](docs/labs/ad-lab/SC-AD-001-recon-and-initial-foothold.md) |
-| SC-AD-002 | Credential Harvesting | AS-REP Roasting, Kerberoasting, SYSVOL | Critical | [Read](docs/labs/ad-lab/SC-AD-002-credential-harvesting.md) |
-| SC-AD-003 | NTLM Relay & Poisoning | Responder, ntlmrelayx, mitm6 | Critical | [Read](docs/labs/ad-lab/SC-AD-003-NTLM-Relay-Poisoning.md) |
-| SC-AD-004 | ACL Abuse Chain | ForceChangePwd → GenericWrite → WriteDACL → DA | Critical | [Read](docs/labs/ad-lab/SC-AD-004-acl-abuse-chain.md) |
-| SC-AD-005 | Domain Privesc | CVE-2021-42278/42287 (noPac) + CVE-2021-1675 (PrintNightmare) | Critical | [Read](docs/labs/ad-lab/SC-AD-005-nopac-samaccountname-spoofing.md) |
-| SC-AD-006 | MSSQL Pivot | Linked servers, xp_cmdshell, UNC coerce | Critical | [Read](docs/labs/ad-lab/SC-AD-006-mssql-pivot.md) |
+## Architecture Documentation
 
 | Document | Description | Link |
-|----------|-------------|------|
-| Architecture | High-level design & network topology | [Read](docs/goad/architecture.md) |
-| HLD (EN) | Architecture document (English) | [Read](docs/goad/HLD_GOAD_EN.md) |
-| HLD (FR) | Architecture document (French) | [Read](docs/goad/HLD_GOAD_FR.md) |
-| Backup Strategy | Golden snapshots & automated backups | [Read](docs/goad/backup-strategy.md) |
-| WireGuard | VPN setup for remote access | [Read](docs/goad/wireguard-setup.md) |
-| Troubleshooting | Common issues & solutions | [Read](docs/goad/troubleshooting.md) |
-| Network Diagram | Interactive network topology | [Read](docs/goad/GOAD_Network_Diagram.html) |
-| ROADMAP | AD lab learning path & certif alignment | [Read](docs/labs/ad-lab/ROADMAP.md) |
-
-## AI Lab — LLM Stack
-
-Ollama running natively on MS-02 host with NVIDIA GPU acceleration:
-
-| Model | Size | VRAM | Usage |
-|-------|------|------|-------|
-| qwen3.5:27b | 17 GB | ~18 GB | General purpose |
-| qwen3.5:35b | 24 GB | ~24 GB | High reasoning |
-| deepseek-r1:8b | 5 GB | ~8 GB | Autonomous pentest agent |
+|---|---|---|
+| GOAD HLD (EN) | High-Level Design — AD Lab architecture | [docs/goad/HLD_GOAD_EN.md](docs/goad/HLD_GOAD_EN.md) |
+| GOAD HLD (FR) | Architecture macro — Lab AD | [docs/goad/HLD_GOAD_FR.md](docs/goad/HLD_GOAD_FR.md) |
+| MS-02 Architecture | Hardware, storage, GPU, network specs | [docs/ms02-architecture.md](docs/ms02-architecture.md) |
+| WireGuard Setup | VPN configuration for pentest access | [docs/goad/wireguard-setup.md](docs/goad/wireguard-setup.md) |
+| Backup Strategy | PBS + Synology NAS + GOLDEN snapshots | [docs/goad/backup-strategy.md](docs/goad/backup-strategy.md) |
+| Troubleshooting | 50+ resolved issues | [docs/goad/troubleshooting.md](docs/goad/troubleshooting.md) |
+| AD Lab Roadmap | GOAD progression tracker | [docs/labs/ad-lab/ROADMAP.md](docs/labs/ad-lab/ROADMAP.md) |
 
 ## Certifications Alignment
 
-| Certification | Lab | Priority |
-|---------------|-----|----------|
-| OSCP+ | GOAD + WebLab | High |
-| CRTO | GOAD + C2 | High |
-| CRTP | GOAD (AD escalation) | High |
-| CRTE | GOAD (cross-forest) | High |
-| eWPT | WebLab | Medium |
-| CKA / CKS | Cloud Lab Kubeadm | High |
-| AZ-500 | Cloud Lab + Entra ID | Medium |
-| CAIPT-RT | AI Lab | High |
-| C-AI/MLPen | AI Lab | High |
+| Certification | Lab Coverage |
+|---|---|
+| OSCP+ | GOAD AD Lab + WebLab |
+| CRTO / CRTP / CRTE | GOAD AD Lab + C2 |
+| eWPT | WebLab (7 apps) |
+| CKA / CKAD / CKS | Kubeadm cluster (VLAN 30) |
+| AZ-500 | K3s pentest cluster |
+| CAIPT-RT / C-AI/MLPen | AI Lab (VLAN 40) |
 
 ## Project Status
 
 | Phase | Scope | Status |
-|-------|-------|--------|
-| Phase 1 | Infrastructure foundation (Proxmox, VLANs, GPU, Ollama, backups) | ✅ Complete |
+|---|---|---|
+| Phase 1 | Infrastructure foundation | ✅ Complete |
 | Phase 2 | Cloud + AI + SOC + Guacamole | 🔧 In Progress |
-| Phase 3 | DFIR + OT/ICS + Mobile | Planned |
-| Phase 4 | Documentation & GitBook | Planned |
-
-## Additional Documentation
-
-| Document | Description | Link |
-|----------|-------------|------|
-| Architecture Overview | Full infrastructure diagrams | [Read](diagrams/architecture-overview.md) |
-| Network Topology | VLAN routing, attack & defense flows, backup architecture | [Read](diagrams/network-topology.md) |
-| MS-02 Architecture | Compute node setup & GPU configuration | [Read](docs/ms02-architecture.md) |
-| Session Reports | Technical troubleshooting and architecture decisions | [Read](docs/reports) |
+| Phase 3 | DFIR + OT/ICS + Mobile | 📋 Planned |
+| Phase 4 | Documentation GitBook FR/EN | 📋 Planned |
 
 ## Author
 
-**hik3nR00t**
+**hik3nR00t** — Cybersecurity professional with 20+ years of infrastructure experience.
+
+---
+
+*HikenRoot Forge — Enterprise-grade cybersecurity lab*
