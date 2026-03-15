@@ -1,5 +1,7 @@
 # HikenRoot Forge 🔥
 
+🇫🇷 [Version française](docs/README_FR.md)
+
 **Enterprise-grade cybersecurity lab built around a realistic company simulation**
 
 ## About
