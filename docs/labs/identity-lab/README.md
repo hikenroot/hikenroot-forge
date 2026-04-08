@@ -23,25 +23,25 @@ Projet de lab complet simulant une mission d'**Architecte Identity Senior** sur 
 
 | Scénario | Titre | Outils | Statut |
 |---|---|---|---|
-| SC-ID-001 | [Cartographie AD Multi-Forêts](SC-ID-001-cartographie-ad.md) | netexec, PowerShell, Get-AD* | ✅ |
-| SC-ID-002 | [Santé Réplication](SC-ID-002-sante-replication.md) | repadmin, dcdiag | ✅ |
-| SC-ID-003 | [Redesign Sites & Services](SC-ID-003-sites-services.md) | PowerShell AD Sites, New-ADReplicationSite | ✅ |
-| SC-ID-004 | [Tiering Model](SC-ID-004-tiering-model.md) | OUs, GPO Deny Logon, comptes T0/T1/T2 | ✅ |
-| SC-ID-005 | [Audit PingCastle](SC-ID-005-pingcastle-audit.md) | PingCastle, rapport consolidé | ✅ |
-| SC-ID-006 | [BloodHound — Chemins d'Attaque](SC-ID-006-bloodhound.md) | SharpHound, bloodhound-python, BloodHound CE | ✅ |
-| SC-ID-007 | [GPO CIS Baseline](SC-ID-007-gpo-cis-baseline.md) | GPO, CIS Benchmark Level 1 DC | ✅ |
-| SC-ID-008 | [Remédiations Kerberos](SC-ID-008-remediation-kerberos.md) | krbtgt rotation, AS-REP fix, gMSA | ✅ |
-| SC-ID-009 | [PingCastle Post-Hardening](SC-ID-009-pingcastle-post-hardening.md) | PingCastle avant/après | ✅ |
+| SC-ID-001 | [Cartographie AD Multi-Forêts](bloc1-ad-onprem/SC-ID-001-cartographie-ad.md) | netexec, PowerShell, Get-AD* | ✅ |
+| SC-ID-002 | [Santé Réplication](bloc1-ad-onprem/SC-ID-002-sante-replication.md) | repadmin, dcdiag | ✅ |
+| SC-ID-003 | [Redesign Sites & Services](bloc1-ad-onprem/SC-ID-003-sites-services.md) | PowerShell AD Sites, New-ADReplicationSite | ✅ |
+| SC-ID-004 | [Tiering Model](bloc1-ad-onprem/SC-ID-004-tiering-model.md) | OUs, GPO Deny Logon, comptes T0/T1/T2 | ✅ |
+| SC-ID-005 | [Audit PingCastle](bloc1-ad-onprem/SC-ID-005-pingcastle-audit.md) | PingCastle, rapport consolidé | ✅ |
+| SC-ID-006 | [BloodHound — Chemins d'Attaque](bloc1-ad-onprem/SC-ID-006-bloodhound.md) | SharpHound, bloodhound-python, BloodHound CE | ✅ |
+| SC-ID-007 | [GPO CIS Baseline](bloc1-ad-onprem/SC-ID-007-gpo-cis-baseline.md) | GPO, CIS Benchmark Level 1 DC | ✅ |
+| SC-ID-008 | [Remédiations Kerberos](bloc1-ad-onprem/SC-ID-008-remediation-kerberos.md) | krbtgt rotation, AS-REP fix, gMSA | ✅ |
+| SC-ID-009 | [PingCastle Post-Hardening](bloc1-ad-onprem/SC-ID-009-pingcastle-post-hardening.md) | PingCastle avant/après | ✅ |
 
 ### Bloc 2 — Entra ID Hybrid (Design & Implémentation)
 
 | Scénario | Titre | Outils | Statut |
 |---|---|---|---|
-| SC-ID-010 | [Tenant Azure & Break Glass](SC-ID-010-tenant-breakglass.md) | Portail Entra, M365 Admin | ✅ |
-| SC-ID-011 | [VM AD Connect (IaC)](SC-ID-011-vm-adconnect.md) | Terraform, Proxmox | ✅ |
-| SC-ID-012 | [AD Connect — Hybrid Identity](SC-ID-012-adconnect-hybrid.md) | PHS, SSO, Password Writeback, filtrage OUs | ✅ |
-| SC-ID-013 | [Conditional Access](SC-ID-013-conditional-access.md) | 4 CA policies, Named Locations | ✅ |
-| SC-ID-014 | [PIM — Privileged Access](SC-ID-014-pim.md) | PIM, JIT, MFA activation, approbation | ✅ |
+| SC-ID-010 | [Tenant Azure & Break Glass](bloc2-entra-hybrid/SC-ID-010-tenant-breakglass.md) | Portail Entra, M365 Admin | ✅ |
+| SC-ID-011 | [VM AD Connect (IaC)](bloc2-entra-hybrid/SC-ID-011-vm-adconnect.md) | Terraform, Proxmox | ✅ |
+| SC-ID-012 | [AD Connect — Hybrid Identity](bloc2-entra-hybrid/SC-ID-012-adconnect-hybrid.md) | PHS, SSO, Password Writeback, filtrage OUs | ✅ |
+| SC-ID-013 | [Conditional Access](bloc2-entra-hybrid/SC-ID-013-conditional-access.md) | 4 CA policies, Named Locations | ✅ |
+| SC-ID-014 | [PIM — Privileged Access](bloc2-entra-hybrid/SC-ID-014-pim.md) | PIM, JIT, MFA activation, approbation | ✅ |
 
 ## Auteur
 
