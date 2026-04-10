@@ -148,6 +148,18 @@ Les 4 policies sont visibles dans le portail Entra ID → Accès conditionnel �
 
 ---
 
+### Preuves
+
+![4 Conditional Access policies en Report-only](assets/SC-ID-013-01-ca-policies-list.png)
+
+![CA001 — Block Legacy Authentication](assets/SC-ID-013-02-ca001-detail.png)
+
+![CA002 — MFA pour les Admins](assets/SC-ID-013-03-ca002-detail.png)
+
+![Named Location — Blocked-Countries](assets/SC-ID-013-04-named-location.png)
+
+---
+
 ## Correspondance mission client
 
 | Étape lab | Équivalent mission client |

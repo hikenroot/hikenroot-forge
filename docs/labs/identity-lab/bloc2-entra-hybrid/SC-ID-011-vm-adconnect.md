@@ -124,6 +124,16 @@ Test-NetConnection -ComputerName login.microsoftonline.com -Port 443
 
 ---
 
+### Preuves
+
+![VM ADCONNECT sur Proxmox — VMID 111](assets/SC-ID-011-01-proxmox-vm.png)
+
+![Configuration Terraform — main.tf](assets/SC-ID-011-02-terraform-config.png)
+
+![Console AD Connect sur ADCONNECT](assets/SC-ID-011-03-adconnect-console.png)
+
+---
+
 ## Correspondance mission client
 
 | Étape lab | Équivalent mission client |

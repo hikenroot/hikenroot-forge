@@ -121,6 +121,16 @@ L'erreur **"You cannot update self assignment for this role"** empêche un admin
 
 ---
 
+### Preuves
+
+![PIM — Paramètres Global Admin (4h max, MFA, justification, approbation)](assets/SC-ID-014-01-pim-settings.png)
+
+![Affectations éligibles — admin + hiken root](assets/SC-ID-014-02-eligible-assignments.png)
+
+![Affectations actives — BG01 + BG02 permanent](assets/SC-ID-014-03-active-assignments.png)
+
+---
+
 ## Correspondance mission client
 
 | Étape lab | Équivalent mission client |
