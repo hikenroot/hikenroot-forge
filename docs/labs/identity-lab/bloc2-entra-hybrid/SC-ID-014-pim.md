@@ -6,11 +6,11 @@
 |-------|--------|
 | **Code scénario** | SC-ID-014 |
 | **Nom** | PIM — Gestion des accès privilégiés Just-In-Time |
-| **Cible** | Tenant nchouarhipm.onmicrosoft.com |
+| **Cible** | Tenant nhik3nR00tpm.onmicrosoft.com |
 | **Phase** | Phase 3 — Sécuriser le Tenant |
 | **Référentiel** | Microsoft PIM Best Practices, Zero Trust, NIST SP 800-53 |
 | **Date** | Avril 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -72,7 +72,7 @@ graph TB
 
 ```mermaid
 sequenceDiagram
-    participant Admin as admin@nchouarhipm...
+    participant Admin as admin@nhik3nR00tpm...
     participant PIM as PIM (Entra ID)
     participant MFA as Azure MFA
     participant BG01 as Break Glass 01 (Approbateur)

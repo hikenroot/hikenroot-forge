@@ -14,7 +14,7 @@
 | **MITRE ATT&CK** | T1078.001 (Valid Accounts: Default Accounts), T1552.007 (Unsecured Credentials: Container API) |
 | **Flag** | `k8s-goat-85057846a8046a25b35f38f3a2649dce` |
 | **Date** | 21 février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

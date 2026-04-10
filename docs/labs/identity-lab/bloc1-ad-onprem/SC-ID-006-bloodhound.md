@@ -10,7 +10,7 @@
 | **Phase** | Phase 1 — Auditer |
 | **Référentiel** | MITRE ATT&CK, BloodHound Enterprise, ANSSI |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

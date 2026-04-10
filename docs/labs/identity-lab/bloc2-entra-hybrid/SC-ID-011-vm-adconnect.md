@@ -10,7 +10,7 @@
 | **Phase** | Phase 1 — Préparer l'Infrastructure |
 | **Référentiel** | Microsoft AD Connect Prerequisites, Terraform Best Practices |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -38,7 +38,7 @@ graph LR
     end
 
     NIC1 -->|"Domaine AD<br/>Sync"| DC01["DC01 — 192.168.10.10<br/>sevenkingdoms.local"]
-    NIC2 -->|"HTTPS 443<br/>Sync Entra ID"| ENTRA["Entra ID<br/>nchouarhipm.onmicrosoft.com"]
+    NIC2 -->|"HTTPS 443<br/>Sync Entra ID"| ENTRA["Entra ID<br/>nhik3nR00tpm.onmicrosoft.com"]
 
     style ADCONNECT fill:#2c3e50,color:#fff
     style DC01 fill:#e74c3c,color:#fff

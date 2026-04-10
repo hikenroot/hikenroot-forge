@@ -164,4 +164,4 @@ La réduction de 10 points sur la catégorie Anomalies confirme l'efficacité de
 
 ## Auteur
 
-**Nadyr Chouarhi** (hik3nR00t) — Consultant Identity & Sécurité Microsoft
+**hik3nR00t**  — Consultant Identity & Sécurité Microsoft

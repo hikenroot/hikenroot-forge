@@ -14,7 +14,7 @@
 | **CWE** | CWE-918 (Server-Side Request Forgery), CWE-200 (Exposure of Sensitive Information) |
 | **MITRE ATT&CK** | T1090 (Proxy), T1552.005 (Cloud Instance Metadata API), T1046 (Network Service Discovery) |
 | **Date** | 20 février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

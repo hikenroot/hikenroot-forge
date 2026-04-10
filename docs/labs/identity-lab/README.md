@@ -15,7 +15,7 @@ Projet de lab complet simulant une mission d'**Architecte Identity Senior** sur 
 | SRV03 / BRAAVOS | Member Server (essos) | 192.168.10.23 | Server 2016 |
 | ADCONNECT | AD Connect (Tier 0) | 192.168.10.55 | Server 2019 |
 
-**Tenant Entra ID :** `nchouarhipm.onmicrosoft.com`
+**Tenant Entra ID :** `nhik3nR00tpm.onmicrosoft.com`
 
 ## Scénarios
 
@@ -45,4 +45,4 @@ Projet de lab complet simulant une mission d'**Architecte Identity Senior** sur 
 
 ## Auteur
 
-**Nadyr Chouarhi** (hik3nR00t) — Consultant Identity & Sécurité Microsoft
+**hik3nR00t**  — Consultant Identity & Sécurité Microsoft

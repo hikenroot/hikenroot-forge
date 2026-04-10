@@ -16,7 +16,7 @@
 | **MITRE ATT&CK** | T1649, T1558, T1557.001 |
 | **Domaine compromis** | essos.local |
 | **Date d'exécution** | 8 mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -673,4 +673,4 @@ graph TB
 
 ---
 
-*HikenRoot Forge — SC-AD-008 — Nadyr Chouarhi (hik3nR00t) — Mars 2026*
+*HikenRoot Forge — SC-AD-008 — hik3nR00t — Mars 2026*

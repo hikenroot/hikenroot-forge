@@ -14,7 +14,7 @@
 | **MITRE ATT&CK** | T1098 (Account Manipulation), T1484 (Domain Policy Modification), T1003.006 (DCSync), T1558.003 (Targeted Kerberoasting), T1556 (Shadow Credentials) |
 | **Mayfly Reference** | Part 11 — ACL Abuse |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

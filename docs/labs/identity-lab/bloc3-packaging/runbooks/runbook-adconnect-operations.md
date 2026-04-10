@@ -7,7 +7,7 @@
 | Serveur | ADCONNECT (192.168.10.55) |
 | Service | ADSync |
 | Domaine | sevenkingdoms.local |
-| Tenant | nchouarhipm.onmicrosoft.com |
+| Tenant | nhik3nR00tpm.onmicrosoft.com |
 | Méthode auth | PHS (Password Hash Sync) |
 | SSO | Seamless SSO (2 forêts) |
 | Writeback | Password Writeback activé |

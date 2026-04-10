@@ -10,7 +10,7 @@
 | **Phase** | Phase 4 — Vérifier |
 | **Référentiel** | PingCastle Risk Model |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

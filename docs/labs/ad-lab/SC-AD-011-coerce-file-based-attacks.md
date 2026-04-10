@@ -16,7 +16,7 @@
 | **MITRE ATT&CK** | T1187, T1557, T1071.001, T1569.002 |
 | **Domaines compromis** | north.sevenkingdoms.local (catelyn.stark), essos.local (khal.drogo, BRAAVOS$) |
 | **Date d'exécution** | 9 mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -534,4 +534,4 @@ graph TB
 
 ---
 
-*HikenRoot Forge — SC-AD-011 — Nadyr Chouarhi (hik3nR00t) — Mars 2026*
+*HikenRoot Forge — SC-AD-011 — hik3nR00t — Mars 2026*

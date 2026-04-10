@@ -17,7 +17,7 @@
 | **Prérequis** | Un compte de domaine valide (hodor:hodor) |
 | **Résultat** | Domain Admin north.sevenkingdoms.local — DCSync complet |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -448,7 +448,7 @@ graph TD
 
 ---
 
-*Auteur : Nadyr Chouarhi (hik3nR00t) | HikenRoot Forge | Mars 2026*
+*Auteur : hik3nR00t | HikenRoot Forge | Mars 2026*
 *Environnement : GOAD v3 — MediaTech Groupe SA (fictif)*
 
 ---
@@ -471,7 +471,7 @@ graph TD
 | **Prérequis** | Compte de domaine essos valide (jorah.mormont:H0nnor!) |
 | **Résultat** | SYSTEM sur MEEREEN DC — DCSync essos.local complet |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

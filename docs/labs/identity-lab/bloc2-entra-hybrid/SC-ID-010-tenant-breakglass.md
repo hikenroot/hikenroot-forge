@@ -6,11 +6,11 @@
 |-------|--------|
 | **Code scénario** | SC-ID-010 |
 | **Nom** | Création du Tenant Entra ID et comptes Break Glass |
-| **Cible** | Tenant nchouarhipm.onmicrosoft.com |
+| **Cible** | Tenant nhik3nR00tpm.onmicrosoft.com |
 | **Phase** | Phase 1 — Préparer le Tenant |
 | **Référentiel** | Microsoft Entra ID Best Practices, ANSSI |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -30,15 +30,15 @@ Les Break Glass accounts sont une exigence de sécurité fondamentale recommand�
 
 ```mermaid
 graph TB
-    subgraph TENANT["Tenant nchouarhipm.onmicrosoft.com"]
+    subgraph TENANT["Tenant nhik3nR00tpm.onmicrosoft.com"]
         subgraph ADMIN["Administration"]
-            OWNER["n.chouarhi@pm.me<br/>Propriétaire tenant<br/>Compte personnel (MSA)"]
-            ADMIN_ID["admin@nchouarhipm...<br/>Global Admin<br/>Compte d'annuaire"]
+            OWNER["n.hik3nR00t@pm.me<br/>Propriétaire tenant<br/>Compte personnel (MSA)"]
+            ADMIN_ID["admin@nhik3nR00tpm...<br/>Global Admin<br/>Compte d'annuaire"]
         end
         
         subgraph BG["Break Glass (Urgence)"]
-            BG01["breakglass01@nchouarhipm...<br/>Global Admin PERMANENT<br/>Exclu de toutes les CA policies"]
-            BG02["breakglass02@nchouarhipm...<br/>Global Admin PERMANENT<br/>Exclu de toutes les CA policies"]
+            BG01["breakglass01@nhik3nR00tpm...<br/>Global Admin PERMANENT<br/>Exclu de toutes les CA policies"]
+            BG02["breakglass02@nhik3nR00tpm...<br/>Global Admin PERMANENT<br/>Exclu de toutes les CA policies"]
         end
 
         subgraph LICENCE["Licences"]
@@ -57,17 +57,17 @@ graph TB
 
 ### 1. Création du tenant
 
-- Tenant : `nchouarhipm.onmicrosoft.com`
+- Tenant : `nhik3nR00tpm.onmicrosoft.com`
 - Tenant ID : `eea0e92c-08ea-4aa8-a0b2-d5e8854c81cd`
-- Propriétaire : `n.chouarhi@pm.me` (compte personnel Microsoft)
+- Propriétaire : `n.hik3nR00t@pm.me` (compte personnel Microsoft)
 
 ### 2. Compte admin dédié
 
-- Création de `admin@nchouarhipm.onmicrosoft.com` avec rôle Global Admin
+- Création de `admin@nhik3nR00tpm.onmicrosoft.com` avec rôle Global Admin
 - Séparation du compte propriétaire (MSA) et du compte d'administration (annuaire)
 - Location : France
 
-**Pourquoi un compte séparé :** le compte propriétaire (`n.chouarhi@pm.me`) est un MSA (Microsoft Account personnel). Il ne supporte pas toutes les fonctionnalités Entra ID (PIM, CA). Le compte `admin` est un compte d'annuaire natif qui supporte tout.
+**Pourquoi un compte séparé :** le compte propriétaire (`n.hik3nR00t@pm.me`) est un MSA (Microsoft Account personnel). Il ne supporte pas toutes les fonctionnalités Entra ID (PIM, CA). Le compte `admin` est un compte d'annuaire natif qui supporte tout.
 
 ### 3. Activation licence P2
 

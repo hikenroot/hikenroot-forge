@@ -10,7 +10,7 @@
 | **Phase** | Phase 2 — Concevoir & Implémenter |
 | **Référentiel** | Microsoft Tiering Model, ANSSI PA-022, ESAE |
 | **Date** | Février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

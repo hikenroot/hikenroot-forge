@@ -6,11 +6,11 @@
 |-------|--------|
 | **Code scénario** | SC-ID-013 |
 | **Nom** | Conditional Access — 4 policies de sécurité en Report-only |
-| **Cible** | Tenant nchouarhipm.onmicrosoft.com |
+| **Cible** | Tenant nhik3nR00tpm.onmicrosoft.com |
 | **Phase** | Phase 3 — Sécuriser le Tenant |
 | **Référentiel** | Microsoft Conditional Access Best Practices, Zero Trust |
 | **Date** | Avril 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

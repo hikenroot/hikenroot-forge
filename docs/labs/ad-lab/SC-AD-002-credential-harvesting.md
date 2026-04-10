@@ -14,7 +14,7 @@
 | **MITRE ATT&CK** | T1558.004 (AS-REP Roasting), T1558.003 (Kerberoasting), T1110.003 (Password Spray) |
 | **Mayfly Reference** | Part 2 — Find Users / Part 3 — Enumération avec user |
 | **Date** | Février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

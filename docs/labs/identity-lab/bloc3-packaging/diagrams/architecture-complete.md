@@ -5,7 +5,7 @@
 ```mermaid
 graph TB
     subgraph CLOUD["☁️ Microsoft Cloud"]
-        ENTRA["Entra ID<br/>nchouarhipm.onmicrosoft.com<br/>Licence P2"]
+        ENTRA["Entra ID<br/>nhik3nR00tpm.onmicrosoft.com<br/>Licence P2"]
         
         subgraph CA["Conditional Access"]
             CA001["CA001<br/>Block Legacy Auth"]

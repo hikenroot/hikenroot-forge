@@ -10,7 +10,7 @@
 | **Phase** | Phase 2 — Implémenter l'Hybridation |
 | **Référentiel** | Microsoft Entra Connect Best Practices |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -42,7 +42,7 @@ graph TB
     end
 
     subgraph CLOUD["Microsoft Cloud"]
-        ENTRA["Entra ID<br/>nchouarhipm.onmicrosoft.com"]
+        ENTRA["Entra ID<br/>nhik3nR00tpm.onmicrosoft.com"]
     end
 
     DC01 -->|"LDAP 389"| ADSYNC
@@ -79,7 +79,7 @@ Activé. Permet aux utilisateurs de changer leur mot de passe depuis le portail 
 
 | # | Connecteur | Type | Forêt/Tenant |
 |---|---|---|---|
-| 1 | nchouarhipm.onmicrosoft.com | AAD Connector | Entra ID |
+| 1 | nhik3nR00tpm.onmicrosoft.com | AAD Connector | Entra ID |
 | 2 | sevenkingdoms.local | AD Connector | Forêt 1 |
 | 3 | essos.local | AD Connector | Forêt 2 |
 

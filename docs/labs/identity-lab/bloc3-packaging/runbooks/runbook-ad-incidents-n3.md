@@ -47,7 +47,7 @@ repadmin /replsummary
 
 ```powershell
 # 1. Se connecter avec un Break Glass
-# BG01: breakglass01@nchouarhipm.onmicrosoft.com
+# BG01: breakglass01@nhik3nR00tpm.onmicrosoft.com
 
 # 2. Révoquer toutes les sessions du compte compromis
 Revoke-MgUserSignInSession -UserId "ID_DU_COMPTE_COMPROMIS"
@@ -113,7 +113,7 @@ Get-ADUser -Filter {SamAccountName -like "MSOL_*"} -Properties PasswordLastSet, 
 
 ```
 1. Se connecter avec Break Glass 01 ou 02
-   - breakglass01@nchouarhipm.onmicrosoft.com
+   - breakglass01@nhik3nR00tpm.onmicrosoft.com
    - Ces comptes sont EXCLUS de toutes les CA policies
    - Pas de MFA requis
 

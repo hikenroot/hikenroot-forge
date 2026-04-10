@@ -6,7 +6,7 @@
 
 | Propriété | Valeur |
 |-----------|--------|
-| Auteur | Nadyr Chouarhi (hik3nR00t) |
+| Auteur | hik3nR00t |
 | Version | 1.0 |
 | Date | Février 2026 |
 | Environnement | Lab Pentest — HikenRoot Forge |

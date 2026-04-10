@@ -14,7 +14,7 @@
 | **MITRE ATT&CK** | T1611 (Escape to Host), T1552.004 (Unsecured Credentials: Private Keys), T1003.008 (OS Credential Dumping: /etc/shadow) |
 | **Flag** | `k8s-goat-cd2da27224591da2b48ef83826a8a6c3` |
 | **Date** | 20 février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

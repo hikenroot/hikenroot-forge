@@ -10,7 +10,7 @@
 | **Phase** | Phase 3 — Durcir |
 | **Référentiel** | Microsoft Kerberos Security, ANSSI, CIS |
 | **Date** | Mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

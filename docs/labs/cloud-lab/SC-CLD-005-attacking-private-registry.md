@@ -14,7 +14,7 @@
 | **MITRE ATT&CK** | T1552.001 (Unsecured Credentials: Credentials in Files), T1525 (Implant Internal Image), T1213 (Data from Information Repositories) |
 | **Flag** | `k8s-goat-cf658c56a501385205cc6d2dafee8fc1` |
 | **Date** | 21 février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

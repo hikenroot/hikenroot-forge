@@ -14,7 +14,7 @@
 | **MITRE ATT&CK** | T1046 (Network Service Discovery), T1087 (Account Discovery), T1552.001 (Credentials in Files) |
 | **Mayfly Reference** | Part 1 — Reconnaissance & Scan / Part 2 — Find Users |
 | **Date** | Février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

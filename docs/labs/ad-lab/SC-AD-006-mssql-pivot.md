@@ -14,7 +14,7 @@
 | **MITRE ATT&CK** | T1210 (Exploitation of Remote Services), T1505.001 (SQL Stored Procedures), T1548.002 (Abuse Elevation Control Mechanism) |
 | **Mayfly Reference** | Part 7 — MSSQL / Part 8 — Privilege Escalation |
 | **Date** | 27 février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

@@ -16,7 +16,7 @@
 | **MITRE ATT&CK** | T1558.001, T1558.002, T1003.006, T1098 |
 | **Domaines compromis** | sevenkingdoms.local, north.sevenkingdoms.local, essos.local |
 | **Date d'exécution** | 8 mars 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
@@ -711,4 +711,4 @@ graph TB
 
 ---
 
-*HikenRoot Forge — SC-AD-009 — Nadyr Chouarhi (hik3nR00t) — Mars 2026*
+*HikenRoot Forge — SC-AD-009 — hik3nR00t — Mars 2026*

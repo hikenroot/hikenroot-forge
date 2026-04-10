@@ -11,7 +11,7 @@
 | **Phase** | Phase 1 — Auditer |
 | **Référentiel** | ISO 27001 A.8 (Gestion des actifs), ANSSI PA-022 |
 | **Date** | Février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

@@ -10,7 +10,7 @@
 | **Phase** | Phase 2 — Concevoir |
 | **Référentiel** | Microsoft AD Sites & Services Best Practices, ANSSI PA-022 |
 | **Date** | Février 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

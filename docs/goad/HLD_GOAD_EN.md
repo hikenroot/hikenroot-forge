@@ -6,7 +6,7 @@
 
 | Property | Value |
 |----------|-------|
-| Author | Nadyr Chouarhi (hik3nR00t) |
+| Author | hik3nR00t |
 | Version | 1.0 |
 | Date | February 2026 |
 | Environment | Pentest Lab — HikenRoot Forge |

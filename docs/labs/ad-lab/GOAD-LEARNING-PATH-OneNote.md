@@ -445,5 +445,5 @@ certipy ca -u 'viserys.targaryen@essos.local' -p 'GoldCrown' -ca ESSOS-CA -add-o
 
 ---
 
-*Auteur : Nadyr Chouarhi (hik3nR00t) | HikenRoot Forge | Mars 2026*
+*Auteur : hik3nR00t | HikenRoot Forge | Mars 2026*
 *Dernière mise à jour : 02 mars 2026*

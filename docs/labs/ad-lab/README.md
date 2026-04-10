@@ -62,4 +62,4 @@ Each scenario includes:
 
 ---
 
-*Auteur : Nadyr Chouarhi (hik3nR00t) | HikenRoot Forge | Mars 2026*
+*Auteur : hik3nR00t | HikenRoot Forge | Mars 2026*

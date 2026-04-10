@@ -93,4 +93,4 @@ All write-ups in [`docs/labs/ad-lab/`](../labs/ad-lab/README.md)
 
 ---
 
-*Auteur : Nadyr Chouarhi (hik3nR00t) | HikenRoot Forge | Mars 2026*
+*Auteur : hik3nR00t | HikenRoot Forge | Mars 2026*
