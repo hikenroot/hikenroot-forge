@@ -17,7 +17,7 @@
 ## Connexion RDP
 
 ```bash
-xfreerdp /v:192.168.10.55 /u:Administrator /d:sevenkingdoms.local /p:'interlabP@ss2026!' /cert-ignore /dynamic-resolution /kbd:0x0000040C
+xfreerdp /v:192.168.10.55 /u:Administrator /d:sevenkingdoms.local /p:'<MOT_DE_PASSE>' /cert-ignore /dynamic-resolution /kbd:0x0000040C
 ```
 
 ---
