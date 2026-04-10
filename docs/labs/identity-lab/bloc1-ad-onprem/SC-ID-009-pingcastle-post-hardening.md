@@ -18,7 +18,7 @@
 
 ### Pour un recruteur
 
-Ce scénario démontre la capacité à **mesurer l'impact concret du hardening** en comparant les scores PingCastle avant et après les remédiations. C'est l'approche "baseline → hardening → rescan" que tout architecte Identity utilise en mission pour prouver la valeur de son travail au client. Le score final reste à 85 — et c'est documenté pourquoi.
+Ce scénario démontre la capacité à **mesurer l'impact concret du hardening** en comparant les scores PingCastle avant et après les remédiations. C'est l'approche "baseline → hardening → rescan" que tout architecte Identity utilise en mission pour prouver la valeur de son travail au client. Le score passe de 57 à 85 (dégradation expliquée par l'hybridation AD Connect) — et c'est documenté pourquoi.
 
 ### Pour un RSSI
 
@@ -31,7 +31,7 @@ Le rescan post-hardening permet de valider que les remédiations ont été appli
 ```mermaid
 graph LR
     subgraph AVANT["Avant hardening"]
-        A["sevenkingdoms.local<br/>Score: 85/100<br/>🔴"]
+        A["sevenkingdoms.local<br/>Score: 57/100<br/>🔴"]
     end
 
     subgraph ACTIONS["Remédiations appliquées"]
@@ -53,13 +53,13 @@ graph LR
 
 ### Preuves — PingCastle Post-Hardening
 
-![Score global post-hardening — 85/100](assets/SC-ID-009-01-score-global-after.png)
+![Score global post-hardening — 85/100 (Anomalies: 72→62 grâce au CIS)](assets/SC-ID-009-01-score-global-after.png)
 
 ![Radar chart post-hardening — Anomalies passé de 72 à 62](assets/SC-ID-009-02-radar-after.png)
 
 ---
 
-## Pourquoi le score reste à 85
+## Pourquoi le score est monté de 57 à 85
 
 Les vulnérabilités qui maintiennent le score élevé sont **intentionnelles dans GOAD** :
 
