@@ -38,6 +38,18 @@ PingCastle évalue la posture de sécurité AD selon 4 axes : privilèges, trust
 
 ---
 
+### Preuves — Audit PingCastle Initial
+
+![Score global — 57/100 avant hardening](assets/SC-ID-005-01-score-global-before.png)
+
+![Radar chart — 4 catégories (Stale 26, Privileged 50, Trusts 51, Anomalies 57)](assets/SC-ID-005-02-radar-before.png)
+
+![Risk Model — matrice des risques par catégorie](assets/SC-ID-005-03-top-risks.png)
+
+![Exécution PingCastle — ligne de commande](assets/SC-ID-005-05-cli-execution.png)
+
+---
+
 ## Exécution
 
 ```powershell

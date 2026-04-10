@@ -40,6 +40,22 @@ graph LR
 
 ---
 
+### Preuves — Réplication
+
+![repadmin /replsummary — vue synthétique](assets/SC-ID-002-01-replsummary.png)
+
+![repadmin /showrepl — DC01 KINGSLANDING](assets/SC-ID-002-02-showrepl-dc01.png)
+
+![repadmin /showrepl — DC02 WINTERFELL](assets/SC-ID-002-03-showrepl-dc02.png)
+
+![repadmin /showrepl — DC03 MEEREEN](assets/SC-ID-002-04-showrepl-dc03.png)
+
+![dcdiag /test:replications — validation](assets/SC-ID-002-05-dcdiag-repl.png)
+
+![Connexions de réplication — AD Sites & Services](assets/SC-ID-002-06-repl-connections.png)
+
+---
+
 ## Étape 1 — Vue globale (replsummary)
 
 **Commande (depuis KINGSLANDING) :**

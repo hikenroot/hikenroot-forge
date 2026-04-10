@@ -26,6 +26,18 @@ Le compte krbtgt est la clé de voûte de Kerberos — s'il est compromis (Golde
 
 ---
 
+### Preuves — État Kerberos
+
+![krbtgt — Created 03/12/2025, PasswordLastSet 23/03/2026](assets/SC-ID-008-01-krbtgt-before.png)
+
+![SPN — seul krbtgt avec kadmin/changepw (natif)](assets/SC-ID-008-04-spn-cleanup.png)
+
+![Pre-Auth — aucun compte vulnérable (remédiation effectuée)](assets/SC-ID-008-05-preauth-before.png)
+
+![Unconstrained Delegation — KINGSLANDING uniquement (PDC)](assets/SC-ID-008-07-delegation-review.png)
+
+---
+
 ## Remédiation 1 — Rotation krbtgt
 
 ### Pourquoi

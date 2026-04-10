@@ -50,6 +50,16 @@ graph LR
 
 ---
 
+### Preuves — Sites & Services
+
+![Vue globale des sites AD — subnets et site links](assets/SC-ID-003-01-sites-overview.png)
+
+![Site Links — Paris-Essos (500/60min) et Paris-Nord (100/15min)](assets/SC-ID-003-03-sitelinks.png)
+
+![Propriétés du Site Link Paris-Nord — coût et intervalle](assets/SC-ID-003-05-sitelink-properties.png)
+
+---
+
 ## Implémentation
 
 ### Création des sites

@@ -59,6 +59,20 @@ graph TB
 
 ---
 
+### Preuves — Implémentation du Tiering
+
+![Structure OUs Tiering dans ADUC](assets/SC-ID-004-01-tiering-ou-structure.png)
+
+![GPOs de tiering liées aux OUs — GPMC](assets/SC-ID-004-02-tiering-gpos-linked.png)
+
+![Groupes et comptes Tier 0](assets/SC-ID-004-03-tier0-groups.png)
+
+![GPO Deny Logon — restriction cross-tier](assets/SC-ID-004-04-deny-logon-gpo.png)
+
+![Membres du groupe Tier 0 Admins](assets/SC-ID-004-05-t0-admin-members.png)
+
+---
+
 ## Implémentation
 
 ### Structure OUs créée (9 OUs)

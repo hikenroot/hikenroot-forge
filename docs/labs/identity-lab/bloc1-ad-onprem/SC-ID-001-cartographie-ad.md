@@ -79,6 +79,26 @@ graph LR
 
 ---
 
+### Preuves — Forêts et Domaines
+
+![Vue ADUC — Forêt sevenkingdoms.local](assets/SC-ID-001-01-forest-sevenkingdoms.png)
+
+![Sortie Get-ADForest](assets/SC-ID-001-04-get-adforest.png)
+
+![Sortie Get-ADDomain — sevenkingdoms.local](assets/SC-ID-001-05-get-addomain-sevenkingdoms.png)
+
+![Structure des OUs — arborescence complète](assets/SC-ID-001-08-ou-structure.png)
+
+### Preuves — Relations d'approbation (Trusts)
+
+![Relations de trust — sevenkingdoms.local (Forest + Child)](assets/SC-ID-001-03-trusts-overview.png)
+
+![Trust north.sevenkingdoms.local — Parent bidirectionnel](assets/SC-ID-001-03b-trusts-north.png)
+
+![Sortie Get-ADTrust -Filter *](assets/SC-ID-001-07-get-adtrust.png)
+
+---
+
 ## Étape 1 — Découverte réseau
 
 **Commande :**

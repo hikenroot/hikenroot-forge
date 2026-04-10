@@ -55,6 +55,20 @@ bloodhound-python -u 'user' -p 'password' -d essos.local -ns 192.168.10.12 -c Al
 
 ---
 
+### Preuves — BloodHound
+
+![Statistiques du domaine — 35 users, 116 groups, 6 computers](assets/SC-ID-006-07-domain-stats.png)
+
+![Shortest Path to Domain Admin](assets/SC-ID-006-03-path-to-da.png)
+
+![Utilisateurs Kerberoastable](assets/SC-ID-006-04-kerberoastable.png)
+
+![Utilisateurs AS-REP Roastable](assets/SC-ID-006-05-asrep-roastable.png)
+
+![Unconstrained Delegation — WINTERFELL et MEEREEN](assets/SC-ID-006-06-unconstrained-deleg.png)
+
+---
+
 ## Chemins d'attaque identifiés
 
 | Chemin | Départ | Arrivée | Nombre de hops | Technique |

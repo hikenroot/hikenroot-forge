@@ -51,6 +51,14 @@ graph LR
 
 ---
 
+### Preuves — PingCastle Post-Hardening
+
+![Score global post-hardening — 85/100](assets/SC-ID-009-01-score-global-after.png)
+
+![Radar chart post-hardening — Anomalies passé de 72 à 62](assets/SC-ID-009-02-radar-after.png)
+
+---
+
 ## Pourquoi le score reste à 85
 
 Les vulnérabilités qui maintiennent le score élevé sont **intentionnelles dans GOAD** :
