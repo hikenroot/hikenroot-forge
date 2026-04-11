@@ -174,6 +174,20 @@ Connect-MgGraph -UseDeviceCode -TenantId "eea0e92c-..."
 
 ---
 
+### Preuves
+
+![Synchronization Service — statut des runs](assets/SC-ID-012-01-sync-status.png)
+
+![Connectors — 2 forêts + Entra ID](assets/SC-ID-012-02-connectors.png)
+
+![Utilisateurs synchronisés dans Entra](assets/SC-ID-012-03-synced-users.png)
+
+![Features AD Connect — PHS, SSO, Writeback](assets/SC-ID-012-04-features.png)
+
+![Filtrage OU — exclusion Tier0, Domain Controllers, Builtin](assets/SC-ID-012-05-ou-filtering.png)
+
+---
+
 ## Correspondance mission client
 
 | Étape lab | Équivalent mission client |

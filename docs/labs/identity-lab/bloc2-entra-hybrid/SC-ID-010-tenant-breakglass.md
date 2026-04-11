@@ -132,6 +132,20 @@ Le trial P2 s'est désactivé prématurément à cause du compte de facturation 
 
 ---
 
+### Preuves
+
+![Overview du tenant — Entra ID Premium P2, Entra Connect activé](assets/SC-ID-010-01-tenant-overview.png)
+
+![Comptes Break Glass — BG01 et BG02](assets/SC-ID-010-02-breakglass-accounts.png)
+
+![BG01 — Administrateur général, affectation active](assets/SC-ID-010-03-bg01-roles.png)
+
+![BG02 — Administrateur général, affectation active](assets/SC-ID-010-04-bg02-roles.png)
+
+![Licences — Entra ID P1 et P2 actives](assets/SC-ID-010-05-license-p2.png)
+
+---
+
 ## Correspondance mission client
 
 | Étape lab | Équivalent mission client |
