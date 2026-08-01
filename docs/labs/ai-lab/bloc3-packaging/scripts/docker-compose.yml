@@ -1,0 +1,67 @@
+# HikenRoot Forge — RAG + Orchestration Stack
+# Qdrant + n8n + n8n-task-runner + Open WebUI
+# Deploy: see README.md
+# Required: .env file (copy from .env.example)
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant-data:/qdrant/storage
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:2.11.3
+    container_name: n8n
+    ports:
+      - "5678:5678"
+      - "5679:5679"
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+      - ./pdfs:/data/pdfs
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - N8N_SECURE_COOKIE=false
+      - N8N_RESTRICT_FILE_ACCESS_TO=/data/pdfs
+      - GENERIC_TIMEZONE=Europe/Paris
+      - N8N_RUNNERS_MODE=external
+      - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
+      - N8N_RUNNERS_AUTH_TOKEN=${N8N_RUNNERS_TOKEN}
+      - WEBHOOK_URL=${N8N_HOST_URL}
+      - N8N_EDITOR_BASE_URL=${N8N_HOST_URL}
+    restart: unless-stopped
+
+  n8n-task-runner:
+    image: n8nio/runners:2.11.3
+    container_name: n8n-task-runner
+    environment:
+      - N8N_RUNNERS_AUTH_TOKEN=${N8N_RUNNERS_TOKEN}
+      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n:5679
+    depends_on:
+      - n8n
+    restart: unless-stopped
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    volumes:
+      - ./open-webui-data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://172.17.0.1:11434
+      - VECTOR_DB=qdrant
+      - QDRANT_URI=http://qdrant:6333
+      - RAG_EMBEDDING_MODEL=nomic-embed-text
+      - RAG_EMBEDDING_ENGINE=ollama
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined

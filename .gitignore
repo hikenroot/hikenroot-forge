@@ -10,6 +10,7 @@
 *.p12
 *.env
 *.env.*
+!.env.example
 vault-keys.txt
 id_rsa*
 *.ovpn
