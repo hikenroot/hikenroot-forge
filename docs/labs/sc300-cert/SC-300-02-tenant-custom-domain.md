@@ -20,6 +20,16 @@
 
 ---
 
+## Contexte & scénario
+
+> **MediaTech Groupe SA** migre son système d'information vers Microsoft 365 et vient d'acquérir son domaine de marque `hikenroot.fr`. La DSI doit l'intégrer au tenant Microsoft Entra, le vérifier par DNS, puis confier la gestion des domaines à un **administrateur opérationnel** — **sans** lui accorder les pleins pouvoirs d'administration globale, réservés aux comptes d'urgence (Break Glass, Tier 0).
+>
+> L'enjeu : permettre à l'équipe IT d'opérer au quotidien tout en garantissant qu'**un compte opérationnel compromis ne donne jamais les clés du tenant**. La réponse retenue : un rôle **least-privilege** (*Domain Name Administrator*) attribué en **éligible Just-in-Time** via Privileged Identity Management, activable à la demande sous MFA et justification, avec expiration automatique.
+>
+> Ce write-up documente la mise en œuvre complète, de l'intégration du domaine à l'activation JIT, avec les preuves d'audit à chaque étape.
+
+---
+
 ## Résumé exécutif
 
 ### Pour un recruteur
@@ -88,15 +98,15 @@ Intégrer le domaine `hikenroot.fr` au tenant et le vérifier par DNS, puis **d�
 
 1. `entra.microsoft.com` → **Entra ID → Domain names → + Add custom domain**.
 2. Saisir `hikenroot.fr` → **Add domain**.
-   ![](SC-300-02-01-add-custom-domain.png)
+   ![](assets/SC-300-02-01-add-custom-domain.png)
 3. Relever l'enregistrement de vérification affiché :
    ```
    Type : TXT   Host : @   Value : MS=msXXXXXXXX   TTL : 3600
    ```
 4. OVH → **Domaines → hikenroot.fr → Zone DNS → Ajouter une entrée TXT** → sous-domaine vide, valeur `MS=msXXXXXXXX` → Appliquer.
-   ![](SC-300-02-02-ovh-txt-record.png)
+   ![](assets/SC-300-02-02-ovh-txt-record.png)
 5. Retour Entra → **Verify**.
-   ![](SC-300-02-03-domain-verified.png)
+   ![](assets/SC-300-02-03-domain-verified.png)
 
 ### Phase 2 — Paramétrage du rôle PIM (Lab 26 / Ex.1)
 
@@ -106,19 +116,19 @@ Intégrer le domaine `hikenroot.fr` au tenant et le vérifier par DNS, puis **d�
    - Justification requise : **ON**
    - Durée d'activation max : **1–4 h**
    - Approbation (option) : approbateur = pair / Break Glass
-   ![](SC-300-02-04-pim-role-settings.png)
+   ![](assets/SC-300-02-04-pim-role-settings.png)
 
 ### Phase 3 — Affectation éligible (Lab 26 / Ex.2 T1)
 
 8. `PIM → Rôles Entra → Affectations → + Ajouter des affectations`.
 9. Rôle **Domain Name Administrator** · Membre **Admin Identity** · Type **Éligible** (pas Actif) · Scope **Directory** (ou Administrative Unit).
-   ![](SC-300-02-05-eligible-assignment.png)
+   ![](assets/SC-300-02-05-eligible-assignment.png)
 
 ### Phase 4 — Activation JIT (Lab 26 / Ex.2 T3)
 
 10. Session **Admin Identity** → `PIM → Mes rôles → Domain Name Administrator → Activer`.
 11. Durée + justification métier → **MFA challenge** → Activer.
-    ![](SC-300-02-06-jit-activation.png)
+    ![](assets/SC-300-02-06-jit-activation.png)
 
 ---
 
@@ -218,6 +228,18 @@ Alerte prioritaire : toute affectation **active/permanente** (hors éligible) su
 - **0–24 h** : audit des rôles permanents (`Get-MgRoleManagementDirectoryRoleAssignment` via Graph), bascule en éligible.
 - **1 semaine** : paramètres PIM homogènes (MFA + justification) sur tous les rôles sensibles ; exclusion des Break Glass des CA vérifiée.
 - **1 mois** : Access Reviews récurrentes ; alerte SIEM sur affectation active de rôle privilégié ; revue des comptes Break Glass (usage, rotation des secrets).
+
+### Automatisation — `m365-admin-toolkit`
+
+Le durcissement et le contrôle continu de cette configuration s'appuient sur les scripts du toolkit défensif [`m365-admin-toolkit`](https://github.com/hikenroot/m365-admin-toolkit) (PowerShell 7 + Microsoft.Graph, mappés CIS M365 Benchmark / NIST 800-53) :
+
+| Contrôle | Script toolkit (rôle : Global/Security Reader) |
+|----------|------------------------------------------------|
+| Audit des domaines vérifiés du tenant | `audit-tenant-config` (domaines, auth) |
+| Détection des rôles privilégiés **permanents** (hors PIM) | `audit-privileged-roles` |
+| Vérification MFA/CA sur activation des rôles | `audit-security-policies` (Defender, CA, MFA) |
+
+> Cible : exécuter ces audits en lecture seule (moindre privilège) en récurrent, et alerter sur tout écart au modèle JIT (affectation active non éligible, rôle sans MFA à l'activation).
 
 ---
 
