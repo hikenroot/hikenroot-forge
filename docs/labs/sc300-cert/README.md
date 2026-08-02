@@ -36,4 +36,4 @@ Chaque write-up suit le format maison (Classification → Résumé exécutif 3 a
 
 ---
 
-*Auteur : Nadyr Chouarhi (hik3nR00t) | HikenRoot Forge*
+*Auteur : hik3nR00t | HikenRoot Forge*

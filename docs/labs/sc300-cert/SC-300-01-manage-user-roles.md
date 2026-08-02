@@ -16,7 +16,7 @@
 | **MITRE D3FEND** | D3-UAP (User Account Permissions), D3-ANCI (Account Locking) |
 | **Réf. lab SC-300** | `Lab_01_ManageUserRoles` |
 | **Date** | Août 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 

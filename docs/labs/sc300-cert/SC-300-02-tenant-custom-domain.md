@@ -16,7 +16,7 @@
 | **MITRE D3FEND** | D3-ANCI (Account Locking), D3-PAM (Privileged Account Management), D3-JIT (Just-in-Time Privilege) |
 | **Réf. labs SC-300** | `Lab_02_WorkingWithTenantProperties` · `Lab_26_ConfigurePrivilegedIdentityManagementForAADRoles` (connexe `Lab_11`) |
 | **Date** | Août 2026 |
-| **Auteur** | Nadyr Chouarhi (hik3nR00t) |
+| **Auteur** | hik3nR00t |
 
 ---
 
