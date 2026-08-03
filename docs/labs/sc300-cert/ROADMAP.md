@@ -159,5 +159,5 @@ Part 14   → SC-AD-012  ❌ À faire
 
 ---
 
-*Auteur : hik3nR00t | HikenRoot Forge | Mars 2026*
+*Auteur : Nadyr Chouarhi (hik3nR00t) | HikenRoot Forge | Mars 2026*
 *Dernière mise à jour : 02 mars 2026*
