@@ -171,8 +171,7 @@ La stratégie d'inscription garantit que les contrôles MFA/risque déjà en pla
 ```kql
 // 1. Enrôlements de méthodes MFA (suivi de la campagne)
 AuditLogs
-| where LoggedByService == "Self-service Password Management"
-     or ActivityDisplayName has "security info"
+| where ActivityDisplayName has "security info"
 | where ActivityDisplayName has_any ("registered security info","started security info")
 | project TimeGenerated, ActivityDisplayName,
           User = tostring(TargetResources[0].userPrincipalName), Result
@@ -180,12 +179,14 @@ AuditLogs
 ```
 
 ```kql
-// 2. Comptes sans aucune inscription MFA (angle mort à traiter)
-//    (via export UserRegistrationDetails vers un watchlist / table custom)
-AuthMethodRegistration_CL
-| where IsMfaRegistered_b == false
-| where UserPrincipalName_s !startswith "breakglass"
-| project UserPrincipalName_s
+// 2. Comptes sans inscription MFA — PAS de table Sentinel native pour ce KPI.
+//    La couverture d'enregistrement vient du rapport Graph :
+//    Get-MgReportAuthenticationMethodUserRegistrationDetail (cf. §7)
+//    ou API reports/authenticationMethods/userRegistrationDetails.
+//    Pour l'exploiter dans Sentinel : ingérer ce rapport dans une Watchlist, puis :
+_GetWatchlist('MfaRegistration')
+| where isMfaRegistered == "false" and UserPrincipalName !startswith "breakglass"
+| project UserPrincipalName
 ```
 
 ---

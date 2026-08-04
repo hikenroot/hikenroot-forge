@@ -190,7 +190,7 @@ Les revues d'accès instaurent une recertification continue : les accès sont r�
 ```kql
 // 1. Décisions de revue appliquées (retraits d'accès)
 AuditLogs
-| where LoggedByService == "Access Reviews"
+| where LoggedByService contains "Access Review"
 | where ActivityDisplayName has_any ("Apply","decision")
 | project TimeGenerated, ActivityDisplayName,
           Target = tostring(TargetResources[0].displayName)
@@ -200,7 +200,7 @@ AuditLogs
 ```kql
 // 2. Revues non complétées (relecteurs qui ne répondent pas)
 AuditLogs
-| where LoggedByService == "Access Reviews"
+| where LoggedByService contains "Access Review"
 | where ActivityDisplayName has "reminder" or ActivityDisplayName has "not reviewed"
 | summarize count() by bin(TimeGenerated, 1d)
 ```
@@ -208,7 +208,7 @@ AuditLogs
 ```kql
 // 3. Modification/suppression d'une revue (anti-tamper gouvernance)
 AuditLogs
-| where LoggedByService == "Access Reviews"
+| where LoggedByService contains "Access Review"
 | where ActivityDisplayName has_any ("Update","Delete")
 | project TimeGenerated, ActivityDisplayName,
           Actor = tostring(InitiatedBy.user.userPrincipalName)

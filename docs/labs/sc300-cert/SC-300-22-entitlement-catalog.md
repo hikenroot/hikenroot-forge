@@ -119,12 +119,17 @@ $cat = Get-MgEntitlementManagementCatalog -Filter "displayName eq 'Marketing'"
 Get-MgEntitlementManagementCatalogResource -AccessPackageCatalogId $cat.Id |
   Select-Object DisplayName, @{n='Type';e={$_.OriginSystem}}
 
-# 3. Rôles délégués (propriétaires)
+# 3. Rôles portés par les ressources du catalogue (member/owner de groupe, rôles d'app…)
 Get-MgEntitlementManagementCatalogResourceRole -AccessPackageCatalogId $cat.Id |
-  Select-Object DisplayName
+  Select-Object DisplayName, OriginSystem
+
+# 4. Propriétaires/administrateurs du catalogue (attributions RBAC Entitlement Management) :
+#    exposés via roleManagement/entitlementManagement/roleAssignments filtré sur le catalogue,
+#    pas via un cmdlet dédié simple — vérification pratique dans le portail
+#    (Catalog → Roles and administrators). La preuve visuelle sert de contrôle ici.
 ```
 
-Attendu : `State = published`, `IsExternallyVisible = false`, 3 ressources, propriétaire délégué.
+Attendu : `State = published`, `IsExternallyVisible = false`, 3 ressources, propriétaire délégué (visible portail).
 
 ---
 
@@ -175,7 +180,7 @@ Le catalogue déplace la gestion d'accès du ticket vers un modèle gouverné et
 ```kql
 // 1. Activité de gestion des catalogues
 AuditLogs
-| where LoggedByService == "Entitlement Management"
+| where LoggedByService contains "Entitlement"
 | where ActivityDisplayName has_any ("catalog","resource","owner")
 | project TimeGenerated, ActivityDisplayName,
           Actor = tostring(InitiatedBy.user.userPrincipalName),
@@ -186,7 +191,7 @@ AuditLogs
 ```kql
 // 2. Ajout de propriétaires/rôles de catalogue (élévation de délégation)
 AuditLogs
-| where LoggedByService == "Entitlement Management"
+| where LoggedByService contains "Entitlement"
 | where ActivityDisplayName has_any ("Add catalog owner","Add access package manager")
 | project TimeGenerated, ActivityDisplayName,
           Actor = tostring(InitiatedBy.user.userPrincipalName),
@@ -196,7 +201,7 @@ AuditLogs
 ```kql
 // 3. Attributions d'access packages (accès effectifs accordés)
 AuditLogs
-| where LoggedByService == "Entitlement Management"
+| where LoggedByService contains "Entitlement"
 | where ActivityDisplayName has "assignment"
 | summarize count() by ActivityDisplayName, bin(TimeGenerated, 1d)
 ```

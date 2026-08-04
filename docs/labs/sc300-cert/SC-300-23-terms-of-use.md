@@ -197,7 +197,7 @@ Les ToU transforment une obligation légale/RH en contrôle technique bloquant e
 ```kql
 // 1. Acceptations et refus de ToU
 AuditLogs
-| where LoggedByService == "Terms Of Use"
+| where LoggedByService contains "Terms"
 | where ActivityDisplayName has_any ("Accept Terms Of Use","Decline Terms Of Use")
 | project TimeGenerated, ActivityDisplayName, Result,
           User = tostring(InitiatedBy.user.userPrincipalName)
@@ -207,7 +207,7 @@ AuditLogs
 ```kql
 // 2. Refus répétés (utilisateur bloqué / friction à investiguer)
 AuditLogs
-| where LoggedByService == "Terms Of Use" and ActivityDisplayName has "Decline"
+| where LoggedByService contains "Terms" and ActivityDisplayName has "Decline"
 | summarize declines = count() by User = tostring(InitiatedBy.user.userPrincipalName)
 | where declines >= 2
 ```
@@ -215,7 +215,7 @@ AuditLogs
 ```kql
 // 3. Modification du document ToU (anti-tamper)
 AuditLogs
-| where LoggedByService == "Terms Of Use"
+| where LoggedByService contains "Terms"
 | where ActivityDisplayName has_any ("Create","Update","Delete")
 | project TimeGenerated, ActivityDisplayName,
           Actor = tostring(InitiatedBy.user.userPrincipalName)

@@ -199,7 +199,7 @@ Le SSPR transforme un coût récurrent (tickets helpdesk) en libre-service sécu
 ```kql
 // 1. Resets self-service (volume + users)
 AuditLogs
-| where LoggedByService == "Self-service Password Management"
+| where LoggedByService contains "Password Management"
 | where ActivityDisplayName has "self-service"
 | project TimeGenerated, ActivityDisplayName, ResultReason,
           User = tostring(InitiatedBy.user.userPrincipalName)
@@ -209,7 +209,7 @@ AuditLogs
 ```kql
 // 2. Tentatives SSPR bloquées / échecs répétés (abus possible)
 AuditLogs
-| where LoggedByService == "Self-service Password Management"
+| where LoggedByService contains "Password Management"
 | where Result == "failure" or ActivityDisplayName has "Blocked"
 | summarize attempts = count() by User = tostring(InitiatedBy.user.userPrincipalName),
             bin(TimeGenerated, 15m)

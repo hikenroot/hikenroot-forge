@@ -183,7 +183,7 @@ AuditLogs
 ```kql
 // 3. Modification du paramètre de cycle de vie (anti-tamper)
 AuditLogs
-| where LoggedByService == "Entitlement Management"
+| where LoggedByService contains "Entitlement"
 | where ActivityDisplayName has "settings"
 | project TimeGenerated, ActivityDisplayName,
           Actor = tostring(InitiatedBy.user.userPrincipalName)
