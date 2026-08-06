@@ -16,12 +16,12 @@ Each write-up follows the standard pentest deliverable format: kill chain, CVSS,
 | [SC-AD-004](SC-AD-004-acl-abuse-chain.md) | ACL Abuse Chain | Part 11 | Yes | Yes | - | Done |
 | [SC-AD-005](SC-AD-005-nopac-samaccountname-spoofing.md) | noPac + PrintNightmare | Part 5+8 | Yes | Yes | - | Done |
 | [SC-AD-006](SC-AD-006-mssql-pivot.md) | MSSQL Pivot | Part 7 | Yes | Yes | - | Done |
-| SC-AD-007 | Kerberos Delegation | Part 10 | Yes | Yes | Yes | Pending |
-| SC-AD-008 | ADCS Attacks | Part 6 | - | - | Yes | Pending |
-| SC-AD-009 | Domain Dominance | Part 9+11 | Yes | Yes | - | Pending |
-| SC-AD-010 | Cross-Forest Trusts | Part 12 | - | Yes | Yes | Pending |
-| SC-AD-011 | Coerce & File-based | Part 13 | - | Yes | - | Pending |
-| SC-AD-012 | ADCS Advanced | Part 14 | - | - | Yes | Pending |
+| [SC-AD-007](SC-AD-007-kerberos-delegation.md) | Kerberos Delegation | Part 10 | Yes | Yes | Yes | Done |
+| [SC-AD-008](SC-AD-008-adcs-certificate-abuse.md) | ADCS Attacks | Part 6 | - | - | Yes | Done |
+| [SC-AD-009](SC-AD-009-domain-dominance.md) | Domain Dominance | Part 9+11 | Yes | Yes | - | Done |
+| [SC-AD-010](SC-AD-010-cross-forest-trusts.md) | Cross-Forest Trusts | Part 12 | - | Yes | Yes | Done |
+| [SC-AD-011](SC-AD-011-coerce-file-based-attacks.md) | Coerce & File-based | Part 13 | - | Yes | - | Done |
+| [SC-AD-012](SC-AD-012-adcs-advanced.md) | ADCS Advanced | Part 14 | - | - | Yes | Done |
 
 ---
 

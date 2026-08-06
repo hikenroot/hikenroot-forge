@@ -11,16 +11,21 @@ Suivre mayfly277 Part 1→14 dans l'ordre — ne pas sauter
 
 ## TABLEAU DE BORD — Où j'en suis
 
-### FAIT ✅
+### FAIT ✅ — les 12 write-ups sont terminés
 - SC-AD-001 : Recon & Initial Foothold (Part 1+2)
 - SC-AD-002 : Credential Harvesting (Part 2+3)
 - SC-AD-003 : NTLM Relay & Poisoning (Part 4)
 - SC-AD-004 : ACL Abuse Chain (Part 11)
 - SC-AD-005 : Privesc — noPac + PrintNightmare (Part 5+8)
 - SC-AD-006 : MSSQL Pivot (Part 7)
+- SC-AD-007 : Kerberos Delegation (Part 10)
+- SC-AD-008 : ADCS Attacks (Part 6)
+- SC-AD-009 : Domain Dominance (Part 9+11)
+- SC-AD-010 : Cross-Forest Trusts (Part 12)
+- SC-AD-011 : Coerce & File-based (Part 13)
+- SC-AD-012 : ADCS Avancé (Part 14)
 
-### PROCHAIN ❌
-SC-AD-007 : Kerberos Delegation (Part 10)
+> Sous-techniques optionnelles restées non faites (notées dans SC-AD-005) : KrbRelayUp, IIS WebShell.
 
 ---
 
@@ -245,7 +250,7 @@ SQL> xp_cmdshell whoami
 
 ---
 
-### SC-AD-007 — Kerberos Delegation ❌ PROCHAIN
+### SC-AD-007 — Kerberos Delegation ✅
 **Mayfly Part :** 10 | **Certifs :** CRTP, CRTO, CRTE
 
 **OBJECTIF** : Abuser des délégations Kerberos pour usurper l'identité d'admin.
@@ -272,7 +277,7 @@ impacket-rbcd -action write -delegate-from 'ATTACKER$' -delegate-to 'CASTELBLACK
 
 ---
 
-### SC-AD-008 — ADCS Attacks ❌
+### SC-AD-008 — ADCS Attacks ✅
 **Mayfly Part :** 6 | **Certifs :** CRTE
 
 **OBJECTIF** : Exploiter Active Directory Certificate Services pour obtenir DA.
@@ -295,7 +300,7 @@ impacket-ntlmrelayx -t 'http://192.168.10.23/certsrv/certfnsh.asp' -smb2support 
 
 ---
 
-### SC-AD-009 — Domain Dominance ❌
+### SC-AD-009 — Domain Dominance ✅
 **Mayfly Part :** 9+11 | **Certifs :** CRTP, CRTO
 
 **OBJECTIF** : Maintenir l'accès et atteindre la persistance post-DA.
@@ -324,7 +329,7 @@ impacket-ticketer -nthash SERVICE_HASH -domain-sid DOMAIN_SID -domain sevenkingd
 
 ---
 
-### SC-AD-010 — Cross-Forest Trusts ❌
+### SC-AD-010 — Cross-Forest Trusts ✅
 **Mayfly Part :** 12 | **Certifs :** CRTO, CRTE
 
 **OBJECTIF** : Pivoter entre forêts via les relations de confiance.
@@ -345,7 +350,7 @@ impacket-ticketer -nthash TRUST_KEY -domain-sid NORTH_SID -domain north.sevenkin
 
 ---
 
-### SC-AD-011 — Coerce & File-based ❌
+### SC-AD-011 — Coerce & File-based ✅
 **Mayfly Part :** 13 | **Certifs :** CRTO
 
 **OBJECTIF** : Forcer des authentifications NTLM via fichiers malveillants et coercion.
@@ -367,7 +372,7 @@ netexec smb 192.168.10.22 -u 'samwell.tarly' -p PASSWORD -M drop-sc -o SHARE=all
 
 ---
 
-### SC-AD-012 — ADCS Avancé ❌
+### SC-AD-012 — ADCS Avancé ✅
 **Mayfly Part :** 14 | **Certifs :** CRTE
 
 **OBJECTIF** : Exploiter les vulnérabilités ADCS avancées (ESC5 à ESC15).
@@ -446,4 +451,4 @@ certipy ca -u 'viserys.targaryen@essos.local' -p 'GoldCrown' -ca ESSOS-CA -add-o
 ---
 
 *Auteur : hik3nR00t | HikenRoot Forge | Mars 2026*
-*Dernière mise à jour : 02 mars 2026*
+*Dernière mise à jour : 06 août 2026*

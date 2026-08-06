@@ -17,12 +17,12 @@ Un module = une technique = un write-up.
 | SC-AD-004 | ACL Abuse Chain | ForceChangePwd → GenericWrite → WriteDACL → DA | Part 11 | ✅ | ✅ | — | ✅ Fait |
 | SC-AD-005 | Local & Domain Privesc | noPac CVE-2021-42278/42287, PrintNightmare CVE-2021-1675 | Part 5+8 | ✅ | ✅ | — | ✅ Fait |
 | SC-AD-006 | MSSQL Pivot | Impersonate, linked servers, xp_cmdshell | Part 7 | ✅ | ✅ | — | ✅ Fait |
-| SC-AD-007 | Kerberos Delegation | Unconstrained, Constrained S4U2, RBCD, Shadow Creds | Part 10 | ✅ | ✅ | ✅ | ❌ PROCHAIN |
-| SC-AD-008 | ADCS Attacks | ESC1/2/3/4/6/8, Certifried, PetitPotam | Part 6 | — | — | ✅ | ❌ À faire |
-| SC-AD-009 | Domain Dominance | DCSync, Golden Ticket, Silver Ticket, Persistence | Part 9+11 | ✅ | ✅ | — | ❌ À faire |
-| SC-AD-010 | Cross-Forest Trusts | Trust abuse, SID History, cross-domain lateral | Part 12 | — | ✅ | ✅ | ❌ À faire |
-| SC-AD-011 | Coerce & File-based | WebDAV, searchConnector-ms, .lnk, PrinterBug | Part 13 | — | ✅ | — | ❌ À faire |
-| SC-AD-012 | ADCS Avancé | ESC5/7/9/10/11/13/14/15 | Part 14 | — | — | ✅ | ❌ À faire |
+| SC-AD-007 | Kerberos Delegation | Unconstrained, Constrained S4U2, RBCD, Shadow Creds | Part 10 | ✅ | ✅ | ✅ | ✅ Fait |
+| SC-AD-008 | ADCS Attacks | ESC1/2/3/4/6/8, Certifried, PetitPotam | Part 6 | — | — | ✅ | ✅ Fait |
+| SC-AD-009 | Domain Dominance | DCSync, Golden Ticket, Silver Ticket, Persistence | Part 9+11 | ✅ | ✅ | — | ✅ Fait |
+| SC-AD-010 | Cross-Forest Trusts | Trust abuse, SID History, cross-domain lateral | Part 12 | — | ✅ | ✅ | ✅ Fait |
+| SC-AD-011 | Coerce & File-based | WebDAV, searchConnector-ms, .lnk, PrinterBug | Part 13 | — | ✅ | — | ✅ Fait |
+| SC-AD-012 | ADCS Avancé | ESC5/7/9/10/11/13/14/15 | Part 14 | — | — | ✅ | ✅ Fait |
 
 **Légende :** ✅ Fait | ❌ À faire | — Non requis pour cette certif
 
@@ -41,8 +41,8 @@ Un module = une technique = un write-up.
 [x] SC-AD-004  ACL Abuse Chain                ✅
 [x] SC-AD-005  Local & Domain Privesc         ✅
 [x] SC-AD-006  MSSQL Pivot                    ✅
-[ ] SC-AD-007  Kerberos Delegation            ← PROCHAIN
-[ ] SC-AD-009  Domain Dominance
+[x] SC-AD-007  Kerberos Delegation            ✅
+[x] SC-AD-009  Domain Dominance  ✅
 ```
 
 ### CRTO (Zero Point Security) — Priorité 2
@@ -51,10 +51,10 @@ Un module = une technique = un write-up.
 
 ```
 [x] Tout le CRTP (SC-AD-001 à 006) ✅
-[ ] SC-AD-007  Kerberos Delegation
-[ ] SC-AD-009  Domain Dominance
-[ ] SC-AD-010  Cross-Forest Trusts
-[ ] SC-AD-011  Coerce & File-based
+[x] SC-AD-007  Kerberos Delegation  ✅
+[x] SC-AD-009  Domain Dominance  ✅
+[x] SC-AD-010  Cross-Forest Trusts  ✅
+[x] SC-AD-011  Coerce & File-based  ✅
 [ ] C2 Setup   Sliver/Havoc contre GOAD
 ```
 
@@ -64,8 +64,8 @@ Un module = une technique = un write-up.
 
 ```
 [ ] Tout le CRTO +
-[ ] SC-AD-008  ADCS Attacks
-[ ] SC-AD-012  ADCS Avancé
+[x] SC-AD-008  ADCS Attacks  ✅
+[x] SC-AD-012  ADCS Avancé  ✅
 [ ] Entra ID   Azure AD hybride
 ```
 
@@ -78,14 +78,14 @@ Part 1+2  → SC-AD-001  ✅ Fait
 Part 2+3  → SC-AD-002  ✅ Fait
 Part 4    → SC-AD-003  ✅ Fait
 Part 5+8  → SC-AD-005  ✅ Fait (noPac + PrintNightmare)
-Part 6    → SC-AD-008  ❌ À faire
+Part 6    → SC-AD-008  ✅ Fait
 Part 7    → SC-AD-006  ✅ Fait
-Part 9    → SC-AD-009  ❌ À faire
-Part 10   → SC-AD-007  ← PROCHAIN
+Part 9    → SC-AD-009  ✅ Fait
+Part 10   → SC-AD-007  ✅ Fait
 Part 11   → SC-AD-004  ✅ Fait
-Part 12   → SC-AD-010  ❌ À faire
-Part 13   → SC-AD-011  ❌ À faire
-Part 14   → SC-AD-012  ❌ À faire
+Part 12   → SC-AD-010  ✅ Fait
+Part 13   → SC-AD-011  ✅ Fait
+Part 14   → SC-AD-012  ✅ Fait
 ```
 
 ---
@@ -136,12 +136,12 @@ Part 14   → SC-AD-012  ❌ À faire
 | [SC-AD-004](./SC-AD-004-acl-abuse-chain.md) | ACL Abuse Chain | ✅ |
 | [SC-AD-005](./SC-AD-005-nopac-samaccountname-spoofing.md) | noPac + PrintNightmare | ✅ |
 | [SC-AD-006](./SC-AD-006-mssql-pivot.md) | MSSQL Pivot | ✅ |
-| [SC-AD-007](./SC-AD-007-kerberos-delegation.md) | Kerberos Delegation | ❌ |
-| [SC-AD-008](./SC-AD-008-adcs-attacks.md) | ADCS Attacks | ❌ |
-| [SC-AD-009](./SC-AD-009-domain-dominance.md) | Domain Dominance | ❌ |
-| [SC-AD-010](./SC-AD-010-cross-forest-trusts.md) | Cross-Forest Trusts | ❌ |
-| [SC-AD-011](./SC-AD-011-coerce-file-based.md) | Coerce & File-based | ❌ |
-| [SC-AD-012](./SC-AD-012-adcs-advanced.md) | ADCS Avancé | ❌ |
+| [SC-AD-007](./SC-AD-007-kerberos-delegation.md) | Kerberos Delegation | ✅ |
+| [SC-AD-008](./SC-AD-008-adcs-certificate-abuse.md) | ADCS Attacks | ✅ |
+| [SC-AD-009](./SC-AD-009-domain-dominance.md) | Domain Dominance | ✅ |
+| [SC-AD-010](./SC-AD-010-cross-forest-trusts.md) | Cross-Forest Trusts | ✅ |
+| [SC-AD-011](./SC-AD-011-coerce-file-based-attacks.md) | Coerce & File-based | ✅ |
+| [SC-AD-012](./SC-AD-012-adcs-advanced.md) | ADCS Avancé | ✅ |
 
 ---
 
@@ -160,4 +160,4 @@ Part 14   → SC-AD-012  ❌ À faire
 ---
 
 *Auteur : hik3nR00t | HikenRoot Forge | Mars 2026*
-*Dernière mise à jour : 02 mars 2026*
+*Dernière mise à jour : 06 août 2026*
