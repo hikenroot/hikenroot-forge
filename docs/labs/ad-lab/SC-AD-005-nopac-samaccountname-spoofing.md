@@ -260,54 +260,31 @@ impacket-addcomputer -computer-name 'PWNED$' -computer-pass 'Password123!' -dc-i
 
 ## Impact metier — MediaTech Groupe SA
 
-### Synthese narrative
+### Synthèse
+En exploitant **noPac (CVE-2021-42278 + CVE-2021-42287)** — renommage d'un compte machine pour usurper l'identité d'un contrôleur de domaine — l'attaquant passe d'un **simple compte utilisateur** à **Domain Admin en quelques minutes**, sur un DC non corrigé. Contrairement à une chaîne d'ACL patiente, ici la bascule est **immédiate et bruyante** : c'est un défaut de **gestion de correctifs** sur le composant le plus critique du SI. À l'arrivée, l'attaquant détient les clés du domaine.
 
-La compromission totale du controleur de domaine WINTERFELL equivaut a une prise de controle complete de l'infrastructure d'identite de MediaTech Groupe SA pour le domaine nord. Un attaquant disposant du hash krbtgt peut creer des Golden Tickets valables 10 ans, maintenir un acces indetectable a l'ensemble du SI, et se propager aux domaines partenaires via les relations de confiance. L'exploitation ne necessite qu'un compte utilisateur basique — vecteur accessible a tout employe malveillant ou attaquant ayant compromis un poste de travail.
+### Gravité : 🔴 CRITIQUE *(Domain Admin obtenu ; compromission complète du domaine)*
 
-### Estimation financiere
+### Impact chiffré
 
-| Poste | Estimation |
-|-------|-----------|
-| Incident Response (investigation + remediation) | 80 000 — 150 000 EUR |
-| Reconstruction partielle de l'AD | 50 000 — 100 000 EUR |
-| Perte d'exploitation (arret services) | 20 000 — 50 000 EUR/jour |
-| Notification RGPD + audit CNIL | 30 000 — 60 000 EUR |
-| Sanctions NIS2 potentielles | Jusqu'a 2% CA mondial |
-| **Total estime** | **180 000 — 360 000 EUR** |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Arrêt de la production éditoriale | 400 k€ – 1,5 M€ | Ransomware ou confinement d'urgence : 3–7 jours sans publication normale (éditions perdues + remise en route). |
+| Reconstruction AD / restauration | 200 k€ – 500 k€ | Double rotation krbtgt, restauration de confiance, forensic sur DC compromis. |
+| Exposition RGPD massive | 300 k€ – 2 M€ | Accès à l'ensemble des bases (abonnés, RH, finance) ; notification CNIL 72 h. |
+| Réponse à incident majeure | 150 k€ – 400 k€ | DFIR complet, cellule de crise, accompagnement juridique. |
+| **Total réaliste** | **~1 M€ – 4,4 M€** | Fourchette d'un incident majeur pour un quotidien national. |
 
-### Impact reglementaire
+> **Réalité rédaction** : noPac, ce n'est pas une faille exotique — c'est un correctif de novembre 2021 qui n'a pas été appliqué. Sur un SI historique, les DC sont souvent les serveurs qu'on « n'ose pas toucher » de peur de casser la prod. C'est exactement pour ça qu'ils restent vulnérables.
 
-| Referentiel | Article | Non-conformite |
-|-------------|---------|----------------|
-| **RGPD** | Art. 32 | Absence de mesures techniques adaptees sur l'infrastructure d'authentification |
-| **RGPD** | Art. 33 | Violation notifiable a la CNIL sous 72h si donnees personnelles accessibles |
-| **NIS2** | Art. 21 §2(e) | Absence de politique de gestion des vulnerabilites critiques |
-| **NIS2** | Art. 21 §2(a) | Politique de securite des systemes d'information insuffisante |
-| **ISO 27001** | A.8.8 | Gestion des vulnerabilites techniques absente |
-| **ISO 27001** | A.8.2 | Droits d'acces privilegies non restreints (MachineAccountQuota) |
+### Réglementaire
+- **RGPD Art. 32 + 33/34** — compromission majeure, notification CNIL et personnes concernées.
+- **NIS2 Art. 21 + 23** — incident significatif, notification obligatoire.
+- **ISO 27001 A.8.8** (gestion des vulnérabilités techniques — **le patch DC est le cœur du sujet**), **A.8.2** (accès privilégiés).
 
-### Top 5 actions prioritaires
-
-**0-24h (urgence)**
-1. Appliquer KB5008380 (CVE-2021-42287) et KB5008602 (CVE-2021-42278) sur tous les DC
-2. Rotation immediate du mot de passe krbtgt (deux fois, intervalle 10h) pour invalider les Golden Tickets
-
-**Sous 1 semaine**
-3. Positionner MachineAccountQuota = 0 via GPO — deleguer la creation de comptes machine aux seuls admins
-
-**Sous 1 mois**
-4. Activer la surveillance des Event IDs 4741, 4742, 5136 dans le SIEM
-5. Deployer les groupes Protected Users sur tous les comptes administrateurs
-
-### Decisions attendues du COMEX
-
-- Valider le plan de patching d'urgence sur l'ensemble des Domain Controllers (WINTERFELL, KINGSLANDING, MEEREEN) — delai maximum 24h
-- Declencher une analyse d'impact RGPD — identifier si des donnees personnelles etaient accessibles via le compte Administrator compromis
-- Mandater un audit complet des relations de confiance inter-forets pour evaluer l'etendue de la compromission potentielle vers sevenkingdoms.local et essos.local
-- Valider un budget SOC pour le deploiement d'une surveillance Kerberos temps reel (Wazuh + regles Sigma)
-- Nommer un responsable de la gestion des vulnerabilites AD avec SLA de patching critique < 72h
-
----
+### Décision COMEX
+- **Lancer un plan de patching d'urgence des contrôleurs de domaine** (KB noPac + processus récurrent de mise à jour des DC) — c'est la cause racine, pas un correctif ponctuel.
+- **Fixer `ms-DS-MachineAccountQuota = 0`** (empêcher un utilisateur lambda de créer des comptes machine) et financer un projet **Tiering AD + PAW** pour réduire la surface d'escalade.
 
 ## Detection SOC / SIEM
 

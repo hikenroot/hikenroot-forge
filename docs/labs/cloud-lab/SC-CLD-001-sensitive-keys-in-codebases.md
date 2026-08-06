@@ -267,66 +267,31 @@ Un attaquant qui exploite cette vulnérabilité obtient :
 
 ## Impact métier — MediaTech Groupe SA
 
-### Estimation financière
+### Synthèse
+Des **clés AWS** et un dépôt Git complet laissés dans une image / un codebase accessible donnent à l'attaquant un **accès direct à l'infrastructure cloud** de la plateforme d'abonnement (S3, RDS, éventuellement ECR). Pas d'exploit : une secret hygiene absente. Selon les droits IAM de la clé, l'impact va de la simple lecture de buckets à la compromission de la chaîne de déploiement.
 
-| Impact | Estimation | Justification |
-|--------|-----------|---------------|
-| **Compromission infrastructure cloud** | 1 000 000 € à 5 000 000 € | Credentials AWS → accès données clients, bases de données, services de production |
-| **Amende RGPD** | 500 000 € à 4 000 000 € | Violation RGPD Art. 83(4) si données personnelles sur S3/RDS |
-| **Supply chain attack** | 500 000 € à 3 000 000 € | Modification images Docker via ECR compromis |
-| **Investigation forensique** | 100 000 € à 300 000 € | Audit CloudTrail, rotation clés, revue code, analyse images Docker |
-| **Atteinte réputationnelle** | 500 000 € à 2 000 000 € | Groupe de presse compromis → perte confiance sources et lecteurs |
-| **TOTAL estimé** | **2 600 000 € à 14 300 000 €** | |
+### Gravité : 🟠 ÉLEVÉ *(accès cloud direct ; ampleur bornée par les droits IAM de la clé exposée)*
 
-### Matrice de risque
+### Impact chiffré
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-CLD-001
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    Exfiltration données S3: [0.90, 0.85]
-    Crypto mining AWS: [0.60, 0.90]
-    Supply chain CI/CD: [0.85, 0.60]
-    Amendes RGPD: [0.80, 0.70]
-    DNS Hijacking: [0.70, 0.30]
-```
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Exposition RGPD (données abonnés S3/RDS) | 150 k€ – 800 k€ | Selon le **nombre réel de dossiers** accessibles via la clé (≈150 €/dossier), pas les 500 k systématiquement. |
+| Abus de ressources AWS (crypto-mining, egress) | 20 k€ – 120 k€ | Facture cloud anormale sur la fenêtre d'exposition avant détection. |
+| Réponse à incident cloud | 50 k€ – 180 k€ | Rotation des clés, audit CloudTrail, revue IAM, revue du code exposé. |
+| Risque supply chain (si clé → ECR) | *voir SC-CLD-005* | Bascule si la clé donne accès au registre d'images. |
+| **Total réaliste** | **~220 k€ – 1,1 M€** | Bascule en **CRITIQUE** si la clé IAM est sur-privilégiée (admin) ou ouvre le registre. |
 
-### Impact réglementaire
+> **Réalité rédaction** : un `.env` ou un `.git` embarqué dans une image, une clé AWS commitée « pour un test » — c'est le classique d'une petite équipe dev qui livre vite pour tenir le rythme éditorial. Le secret dort dans l'historique Git jusqu'à ce que quelqu'un le trouve.
 
-- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 32 (mesures techniques). Credentials cloud en clair dans un dépôt Git accessible publiquement.
-- **NIS2** — Non-conformité Article 21 (sécurité de la chaîne d'approvisionnement). Pipeline CI/CD exposé met en danger toute la chaîne de production logicielle.
-- **ISO 27001** — Non-conformité A.8.4 (Accès au code source), A.5.33 (Protection des enregistrements), A.8.25 (Cycle de vie de développement sécurisé).
+### Réglementaire
+- **RGPD Art. 32** — secrets d'accès en clair = mesure technique inadéquate.
+- **NIS2 Art. 21** — sécurité de la chaîne d'approvisionnement logicielle (CI/CD).
+- **ISO 27001 A.8.4** (accès au code source), **A.5.17** (informations d'authentification), **A.8.25** (développement sécurisé).
 
-### Top 5 actions prioritaires
-
-**0–24h (urgence)**
-
-1. Rotation immédiate de toutes les clés AWS exposées dans l'historique Git — invalider les access key ID via la console IAM AWS.
-2. Auditer les logs CloudTrail pour identifier toute utilisation frauduleuse des credentials sur la période d'exposition.
-
-**Sous 1 semaine**
-
-3. Ajouter `.git` et `.env` au `.dockerignore` et `.gitignore` — empêcher toute inclusion dans les images futures.
-4. Déployer un scanner de secrets dans la CI/CD (Gitleaks, truffleHog) — blocage automatique avant merge.
-
-**Sous 1 mois**
-
-5. Migrer tous les secrets vers un gestionnaire dédié (HashiCorp Vault, AWS Secrets Manager) — zéro secret en clair dans le code ou les images.
-
-### Décisions attendues du COMEX
-
-- **Déclencher une évaluation d'impact RGPD** — si les credentials AWS donnaient accès à des données personnelles (S3, RDS), la violation est notifiable à la CNIL sous 72h.
-- **Valider un budget** pour le déploiement de HashiCorp Vault et l'intégration de scanners de secrets dans tous les pipelines CI/CD de MediaTech Groupe SA.
-- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Lead DevSecOps) pour piloter les actions 0–24h et la rotation des credentials.
-- **Mandater un audit du parc CI/CD complet** — vérifier si d'autres pipelines exposent des répertoires `.git` ou embarquent des secrets dans des images Docker.
-- **Mettre en place une politique formelle** de gestion des secrets dans le cycle de développement (SDLC) — formation obligatoire des développeurs sur les risques de credential leakage.
-
----
+### Décision COMEX
+- **Intégrer un scan de secrets bloquant dans la CI/CD** (gitleaks / trufflehog en pre-commit + pipeline) et **imposer la rotation immédiate** de toute clé exposée — décision outillage, budget faible.
+- **Passer les identités IAM en moindre privilège** (fin des clés admin longue durée, bascule vers des rôles temporaires / OIDC) — arbitrage DSI/cloud.
 
 ## Détection SOC / SIEM
 

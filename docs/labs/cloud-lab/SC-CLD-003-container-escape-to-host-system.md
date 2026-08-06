@@ -411,48 +411,31 @@ Un attaquant qui exploite cette vulnérabilité obtient :
 
 ## Impact métier — MediaTech Groupe SA
 
-### Estimation financière
+### Synthèse
+En abusant d'un **conteneur privilégié** (ou d'un montage `hostPath`, d'une capability dangereuse), l'attaquant **s'échappe du conteneur** vers le nœud hôte et obtient **root sur la machine**. Il contrôle alors **tous les pods** du nœud, et souvent des identités permettant d'attaquer le plan de contrôle. On sort du bac à sable applicatif : c'est le socle d'exécution de la plateforme qui tombe.
 
-| Impact | Estimation | Justification |
-|--------|-----------|---------------|
-| **Amende RGPD** | 2 000 000 € à 10 000 000 € | Accès non autorisé aux données personnelles via les pods applicatifs. RGPD Art. 83(4) : jusqu'à 2% du CA mondial ou 10M€. |
-| **Perte d'exploitation** | 500 000 € à 2 000 000 € | Arrêt de la production pendant l'investigation forensique (2-5 jours). Coût moyen d'un jour d'arrêt pour un groupe de presse numérique. |
-| **Investigation forensique** | 150 000 € à 400 000 € | DFIR externe (Mandiant/CrowdStrike), audit complet du cluster, rotation de tous les secrets et certificats. |
-| **Atteinte réputationnelle** | 1 000 000 € à 5 000 000 € | Perte de confiance des annonceurs et abonnés. Impact sur les contrats en cours. |
-| **Coût de remédiation** | 200 000 € à 500 000 € | Refonte de l'architecture K8s, déploiement PSA/Kyverno, formation des équipes. |
-| **TOTAL estimé** | **3 850 000 € à 17 900 000 €** | |
+### Gravité : 🔴 CRITIQUE *(root sur le nœud → tous les workloads du nœud, tremplin vers le cluster)*
 
-### Impact réglementaire
+### Impact chiffré
 
-- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 25 (protection dès la conception), 32 (mesures techniques). Notification CNIL obligatoire sous 72h.
-- **NIS2** — Non-conformité aux exigences de gestion des risques cyber (Article 21). Les containers privilégiés sans contrôle d'admission violent l'obligation de mesures techniques appropriées.
-- **ISO 27001** — Non-conformité A.8.31 (Séparation des environnements), A.8.9 (Gestion de la configuration), A.5.15 (Contrôle d'accès).
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Interruption plateforme (paywall/API) | 180 k€ – 550 k€ | Si le nœud porte le paywall/l'API abonnés : 1–3 jours dégradés, majoration pointe ×1,3 (encaissement touché). |
+| Compromission des workloads du nœud | 400 k€ – 1,5 M€ | Tous les pods colocalisés exposés (secrets montés, tokens de service). |
+| Exposition RGPD | 200 k€ – 1 M€ | Données abonnés traitées par les pods compromis. |
+| Réponse à incident cloud-native | 100 k€ – 300 k€ | Rebuild des nœuds, rotation des secrets/tokens, durcissement admission. |
+| **Total réaliste** | **~880 k€ – 3,4 M€** | Bascule si l'évasion enchaîne vers le **cluster-admin** (compromission totale). |
 
-### Top 5 actions prioritaires
+> **Réalité rédaction** : un pod lancé en `privileged: true` « parce que c'était plus simple pour que le build passe » — et la frontière conteneur/hôte n'existe plus. Sur un cluster qui a démarré vite pour lancer les applis, ces raccourcis restent en prod bien après.
 
-**0–24h (urgence)**
+### Réglementaire
+- **RGPD Art. 32** — isolation d'exécution insuffisante.
+- **NIS2 Art. 21** — sécurité des systèmes de production.
+- **ISO 27001 A.8.9** (gestion des configurations), **A.8.22** (cloisonnement), **A.8.2** (accès privilégiés).
 
-1. Supprimer immédiatement le pod `system-monitor-deployment` ou reconfigurer sans `privileged: true`, `hostPID`, `hostIPC`, `hostPath`.
-2. Rotation immédiate de tous les secrets exposés : certificats kubelet, 5 tokens JWT de service accounts, hash `/etc/shadow`.
-
-**Sous 1 semaine**
-
-3. Activer **Pod Security Admission en mode `restricted`** sur tous les namespaces — bloque automatiquement tout déploiement de pod privilégié.
-4. Déployer **Kyverno** avec politiques ClusterPolicy : deny privileged, deny hostPID/hostIPC, deny hostPath.
-
-**Sous 1 mois**
-
-5. Déployer **Falco** pour la détection runtime des container escapes (nsenter, lecture `/etc/shadow`, shell dans container).
-
-### Décisions attendues du COMEX
-
-- **Déclencher une notification CNIL sous 72h** — accès non autorisé au filesystem hôte constitue une violation RGPD notifiable si des données personnelles étaient accessibles via les pods applicatifs.
-- **Valider un budget** pour le déploiement de Kyverno (admission control), Falco (runtime detection) et l'activation du chiffrement des secrets at rest dans K3s.
-- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Admin K8s / SRE) pour piloter les actions 0–24h en priorité absolue.
-- **Mandater un audit complet** du cluster : inventaire de tous les pods avec `privileged: true`, `hostPID`, `hostIPC` ou `hostPath` — en production et en développement.
-- **Évaluer l'exposition réelle** : vérifier si des pods similaires existent sur les clusters de production de MediaTech Groupe SA et si des terminaux web (gotty, ttyd) sont exposés sans authentification.
-
----
+### Décision COMEX
+- **Appliquer les Pod Security Standards niveau `restricted`** (interdiction `privileged`, `hostPath`, capabilities dangereuses) via un **admission controller** (Kyverno / OPA Gatekeeper) — décision d'architecture bloquante.
+- **Auditer et éliminer les pods privilégiés existants** (inventaire + plan de remédiation daté) — arbitrage DSI/plateforme.
 
 ## Matrice de risque
 

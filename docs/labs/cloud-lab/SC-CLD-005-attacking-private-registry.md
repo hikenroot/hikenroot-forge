@@ -308,43 +308,31 @@ Un attaquant exploitant ce registre non protégé obtient :
 
 ## Impact métier — MediaTech Groupe SA
 
-### Estimation financière
+### Synthèse
+Un **registre d'images privé sans authentification** (lecture **et** écriture libres) permet à l'attaquant de **tirer les images** (exfiltration de code source et de secrets embarqués) puis d'y **pousser une image backdoorée**. Au prochain déploiement/scaling, le cluster tire l'image compromise et l'exécute **dans le contexte d'un pod légitime** : c'est une **attaque de supply chain** interne, discrète et persistante.
 
-| Impact | Estimation | Justification |
-|--------|-----------|---------------|
-| **Supply chain attack** | 2 000 000 € à 8 000 000 € | Images backdoorées déployées en production → compromission de toutes les applications conteneurisées |
-| **Exfiltration code source** | 500 000 € à 2 000 000 € | Propriété intellectuelle volée, analyse de vulnérabilités facilitée |
-| **Compromission API GitHub** | 200 000 € à 1 000 000 € | Accès aux repos privés, vol de code propriétaire, injection de code malveillant |
-| **Amende RGPD** | 500 000 € à 4 000 000 € | Si les images contiennent des données personnelles ou des accès vers des bases de données |
-| **Investigation forensique** | 150 000 € à 400 000 € | Audit de toutes les images, vérification d'intégrité, analyse des déploiements |
-| **TOTAL estimé** | **3 350 000 € à 15 400 000 €** | |
+### Gravité : 🔴 CRITIQUE *(supply chain : la porte dérobée se propage à chaque déploiement)*
 
-### Matrice de risque
+### Impact chiffré
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-CLD-005
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    Supply chain via push image: [0.80, 0.95]
-    Exfiltration credentials ENV: [0.95, 0.85]
-    Vol code source layers: [0.90, 0.70]
-    Reconnaissance dépendances: [0.85, 0.40]
-    Injection crypto miner: [0.70, 0.80]
-    Pivot via API GitHub: [0.60, 0.75]
-```
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Supply chain (image backdoorée en prod) | 500 k€ – 2,5 M€ | Compromission de tous les services qui tirent l'image → reverse shell/exfil dans des pods légitimes. |
+| Exfiltration code source + secrets (layers) | 200 k€ – 800 k€ | Propriété intellectuelle + credentials dans les images → attaques en cascade. |
+| Exposition RGPD | 200 k€ – 1 M€ | Si les images/pods traitent des données abonnés. |
+| Réponse à incident supply chain | 120 k€ – 350 k€ | Audit d'intégrité de **toutes** les images, redéploiement propre, rotation des secrets embarqués. |
+| **Total réaliste** | **~1 M€ – 4,6 M€** | La gravité vient de la **propagation automatique** de la backdoor à chaque redéploiement. |
 
-### Impact réglementaire
+> **Réalité rédaction** : un registre interne monté « vite fait » sans auth parce qu'il est « sur le réseau privé » — et n'importe qui sur le cluster peut remplacer l'image du paywall par une version piégée. La prochaine mise à jour de l'appli déploie la backdoor toute seule.
 
-- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 32 (mesures techniques). Les credentials stockées en clair dans les images Docker et l'absence d'authentification sur le registre violent les obligations de protection des données.
-- **NIS2** — Non-conformité Article 21 (sécurité de la chaîne d'approvisionnement). Un registre Docker en lecture/écriture libre est un vecteur direct de supply chain attack.
-- **ISO 27001** — Non-conformité A.5.17 (Informations d'authentification), A.8.24 (Cryptographie), A.8.25 (Développement sécurisé), A.8.9 (Gestion de la configuration).
+### Réglementaire
+- **RGPD Art. 32** — absence d'authentification sur un composant de la chaîne de production.
+- **NIS2 Art. 21** — sécurité de la chaîne d'approvisionnement (vecteur direct).
+- **ISO 27001 A.5.17** (informations d'authentification), **A.5.23** (sécurité des services cloud), **A.8.25** (développement sécurisé).
 
----
+### Décision COMEX
+- **Imposer authentification + RBAC sur le registre** et **la signature d'images** (cosign / Notation) vérifiée par un **admission controller** — seule une image signée et scannée se déploie. Décision d'architecture supply chain.
+- **Intégrer un scan de vulnérabilités d'images bloquant** (Trivy / Grype) dans la CI/CD — arbitrage DSI, condition de mise en prod.
 
 ## Détection SOC / SIEM
 

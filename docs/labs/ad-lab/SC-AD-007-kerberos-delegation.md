@@ -447,66 +447,31 @@ impacket-addcomputer -computer-name 'YOURPC$' -computer-pass 'Password123!' -dc-
 
 ## Impact métier — MediaTech Groupe SA
 
-### Synthèse narrative
+### Synthèse
+En abusant d'une **délégation Kerberos mal maîtrisée** (unconstrained sur un serveur non-DC, ou constrained/RBCD mal cadrée), l'attaquant force un contrôleur de domaine à s'authentifier, **capture son ticket**, puis usurpe un compte à hauts privilèges jusqu'au **DCSync**. Aucune CVE : uniquement un attribut de délégation posé un jour « pour que l'appli marche » et jamais revu. Résultat : **dominance du domaine**.
 
-Un attaquant disposant de credentials de service peut exploiter les délégations Kerberos pour usurper l'identité de n'importe quel utilisateur, y compris les Domain Admins. L'exploitation est invisible pour les utilisateurs cibles (S4U2Self ne requiert aucune interaction) et utilise des fonctionnalités légitimes de Windows AD, rendant la détection difficile sans monitoring spécifique.
+### Gravité : 🔴 CRITIQUE *(usurpation de privilèges jusqu'à DCSync ; compromission complète du domaine)*
 
-### Estimation financière
+### Impact chiffré
 
-| Poste | Estimation |
-|-------|-----------|
-| Interruption activité (DCSync = compromission totale) | 500 000 — 2 000 000 € |
-| Reconstruction AD complète (2 forêts) | 200 000 — 500 000 € |
-| Investigation forensique | 100 000 — 300 000 € |
-| Notification RGPD | 50 000 — 150 000 € |
-| Sanction CNIL / NIS2 | 100 000 — 500 000 € |
-| Perte de confiance clients / réputation | 500 000 — 1 500 000 € |
-| **Total estimé** | **1 450 000 — 4 950 000 €** |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Arrêt de la production éditoriale | 400 k€ – 1,5 M€ | Confinement / ransomware post-dominance : 3–7 jours de publication perturbée. |
+| Reconstruction AD / restauration | 200 k€ – 500 k€ | Rebuild de confiance, rotation krbtgt x2, forensic. |
+| Exposition RGPD massive | 300 k€ – 2 M€ | DCSync = tous les secrets du domaine → accès à toutes les bases. Notification CNIL 72 h. |
+| Réponse à incident majeure | 150 k€ – 400 k€ | DFIR, cellule de crise, juridique. |
+| **Total réaliste** | **~1 M€ – 4,4 M€** | Scénario noir d'un quotidien national. |
 
-### Matrice de risque
+> **Réalité rédaction** : une délégation unconstrained sur un vieux serveur d'impression ou d'application métier, c'est le genre de configuration posée il y a 10 ans par un intégrateur, jamais documentée, jamais auditée. Personne ne sait plus qu'elle est là — sauf l'attaquant qui la trouve avec BloodHound en cinq minutes.
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-AD-007
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    Constrained Delegation S4U abuse: [0.90, 0.95]
-    RBCD via GenericWrite on DC: [0.85, 0.95]
-    Constrained w/o protocol transition chain: [0.60, 0.90]
-    Unconstrained Delegation coerce: [0.40, 0.95]
-    altservice SPN swap: [0.90, 0.85]
-```
+### Réglementaire
+- **RGPD Art. 32 + 33/34** — compromission majeure, notifications obligatoires.
+- **NIS2 Art. 21 + 23** — incident significatif.
+- **ISO 27001 A.8.2** (accès privilégiés), **A.5.15** (contrôle d'accès), **A.8.9** (gestion des configurations — l'attribut de délégation).
 
-### Impact réglementaire
-
-- **RGPD (Article 32)** : l'usurpation via S4U2Self permet d'accéder à toutes les données personnelles sans interaction ni détection.
-- **NIS2 (Article 21)** : exploitation de configurations par défaut (MachineAccountQuota, délégation non restreinte) démontrant un défaut de gestion des risques cyber.
-- **ISO 27001 (A.8.2, A.8.3)** : comptes de service avec constrained delegation non soumis au groupe Protected Users — violation du moindre privilège.
-
-### Top 5 actions prioritaires
-
-**0-24h (urgence)**
-1. Ajouter tous les comptes DA, EA et comptes sensibles au groupe **Protected Users**
-2. Auditer toutes les délégations Kerberos existantes
-
-**1 semaine**
-3. Réduire `ms-DS-MachineAccountQuota` à **0**
-4. Supprimer les ACL GenericWrite/GenericAll sur les comptes machine des DC
-
-**1 mois**
-5. Tiering model (Tier 0/1/2) + migration vers gMSA + revue trimestrielle des délégations
-
-### Décisions attendues du COMEX
-
-- **Valider le budget** pour un audit complet des délégations Kerberos — 3-5 jours/homme.
-- **Mandater la DSI** pour le tiering model AD (Tier 0/1/2).
-- **Approuver** MachineAccountQuota = 0 + revue trimestrielle des délégations.
-
----
+### Décision COMEX
+- **Mandater un audit exhaustif des délégations Kerberos** (toute délégation unconstrained hors DC = à supprimer, tout RBCD/constrained à justifier) — livrable priorisé, c'est un chantier de gouvernance récurrent.
+- **Placer les comptes sensibles dans le groupe `Protected Users`** et marquer « *Account is sensitive and cannot be delegated* », pour retirer ces identités du périmètre de délégation.
 
 ## Détection SOC / SIEM
 

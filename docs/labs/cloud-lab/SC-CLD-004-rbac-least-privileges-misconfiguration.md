@@ -350,48 +350,30 @@ Un attaquant qui exploite cette misconfiguration RBAC obtient :
 
 ## Impact métier — MediaTech Groupe SA
 
-### Estimation financière
+### Synthèse
+Un **ServiceAccount / rôle RBAC trop permissif** (verbes `*`, accès `secrets`, droit de créer des pods) permet à l'attaquant, depuis un pod anodin, de **lire les secrets du cluster** et/ou de **s'octroyer cluster-admin**. Pas de faille logicielle : une politique d'accès Kubernetes trop large, posée « pour débloquer » et jamais resserrée. L'escalade se fait **de l'intérieur** du cluster.
 
-| Impact | Estimation | Justification |
-|--------|-----------|---------------|
-| **Amende RGPD** | 500 000 € à 4 000 000 € | Accès non autorisé à des clés API pouvant exposer des données personnelles en cascade. RGPD Art. 83(4). |
-| **Compromission de services tiers** | 200 000 € à 1 000 000 € | Les clés API volées (vault, webhook) donnent accès aux services connectés : paiement, CRM, stockage. |
-| **Investigation forensique** | 80 000 € à 200 000 € | Audit RBAC complet, rotation de tous les secrets, revue des accès sur les 6 derniers mois. |
-| **Atteinte réputationnelle** | 300 000 € à 1 500 000 € | Perte de confiance des partenaires si les clés API compromises sont utilisées pour des attaques en chaîne. |
-| **Coût de remédiation** | 50 000 € à 150 000 € | Refonte des Roles RBAC, déploiement d'outils de gouvernance (RBAC Manager, Kyverno), formation des DevOps. |
-| **TOTAL estimé** | **1 130 000 € à 6 850 000 €** | |
+### Gravité : 🟠 ÉLEVÉ *(escalade intra-cluster ; potentiellement cluster-admin selon la latitude RBAC)*
 
-### Impact réglementaire
+### Impact chiffré
 
-- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 25 (protection dès la conception), 32 (mesures techniques — contrôle d'accès). Les secrets K8s contenant des clés API vers des systèmes traitant des données personnelles doivent être protégés par le principe de moindre privilège.
-- **NIS2** — Non-conformité aux exigences de gestion des risques cyber (Article 21). Le wildcard RBAC viole l'obligation de contrôle d'accès proportionné.
-- **ISO 27001** — Non-conformité A.5.15 (Contrôle d'accès), A.5.18 (Droits d'accès), A.8.3 (Restriction d'accès à l'information).
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Vol des secrets du cluster | 200 k€ – 900 k€ | Tokens, clés d'API, credentials DB montés dans le cluster → accès en cascade. |
+| Exposition RGPD | 150 k€ – 800 k€ | Selon les bases atteignables via les secrets récupérés. |
+| Réponse à incident | 60 k€ – 200 k€ | Rotation massive des secrets, refonte RBAC, audit des bindings. |
+| **Total réaliste** | **~410 k€ – 1,9 M€** | Bascule **CRITIQUE** si le rôle permet `cluster-admin` (prise de contrôle totale). |
 
-### Top 5 actions prioritaires
+> **Réalité rédaction** : un `ClusterRoleBinding` vers `cluster-admin` donné à un ServiceAccount d'appli « le temps de faire marcher le déploiement » — c'est le raccourci RBAC le plus courant. Personne ne le retire ensuite parce que « si je touche, ça casse ».
 
-**0–24h (urgence)**
+### Réglementaire
+- **RGPD Art. 32** — droits d'accès non conformes au moindre privilège.
+- **NIS2 Art. 21** — gestion des accès aux systèmes.
+- **ISO 27001 A.5.15** (contrôle d'accès), **A.5.18** (droits d'accès), **A.8.2** (accès privilégiés).
 
-1. Restreindre le Role `secret-reader` avec `resourceNames: [webhookapikey]` — limiter l'accès au seul secret légitime.
-2. Rotation immédiate de `vaultapikey` et `webhookapikey` — considérer les deux comme compromis.
-
-**Sous 1 semaine**
-
-3. Auditer **tous les Roles et ClusterRoles** du cluster — identifier tout wildcard `resources: "*"` ou `verbs: "*"` et les remplacer par des permissions granulaires.
-4. Désactiver `automountServiceAccountToken: false` sur tous les pods qui n'utilisent pas l'API Kubernetes.
-
-**Sous 1 mois**
-
-5. Déployer un outil de gouvernance RBAC (RBAC Manager, Kyverno) avec alertes automatiques sur toute création de Role avec wildcard.
-
-### Décisions attendues du COMEX
-
-- **Valider un audit RBAC complet** du cluster K8s de production — inventaire exhaustif des Roles, ClusterRoles, RoleBindings et ClusterRoleBindings avec identification de toutes les permissions excessives.
-- **Déclencher une évaluation d'impact RGPD** — si `vaultapikey` donnait accès à des données personnelles via HashiCorp Vault, la violation est potentiellement notifiable à la CNIL.
-- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Admin K8s / IAM) pour piloter la remédiation RBAC et la rotation des credentials.
-- **Mettre en place une politique formelle** de gouvernance RBAC : principe de moindre privilège obligatoire, revue trimestrielle des droits, interdiction des wildcards en production.
-- **Valider un budget** pour le déploiement d'outils de gouvernance RBAC et de détection des déviations de configuration (Kubescape, Kyverno policies).
-
----
+### Décision COMEX
+- **Mandater une revue RBAC complète** (suppression des `*` et des bindings `cluster-admin` non justifiés, ServiceAccounts au moindre privilège) avec **audit récurrent** (`kubectl-who-can` / outillage) — décision de gouvernance des accès.
+- **Interdire les secrets montés par défaut** et basculer vers un **gestionnaire de secrets externe** (External Secrets / Vault) — arbitrage plateforme.
 
 ## Matrice de risque
 

@@ -297,71 +297,29 @@ Avec un token IAM récupéré via SSRF, un attaquant peut :
 ## Impact métier — MediaTech Groupe SA
 
 ### Synthèse
+Une **SSRF** dans un service exposé permet d'atteindre l'**endpoint de métadonnées** du cloud (`169.254.169.254`) et d'en extraire les **credentials du rôle IAM** du nœud. L'attaquant transforme une faille applicative « périphérique » en **pivot vers le cluster et le cloud**. Le vecteur est une entrée non validée — typiquement une fonction « récupérer une image depuis une URL » dans un outil éditorial.
 
-Un attaquant avec un simple accès réseau au cluster exfiltre des secrets internes en moins de 10 requêtes HTTP, sans authentification, sans exploit. En contexte cloud réel, la même technique donne accès aux tokens IAM AWS/GCP/Azure et compromet l'intégralité de l'infrastructure cloud de MediaTech Groupe SA — bases de données abonnés, contenus éditoriaux, données RH et financières. La probabilité est élevée : 38% des clusters K8s en production exposent des NodePort non sécurisés (Aqua Security 2024), et SSRF est classé OWASP Top 10 A10 depuis 2021.
+### Gravité : 🟠 ÉLEVÉ *(pivot applicatif → identité cloud du nœud ; ampleur selon les droits du rôle)*
 
-### Estimation financière
+### Impact chiffré
 
-| Impact | Estimation | Justification |
-|--------|-----------|---------------|
-| **Compromission tokens IAM cloud** | 500 000 € à 2 000 000 € | Accès S3/bases cloud, exfiltration données production |
-| **Utilisation frauduleuse ressources cloud** | 50 000 € à 500 000 € | Crypto mining, spin-up instances via tokens volés |
-| **Amende RGPD** | 500 000 € à 4 000 000 € | Données personnelles abonnés/salariés accessibles via cloud. Art. 83 RGPD |
-| **Perte d'exploitation** | 200 000 € à 800 000 € | Arrêt services numériques MediaTech (2–5 jours) |
-| **Investigation forensique** | 80 000 € à 200 000 € | Audit cloud, rotation tokens, analyse logs accès |
-| **Atteinte réputationnelle** | 400 000 € à 2 000 000 € | Groupe de presse : perte confiance sources, annonceurs, abonnés |
-| **TOTAL estimé** | **1 730 000 € à 9 500 000 €** | |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Compromission via rôle IAM du nœud | 300 k€ – 1,5 M€ | Le rôle du nœud donne souvent accès à S3/ECR/Secrets Manager → données et déploiement. |
+| Exposition RGPD | 150 k€ – 800 k€ | Selon les données atteignables via le rôle (dossiers abonnés). |
+| Réponse à incident | 60 k€ – 180 k€ | Rotation des rôles, audit CloudTrail, correctif applicatif SSRF, revue egress. |
+| **Total réaliste** | **~510 k€ – 2,5 M€** | Bascule **CRITIQUE** si le rôle du nœud est large (accès cluster-wide / secrets). |
 
-### Matrice de risque
+> **Réalité rédaction** : une appli interne qui va chercher une photo « à telle URL » pour l'illustration d'un article, sans filtrer les adresses — et voilà la porte vers les métadonnées cloud. La SSRF, c'est la faille qu'on ne voit pas parce que « ça ne fait que télécharger une image ».
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-CLD-002
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    NodePort exposé sans auth: [0.90, 0.75]
-    SSRF metadata cloud: [0.85, 0.92]
-    Vol tokens IAM: [0.80, 0.95]
-    Pivot infrastructure cloud: [0.75, 0.90]
-    Crypto mining via tokens: [0.70, 0.60]
-    Amende RGPD: [0.75, 0.80]
-```
+### Réglementaire
+- **RGPD Art. 32** — validation d'entrée / cloisonnement insuffisants.
+- **NIS2 Art. 21** — sécurité des systèmes et des applications.
+- **ISO 27001 A.8.26** (exigences de sécurité des applications), **A.8.22** (cloisonnement des réseaux), **A.8.9** (gestion des configurations).
 
-### Impact réglementaire
-
-- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 25 (protection dès la conception), 32 (mesures techniques). Les tokens cloud exfiltrés donnent accès aux bases de données contenant des données personnelles abonnés. Notification CNIL obligatoire sous 72h si données personnelles atteintes.
-- **NIS2** — Non-conformité Article 21 (gestion des risques cyber). Service exposé sans authentification, absence de Network Policies, aucun filtrage sortant des pods applicatifs — triple manquement aux obligations de sécurisation des systèmes d'information critiques.
-- **ISO 27001** — Non-conformité A.5.15 (Contrôle d'accès), A.8.5 (Authentification sécurisée), A.13.1.3 (Ségrégation des réseaux), A.8.12 (Prévention de fuite de données).
-
-### Top 5 actions prioritaires
-
-**0–24h (urgence)**
-
-1. Supprimer le NodePort 30003 — convertir en ClusterIP, accessible uniquement en interne.
-2. Révoquer et rotation immédiate de tous les tokens et secrets potentiellement exposés via le metadata API.
-
-**Sous 1 semaine**
-
-3. Implémenter une **allowlist URL** dans le proxy — liste blanche des endpoints autorisés, rejet de toute autre URL.
-4. Déployer des **Network Policies** Kubernetes : deny-all par défaut, autorisation explicite des flux nécessaires uniquement.
-
-**Sous 1 mois**
-
-5. Activer **IMDSv2** (AWS) ou équivalent cloud — token obligatoire pour accéder au metadata API, bloque les SSRF non préparées.
-
-### Décisions attendues du COMEX
-
-- **Évaluer l'exposition réelle** en production cloud — vérifier si des NodePort similaires existent sur les clusters AWS/GCP/Azure de MediaTech Groupe SA et si des proxies sans allowlist sont déployés.
-- **Déclencher une notification préventive CNIL** — si les tokens exposés donnaient accès à des données personnelles, la violation RGPD est notifiable sous 72h.
-- **Valider un budget** pour le déploiement d'un Service Mesh (Istio/Linkerd) et d'un WAF applicatif avec détection SSRF.
-- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Cloud Architect / Admin K8s) pour piloter les actions 0–24h en priorité absolue.
-- **Mandater un audit complet** des NodePort exposés et des Network Policies sur tous les clusters Kubernetes en production.
-
----
+### Décision COMEX
+- **Imposer IMDSv2** (métadonnées avec jeton de session, hop-limit à 1) sur tous les nœuds — mesure ciblée qui neutralise ce vecteur précis.
+- **Mettre en place un filtrage egress des pods** (network policies) et **la validation stricte des entrées** côté applicatif — arbitrage dev + cloud.
 
 ## Détection SOC / SIEM
 

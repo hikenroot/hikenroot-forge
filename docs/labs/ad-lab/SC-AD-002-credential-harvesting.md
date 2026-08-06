@@ -343,70 +343,28 @@ khal.drogo = **admin local sur BRAAVOS** → vecteur de désactivation AV identi
 ## Impact métier — MediaTech Groupe SA
 
 ### Synthèse
+À partir d'**un seul** identifiant initial, l'attaquant récupère et casse **plusieurs comptes du domaine**, dont un **compte de service MSSQL sysadmin**. Ces techniques (AS-REP Roasting, Kerberoasting, Password Spray) ne verrouillent aucun compte et ne déclenchent aucune alarme sans monitoring Kerberos. Dans une maison de presse, un compte de service base de données compromis = accès potentiel aux **applicatifs métier** (CMS, abonnés, RH) sans passer par un compte nominatif surveillé.
 
-Avec un seul credential initial (obtenu en SC-AD-001), un attaquant compromet 8 comptes domaine supplémentaires sur trois domaines distincts via des techniques sans exploit et sans verrouillage de compte. Parmi ces comptes : un compte de service MSSQL sysadmin (jon.snow) et un admin local BRAAVOS (khal.drogo). Ces credentials ouvrent l'accès à l'infrastructure SQL inter-domaines et constituent le tremplin vers la compromission totale. La probabilité d'occurrence est très élevée — AS-REP Roasting et Kerberoasting sont des techniques standard utilisées dans 100% des engagements red team en environnement AD.
+### Gravité : 🟠 ÉLEVÉ *(comptes multiples compromis, dont un compte à privilèges applicatifs ; enabler de mouvement latéral)*
 
-### Estimation financière
+### Impact chiffré
 
-| Impact | Estimation | Justification |
-|--------|-----------|---------------|
-| **Accès MSSQL sysadmin cross-domain** | 500 000 € à 2 000 000 € | jon.snow → sa BRAAVOS → données métier, RH, finance sur SQL Server |
-| **Compromission SI complet** | 2 000 000 € à 8 000 000 € | 8 credentials → mouvement latéral → ransomware ou exfiltration totale |
-| **Amende RGPD** | 500 000 € à 4 000 000 € | Données personnelles accessibles via comptes compromis. Art. 83 RGPD |
-| **Perte d'exploitation** | 300 000 € à 1 000 000 € | Arrêt ou mode dégradé SI (3–7 jours) |
-| **Investigation forensique** | 100 000 € à 300 000 € | Rotation de tous les credentials, audit Kerberos, analyse BloodHound |
-| **Atteinte réputationnelle** | 500 000 € à 2 000 000 € | Presse compromise : impact sources confidentielles, abonnés, annonceurs |
-| **TOTAL estimé** | **3 900 000 € à 17 300 000 €** | |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Exposition RGPD (Art. 32) | 150 k€ – 800 k€ | Si le compte sysadmin MSSQL donne accès à une base contenant des données abonnés. Amende réaliste < plafond. |
+| Réponse à incident (hygiène AD) | 80 k€ – 200 k€ | Rotation des comptes compromis, migration gMSA, revue des SPN et des comptes sans pré-auth — chantier qui dépasse les comptes cassés. |
+| **Total réaliste** | **~230 k€ – 1 M€** | Bascule en critique si un des comptes cassés est privilégié au niveau domaine. |
 
-### Matrice de risque
+> **Réalité rédaction** : les vieux comptes de service (SQL, applicatifs d'édition) avec des mots de passe jamais tournés depuis 10 ans sont la norme dans un SI historique. C'est la cible n°1 du Kerberoasting.
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-AD-002
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    AS-REP Roasting: [0.90, 0.80]
-    Kerberoasting: [0.95, 0.85]
-    Password Spray: [0.85, 0.75]
-    Accès MSSQL sysadmin: [0.80, 0.90]
-    Pivot ransomware: [0.70, 0.98]
-```
+### Réglementaire
+- **RGPD Art. 32** — protection insuffisante des identifiants.
+- **NIS2 Art. 21** — hygiène d'authentification.
+- **ISO 27001 A.8.5** (authentification sécurisée), **A.5.17** (informations d'authentification).
 
-### Impact réglementaire
-
-- **RGPD** — Violation des articles 5(1)(f) (intégrité et confidentialité), 32 (mesures techniques). Les comptes de service compromis donnent accès aux bases de données contenant des données personnelles (RH, clients, abonnés).
-- **NIS2** — Non-conformité Article 21. L'absence de pré-authentification Kerberos et de mots de passe forts sur les comptes de service constitue un manquement aux obligations de sécurisation des systèmes critiques.
-- **ISO 27001** — Non-conformité A.5.17 (Informations d'authentification), A.8.5 (Authentification sécurisée), A.5.15 (Contrôle d'accès).
-
-### Top 5 actions prioritaires
-
-**0–24h (urgence)**
-
-1. Activer la pré-authentification Kerberos sur tous les comptes (`DoNotRequirePreAuth = False`).
-2. Rotation immédiate des mots de passe des comptes de service MSSQL (jon.snow, sql_svc).
-
-**Sous 1 semaine**
-
-3. Migrer tous les comptes de service MSSQL vers des **gMSA** (Group Managed Service Accounts) — rotation automatique, mots de passe 240 chars.
-4. Forcer **AES256** pour les tickets Kerberos — invalide le Kerberoasting RC4.
-
-**Sous 1 mois**
-
-5. Déployer **Microsoft Defender for Identity** pour détection temps réel AS-REP Roasting (Event 4768 PreAuth=0) et Kerberoasting (Event 4769 RC4).
-
-### Décisions attendues du COMEX
-
-- **Valider la migration gMSA** pour tous les comptes de service — budget infrastructure AD à provisionner.
-- **Prioriser l'audit des SPNs** : tout compte avec SPN est une cible Kerberoasting. Inventaire exhaustif requis sous 48h.
-- **Nommer un sponsor** (DSI / RSSI) et un responsable opérationnel (Admin AD / IAM) pour piloter les actions urgentes.
-- **Déclencher une évaluation d'impact RGPD** — les comptes compromis donnent accès aux bases RH et finance. Notification CNIL potentielle sous 72h si données personnelles exposées.
-- **Mandater un audit AD complet** (BloodHound Enterprise ou équivalent) pour cartographier tous les chemins d'attaque résiduels.
-
----
+### Décision COMEX
+- **Lancer la migration des comptes de service vers gMSA** (mots de passe gérés, rotés automatiquement) — budget infra à provisionner, priorité sur les comptes MSSQL/applicatifs.
+- Imposer **AES256** sur les tickets Kerberos et l'audit trimestriel des SPN.
 
 ## Analyse des risques
 

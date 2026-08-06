@@ -257,67 +257,30 @@ SMB  192.168.10.23  BRAAVOS  [+] BRAAVOS\Administrator:ba5fa75e6a4c5da5ff2d682a9
 
 ## 9. Impact Métier — MediaTech Groupe SA
 
-### Synthèse narrative
+### Synthèse
+En empoisonnant les résolutions de noms (LLMNR / NBT-NS actifs par défaut) puis en **relayant** l'authentification NTLM vers des serveurs qui **n'imposent pas la signature SMB**, l'attaquant obtient un **accès administrateur local** sur des serveurs de production (dont MSSQL), dump la base SAM et rejoue les empreintes (Pass-the-Hash). On reste au **niveau serveur** — pas encore de dominance domaine — mais ces serveurs portent des briques applicatives. Le vecteur n'exploite **aucune CVE** : uniquement des protocoles hérités laissés actifs sur 20 ans de SI.
 
-Un attaquant positionné sur le réseau interne de MediaTech Groupe SA, sans aucun credential, a compromis en moins de 5 minutes deux serveurs hébergeant les bases de données de production du groupe. L'accès administrateur local obtenu permet l'installation de backdoors persistantes, l'exfiltration de données confidentielles, et constitue un tremplin vers la compromission complète de l'Active Directory. La surface d'attaque exploitée — protocoles réseau activés par défaut depuis Windows Vista — est présente sur l'ensemble des réseaux Windows non durcis.
+### Gravité : 🟠 ÉLEVÉ *(admin local sur serveurs de prod ; tremplin latéral, dominance domaine non atteinte)*
 
-### Estimation Financière
+### Impact chiffré
 
-| Risque | Impact estimé |
-|--------|--------------|
-| Arrêt serveurs MSSQL production | 50 000 € / jour |
-| Exfiltration données clients/abonnés | 200 000 € — 2 M€ (RGPD) |
-| Notification CNIL + audit obligatoire | 30 000 — 100 000 € |
-| Atteinte réputation / perte abonnés | 500 000 € — 5 M€ |
-| Coût remédiation technique | 20 000 — 80 000 € |
-| **Total estimé** | **800 000 € — 7 M€** |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Perturbation applicative / éditoriale | 140 k€ – 300 k€ | Si les serveurs relayés portent des briques CMS/SQL : 1–2 jours de production dégradée (137 k€/jour). |
+| Exposition RGPD (Art. 32) | 150 k€ – 800 k€ | Si un serveur compromis héberge une base à données perso (abonnés/RH). Fourchette réaliste < plafond. |
+| Réponse à incident + durcissement réseau | 80 k€ – 200 k€ | Déploiement LAPS, activation signature SMB, extinction LLMNR/NBT-NS, revue des comptes admin locaux, PtH hunting. |
+| **Total réaliste** | **~370 k€ – 1,3 M€** | Bascule en **CRITIQUE** si un hash relayé/rejoué mène à un compte à privilèges domaine. |
 
-### Matrice de Risque
+> **Réalité rédaction** : LLMNR et NBT-NS allumés partout, SMB signing jamais imposé sur les serveurs membres — c'est l'état par défaut d'un parc Windows qui a grossi sans jamais être durci. Un poste de rédacteur qui cherche un partage mal orthographié suffit à déclencher le relais.
 
-```mermaid
-quadrantChart
-    title Matrice de Risque — SC-AD-003
-    x-axis Faible Impact --> Impact Critique
-    y-axis Faible Probabilité --> Probabilité Élevée
-    quadrant-1 Traiter en urgence
-    quadrant-2 Surveiller
-    quadrant-3 Accepter
-    quadrant-4 Planifier
-    NTLM Relay SMB: [0.9, 0.95]
-    SAM Dump: [0.85, 0.9]
-    Pass-the-Hash: [0.8, 0.85]
-    Pivot MSSQL: [0.9, 0.8]
-```
+### Réglementaire
+- **RGPD Art. 32** — protocoles d'authentification non sécurisés (NTLM relayable) = mesure technique inadéquate.
+- **NIS2 Art. 21** — sécurité des réseaux et hygiène d'authentification.
+- **ISO 27001 A.8.20** (sécurité des réseaux), **A.8.21** (sécurité des services réseau), **A.8.5** (authentification sécurisée).
 
-### Impact Réglementaire
-
-- **RGPD Article 32 :** Absence de mesures techniques adéquates — obligation de notification CNIL sous 72h en cas d'exfiltration
-- **NIS2 Article 21 :** Non-respect des mesures de sécurité des réseaux et des systèmes d'information
-- **ISO 27001 A.13.1 :** Contrôles réseau insuffisants — absence de segmentation et de signature des communications
-
-### Top 5 Actions Prioritaires
-
-**0-24h :**
-1. Désactiver LLMNR et NBT-NS sur tous les postes et serveurs via GPO
-2. Activer la signature SMB obligatoire sur CASTELBLACK et BRAAVOS
-
-**1 semaine :**
-3. Changer tous les mots de passe des comptes locaux Administrator (LAPS)
-4. Auditer les comptes domaine membres du groupe Administrators local sur les serveurs membres
-
-**1 mois :**
-5. Déployer la micro-segmentation réseau — isoler les serveurs MSSQL sur un VLAN dédié avec ACLs strictes
-
-### Décisions attendues du COMEX
-
-| Décision | Responsable | Délai |
-|----------|-------------|-------|
-| Valider le budget déploiement LAPS | DSI / CFO | 48h |
-| Autoriser la coupure temporaire LLMNR (impact applicatif à tester) | DSI / DPO | 24h |
-| Notifier la CNIL si exfiltration confirmée | DPO / Juridique | 72h max |
-| Mandater un audit Active Directory complet | RSSI | 1 semaine |
-
----
+### Décision COMEX
+- **Imposer la signature SMB obligatoire par GPO** et **désactiver LLMNR/NBT-NS** après test d'impact sur les applicatifs legacy — arbitrage DSI sous 1 semaine, c'est un quick win à budget quasi nul.
+- **Déployer LAPS** (mots de passe admin local uniques et rotés) pour couper la réutilisation d'empreintes entre serveurs, et **isoler les serveurs MSSQL sur un VLAN dédié** avec ACL strictes.
 
 ## 10. Détection SOC / SIEM
 

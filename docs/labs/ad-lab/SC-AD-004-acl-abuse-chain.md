@@ -446,16 +446,31 @@ secretsdump.py -k -no-pass KINGSLANDING.sevenkingdoms.local -just-dc-ntlm
 
 ## Impact Business — MediaTech Groupe SA
 
-| Domaine | Impact |
-|---------|--------|
-| **Confidentialité** | Exposition totale des données RH, Finance, Juridique stockées sur les serveurs du domaine |
-| **Intégrité** | Falsification possible de documents contractuels, factures, données comptables |
-| **Disponibilité** | Ransomware déployable sur l'ensemble du SI via GPO malveillante |
-| **Conformité RGPD** | Violation Art.32 — notification CNIL obligatoire sous 72h |
-| **Conformité NIS2** | Incident significatif — notification autorité compétente sous 24h (Art.23) |
-| **Estimation financière** | 500 000€ — 2 000 000€ (forensics, reconstruction, amendes RGPD) |
+### Synthèse
+En enchaînant des **droits ACL mal maîtrisés** (ForceChangePassword → GenericWrite → WriteDACL → Shadow Credentials → DCSync), l'attaquant passe d'un compte utilisateur lambda à **Domain Admin**, sans exploiter la moindre CVE — uniquement des permissions accumulées au fil des ans. À ce niveau, il détient **les clés du royaume** : il peut arrêter la publication, chiffrer le SI (ransomware), et accéder à tout — y compris les échanges rédactionnels et les sources.
 
----
+### Gravité : 🔴 CRITIQUE *(compromission complète du domaine)*
+
+### Impact chiffré
+
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Arrêt de la production éditoriale | 400 k€ – 1,5 M€ | Ransomware ou confinement d'urgence : 3 à 7 jours sans publication normale. Le coût, c'est **les éditions perdues** + la remise en route. |
+| Reconstruction AD / restauration | 200 k€ – 500 k€ | Rebuild d'un annuaire compromis à la racine (double rotation krbtgt, restauration de confiance, forensic). |
+| Exposition RGPD massive | 300 k€ – 2 M€ | Accès à l'ensemble des bases (abonnés, RH, finance). Notification CNIL 72h. |
+| Réponse à incident majeure | 150 k€ – 400 k€ | DFIR complet, cellule de crise, accompagnement juridique. |
+| **Total réaliste** | **~1 M€ – 4,4 M€** | Fourchette d'un incident majeur pour un quotidien national. |
+
+> **Réalité rédaction** : Domain Admin sur le SI d'un quotidien, c'est le scénario noir absolu — le jour où **le journal ne sort pas** et où on ne sait pas si les échanges avec les sources ont fuité. L'atteinte n'est pas que financière, elle est **existentielle pour le titre**.
+
+### Réglementaire
+- **RGPD Art. 32 + 33/34** — compromission majeure, notification CNIL et personnes concernées.
+- **NIS2 Art. 21 + 23** — incident significatif, notification obligatoire.
+- **ISO 27001 A.8.2** (accès privilégiés), **A.5.15** (contrôle d'accès), **A.8.3** (restriction d'accès).
+
+### Décision COMEX
+- **Financer un projet Tiering AD + PAW** (postes d'administration dédiés) et une **revue exhaustive des ACL** — c'est la racine du problème, pas un correctif ponctuel.
+- Valider un **plan de reprise AD** (procédure de rebuild krbtgt/DC testée) et une **cyber-assurance** dimensionnée sur ce scénario.
 
 ## Détection
 

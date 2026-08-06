@@ -269,64 +269,31 @@ Le Golden Ticket avec l'extra-sid essos est accepté par MEEREEN — l'authentif
 
 ## Impact métier — MediaTech Groupe SA
 
-### Synthèse narrative
+### Synthèse
+En abusant d'une **relation d'approbation inter-forêt sans SID Filtering** (injection de SID History, ou rebond via un trust mal cadré), l'attaquant qui domine une forêt **franchit la frontière** vers une seconde forêt supposée isolée. Le point clé : une compromission qu'on croyait **contenue** à un périmètre se propage à un autre — typiquement le cas d'une **filiale, d'un rachat ou d'une régie** rattachée par un trust historique jamais durci.
 
-Les relations de confiance AD de MediaTech Groupe SA permettent à un attaquant ayant compromis un domaine enfant d'escalader vers la forêt racine en une commande, puis de pivoter vers la forêt partenaire via des groupes cross-forest non audités. Les foreign group memberships entre sevenkingdoms et essos donnent des droits de modification de comptes cross-forest sans aucune traçabilité spécifique. Le SID History activé sur le trust cross-forest ajoute un vecteur d'injection de privilèges.
+### Gravité : 🔴 CRITIQUE *(la compromission franchit une frontière de forêt supposée étanche)*
 
-### Estimation financière
+### Impact chiffré
 
-| Poste | Estimation |
-|-------|-----------|
-| Compromission multi-forêts (2 forêts, 3 domaines) | 500 000 — 1 500 000 € |
-| Investigation forensique cross-forest | 200 000 — 500 000 € |
-| Reconstruction trusts + foreign groups | 100 000 — 300 000 € |
-| Notification RGPD (données cross-organisationnelles) | 50 000 — 200 000 € |
-| Perte de confiance partenaire (si forêts = entités distinctes) | 300 000 — 1 000 000 € |
-| **Total estimé** | **1 150 000 — 3 500 000 €** |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Extension de compromission à la 2ᵉ forêt | 500 k€ – 2 M€ | Périmètre supposé isolé (filiale/régie/rachat) désormais exposé : accès à ses bases et services propres. |
+| Reconstruction AD multi-forêt | 250 k€ – 600 k€ | Rebuild de confiance sur **deux** forêts + remédiation des trusts — plus lourd qu'un domaine unique. |
+| Exposition RGPD | 300 k€ – 2 M€ | Données perso des deux entités (deux bases abonnés/RH potentielles). |
+| Réponse à incident inter-entités | 150 k€ – 400 k€ | Coordination DFIR entre deux périmètres, deux DSI, juridique. |
+| **Total réaliste** | **~1,2 M€ – 5 M€** | L'ampleur vient du **doublement de périmètre**, pas d'un nouveau vecteur technique. |
 
-### Matrice de risque
+> **Réalité rédaction** : les trusts inter-forêt d'une maison de presse, ce sont souvent les cicatrices des rachats — une régie pub intégrée, une filiale événementiel, un titre absorbé, chacun avec « son » AD relié « juste le temps de la migration »… il y a huit ans. Le SID Filtering n'a jamais été remis. C'est l'autoroute entre deux mondes qu'on croyait séparés.
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-AD-010
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    Child-to-parent raiseChild: [0.95, 0.95]
-    Foreign group cross-forest: [0.70, 0.85]
-    SID History abuse: [0.60, 0.80]
-    MSSQL trust link: [0.80, 0.90]
-```
+### Réglementaire
+- **RGPD Art. 32** — cloisonnement insuffisant entre entités traitant des données perso distinctes.
+- **NIS2 Art. 21** — maîtrise des relations et interconnexions (y compris intra-groupe).
+- **ISO 27001 A.5.19 / A.5.20** (sécurité dans les relations avec les tiers / accords), **A.8.22** (cloisonnement des réseaux).
 
-### Impact réglementaire
-
-- **RGPD (Article 32)** : le pivot cross-forest donne accès aux données personnelles de deux organisations potentiellement distinctes via une seule compromission.
-- **NIS2 (Article 21)** : l'absence d'audit des foreign group memberships et de documentation des trusts constitue un manquement à la gestion des risques cyber.
-- **ISO 27001 (A.5.15, A.8.3)** : les trusts cross-forest avec SID History ne sont pas documentés, les foreign groups ne sont pas revus périodiquement.
-
-### Top 5 actions prioritaires
-
-**0-24h (urgence)**
-1. Auditer tous les foreign group memberships cross-forest avec BloodHound
-2. Documenter chaque trust avec justification métier — supprimer les trusts non nécessaires
-
-**1 semaine**
-3. Désactiver SID History sur le trust cross-forest si non requis : `netdom trust /d:sevenkingdoms.local essos.local /enableSIDHistory:no`
-4. Restreindre les membres des groupes cross-forest au strict minimum
-
-**1 mois**
-5. Implémenter Selective Authentication sur les trusts cross-forest — chaque accès cross-forest doit être explicitement autorisé
-
-### Décisions attendues du COMEX
-
-- **Valider un audit complet des trusts** : inventaire, justification, SID History status, foreign groups.
-- **Décider du maintien du trust cross-forest** : le trust sevenkingdoms↔essos est-il nécessaire métier ? Si oui, basculer en Selective Authentication.
-- **Mandater la revue trimestrielle** des foreign group memberships cross-forest.
-
----
+### Décision COMEX
+- **Activer le SID Filtering / la quarantaine sur tous les trusts inter-forêt** et **auditer chaque relation d'approbation** (justifier ou supprimer les trusts hérités de migrations/rachats) — décision de gouvernance inter-entités.
+- **Arbitrer l'isolation des forêts non maîtrisées** (filiale/régie) : soit durcissement et supervision du trust, soit rupture de la relation d'approbation.
 
 ## Détection SOC / SIEM
 

