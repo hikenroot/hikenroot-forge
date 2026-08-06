@@ -64,12 +64,12 @@ All write-ups in [`docs/labs/ad-lab/`](../labs/ad-lab/README.md)
 | SC-AD-004 | ACL Abuse Chain | Done |
 | SC-AD-005 | noPac CVE-2021-42278/42287 + PrintNightmare CVE-2021-1675 | Done |
 | SC-AD-006 | MSSQL Pivot | Done |
-| SC-AD-007 | Kerberos Delegation | Pending |
-| SC-AD-008 | ADCS Attacks | Pending |
-| SC-AD-009 | Domain Dominance | Pending |
-| SC-AD-010 | Cross-Forest Trusts | Pending |
-| SC-AD-011 | Coerce & File-based | Pending |
-| SC-AD-012 | ADCS Advanced | Pending |
+| SC-AD-007 | Kerberos Delegation | Done |
+| SC-AD-008 | ADCS Attacks | Done |
+| SC-AD-009 | Domain Dominance | Done |
+| SC-AD-010 | Cross-Forest Trusts | Done |
+| SC-AD-011 | Coerce & File-based | Done |
+| SC-AD-012 | ADCS Advanced | Done |
 
 ---
 

@@ -77,7 +77,6 @@ Environnement AD multi-forêts réaliste (sevenkingdoms.local, north.sevenkingdo
 | SC-CLD-003 | [Container Escape to Host](labs/cloud-lab/SC-CLD-003-container-escape-to-host-system.md) | Container privilégié, montage host, nsenter | ✅ |
 | SC-CLD-004 | [RBAC Misconfiguration](labs/cloud-lab/SC-CLD-004-rbac-least-privileges-misconfiguration.md) | Abus ClusterRole, vol de token, mouvement latéral | ✅ |
 | SC-CLD-005 | [Attacking Private Registry](labs/cloud-lab/SC-CLD-005-attacking-private-registry.md) | Énumération registry, altération d'images | ✅ |
-| SC-CLD-005b | [DIND Exploitation](labs/cloud-lab/SC-CLD-005-dind-exploitation-exposed-git-repository.md) | Docker-in-Docker, .git exposé | ✅ |
 
 ### Format des write-ups
 
