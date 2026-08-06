@@ -444,7 +444,7 @@ secretsdump.py -k -no-pass KINGSLANDING.sevenkingdoms.local -just-dc-ntlm
 
 ---
 
-## Impact Business — MediaTech Groupe SA
+## Impact métier — MediaTech Groupe SA
 
 ### Synthèse
 En enchaînant des **droits ACL mal maîtrisés** (ForceChangePassword → GenericWrite → WriteDACL → Shadow Credentials → DCSync), l'attaquant passe d'un compte utilisateur lambda à **Domain Admin**, sans exploiter la moindre CVE — uniquement des permissions accumulées au fil des ans. À ce niveau, il détient **les clés du royaume** : il peut arrêter la publication, chiffrer le SI (ransomware), et accéder à tout — y compris les échanges rédactionnels et les sources.

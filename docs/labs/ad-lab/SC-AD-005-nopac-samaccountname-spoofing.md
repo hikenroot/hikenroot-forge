@@ -258,7 +258,7 @@ impacket-addcomputer -computer-name 'PWNED$' -computer-pass 'Password123!' -dc-i
 
 ---
 
-## Impact metier — MediaTech Groupe SA
+## Impact métier — MediaTech Groupe SA
 
 ### Synthèse
 En exploitant **noPac (CVE-2021-42278 + CVE-2021-42287)** — renommage d'un compte machine pour usurper l'identité d'un contrôleur de domaine — l'attaquant passe d'un **simple compte utilisateur** à **Domain Admin en quelques minutes**, sur un DC non corrigé. Contrairement à une chaîne d'ACL patiente, ici la bascule est **immédiate et bruyante** : c'est un défaut de **gestion de correctifs** sur le composant le plus critique du SI. À l'arrivée, l'attaquant détient les clés du domaine.

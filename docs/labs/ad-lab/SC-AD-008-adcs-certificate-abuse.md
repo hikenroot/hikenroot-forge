@@ -451,67 +451,31 @@ certipy account update -u missandei@essos.local -p 'fr3edom' -user 'YOURCOMP3$' 
 
 ## Impact métier — MediaTech Groupe SA
 
-### Synthèse narrative
+### Synthèse
+En exploitant des templates de certificats mal configurés (ESC1/ESC6) ou le web enrollment exposé (ESC8), un **simple utilisateur du domaine** obtient un **certificat d'authentification au nom du Domain Admin en moins d'une minute** — sans casser le moindre mot de passe. Pire que la dominance classique : le certificat forgé reste **valide ~1 an**, **survit à une réinitialisation des mots de passe** et est **indistinguable d'un certificat légitime** pour l'EDR. L'ADCS transforme la PKI d'entreprise — censée sécuriser VPN, WiFi et SSO — en **backdoor durable**.
 
-L'infrastructure PKI de MediaTech Groupe SA présente des vulnérabilités systémiques. Un simple utilisateur du domaine peut obtenir un certificat d'authentification au nom du Domain Administrator en moins de 30 secondes. Les certificats générés sont indistinguables des certificats légitimes et permettent un accès persistant — un certificat a une durée de validité d'un an, bien au-delà de la durée d'un mot de passe. L'attaquant peut revenir à tout moment pendant cette durée sans déclencher d'alerte.
+### Gravité : 🔴 CRITIQUE *(Domain Admin via PKI + persistance par certificat, invisible et survivant aux resets)*
 
-### Estimation financière
+### Impact chiffré
 
-| Poste | Estimation |
-|-------|-----------|
-| Compromission PKI complète (reconstruction CA) | 300 000 — 800 000 € |
-| Révocation et remplacement de tous les certificats | 100 000 — 300 000 € |
-| Interruption services dépendant de PKI (VPN, WiFi, SSO) | 200 000 — 500 000 € |
-| Investigation forensique (certificats forgés) | 100 000 — 250 000 € |
-| Notification RGPD | 50 000 — 150 000 € |
-| Perte de confiance / réputation | 300 000 — 1 000 000 € |
-| **Total estimé** | **1 050 000 — 3 000 000 €** |
+| Poste | Estimation | Hypothèse |
+|---|---|---|
+| Arrêt de la production éditoriale | 400 k€ – 1,5 M€ | Confinement / ransomware post-DA : 3–7 jours de publication perturbée. |
+| Reconstruction PKI (révocation + réémission de tous les certificats) | 250 k€ – 700 k€ | Rebuild de la CA, rotation de sa clé, réémission VPN/WiFi/SSO — spécifique à une compromission ADCS, bien plus lourd qu'un reset de mots de passe. |
+| Exposition RGPD massive | 300 k€ – 2 M€ | Accès DA à l'ensemble des bases (abonnés, RH, finance) ; notification CNIL 72 h. |
+| Réponse à incident + chasse aux certificats forgés | 150 k€ – 400 k€ | DFIR long : un certificat forgé est indistinguable d'un légitime, l'éradication impose de tout révoquer. |
+| **Total réaliste** | **~1,1 M€ – 4,6 M€** | Scénario noir : la persistance PKI prolonge et alourdit l'incident. |
 
-### Matrice de risque
+> **Réalité rédaction** : la PKI d'un SI historique — montée il y a 15 ans pour le WiFi et le VPN, jamais auditée depuis — c'est le trou noir parfait. Templates par défaut, web enrollment en HTTP, `EnrolleeSuppliesSubject` activé « parce que c'était pratique ». Un certificat forgé, c'est un passe qui reste valide un an et qu'aucun changement de mot de passe ne révoque.
 
-```mermaid
-quadrantChart
-    title Matrice de risque SC-AD-008
-    x-axis Probabilité faible --> Probabilité élevée
-    y-axis Impact faible --> Impact élevé
-    quadrant-1 Risque critique
-    quadrant-2 Risque élevé
-    quadrant-3 Risque faible
-    quadrant-4 Risque moyen
-    ESC1 template misconfiguration: [0.95, 0.95]
-    ESC8 NTLM relay web enrollment: [0.80, 0.95]
-    ESC6 CA flag all templates: [0.85, 0.90]
-    ESC4 template permissions abuse: [0.70, 0.85]
-    ESC3 Certificate Request Agent: [0.75, 0.80]
-    ESC2 Any Purpose template: [0.75, 0.80]
-```
+### Réglementaire
+- **RGPD Art. 32 + 33/34** — accès persistant aux données via certificats forgés ; notification CNIL et personnes concernées.
+- **NIS2 Art. 21 + 23** — défaut de gestion des risques (web enrollment exposé, templates non restreints) ; incident significatif.
+- **ISO 27001 A.8.24** (cryptographie — **cœur du sujet PKI/certificats**), **A.5.16** (gestion des identités — un certificat EST une identité), **A.8.2** (accès privilégiés).
 
-### Impact réglementaire
-
-- **RGPD (Article 32)** : les certificats forgés permettent un accès persistant à toutes les données personnelles du domaine pendant un an. L'absence d'audit PKI constitue un manquement à l'obligation de sécurité appropriée.
-- **NIS2 (Article 21)** : l'exposition du web enrollment en HTTP et l'absence de restriction sur les templates de certificats démontrent un défaut de gestion des risques cyber fondamental.
-- **ISO 27001 (A.8.24)** : l'utilisation de la cryptographie (PKI/certificats) sans contrôles adéquats sur l'émission et la validation des certificats viole les exigences de gestion cryptographique.
-
-### Top 5 actions prioritaires
-
-**0-24h (urgence)**
-1. Auditer immédiatement tous les templates avec `certipy find -vulnerable` et désactiver `EnrolleeSuppliesSubject` sur tous les templates custom
-2. Forcer **HTTPS** sur le web enrollment et désactiver HTTP (bloque ESC8)
-
-**1 semaine**
-3. Supprimer le flag `EDITF_ATTRIBUTESUBJECTALTNAME2` sur toutes les CA (bloque ESC6)
-4. Restreindre les enrollment rights — supprimer Domain Users des templates sensibles
-
-**1 mois**
-5. Implémenter un audit PKI trimestriel avec certipy + revue des permissions CA (ManageCa, ManageCertificates) + monitoring des Event IDs 4886/4887
-
-### Décisions attendues du COMEX
-
-- **Valider le budget** pour un audit PKI complet — estimation 2-3 jours/homme.
-- **Mandater la DSI** pour la migration du web enrollment vers HTTPS et la révocation des templates vulnérables.
-- **Approuver la politique** de revue trimestrielle des templates et permissions CA.
-
----
+### Décision COMEX
+- **Mandater un durcissement ADCS immédiat** : audit `certipy find -vulnerable`, désactivation d'`EnrolleeSuppliesSubject`, retrait du flag `EDITF_ATTRIBUTESUBJECTALTNAME2`, passage du web enrollment en **HTTPS + Extended Protection for Authentication** (neutralise ESC1/ESC6/ESC8) — arbitrage DSI sous 1 semaine.
+- **Valider un plan de révocation/réémission PKI** et la **rotation de la clé de CA** en cas de compromission avérée, avec **audit PKI trimestriel** — les certificats déjà forgés ne se neutralisent pas par un reset, seulement par la révocation.
 
 ## Détection SOC / SIEM
 
