@@ -125,6 +125,13 @@ Every scenario follows a standardized professional format:
 | Phase 3 | DFIR + OT/ICS + Mobile | 📋 Planned |
 | Phase 4 | Documentation GitBook FR/EN | 📋 Planned |
 
+## Related Repositories
+
+Part of the **HikenRoot Forge** ecosystem:
+
+- [ad-hardening-baseline](https://github.com/hikenroot/ad-hardening-baseline) — PowerShell AD hardening toolkit (CIS Benchmark / NIST 800-53 / ISO 27001 / MITRE ATT&CK), tested on GOAD.
+- [m365-admin-toolkit](https://github.com/hikenroot/m365-admin-toolkit) — PowerShell scripts for Microsoft 365 administration, auditing and security hardening.
+
 ## Author
 
 **hik3nR00t** — Cybersecurity professional with 20+ years of infrastructure experience.

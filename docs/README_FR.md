@@ -102,6 +102,7 @@ Chaque scénario suit un format professionnel standardisé :
 | Stratégie de sauvegarde | PBS + NAS Synology + snapshots GOLDEN | [docs/goad/backup-strategy.md](goad/backup-strategy.md) |
 | Troubleshooting | 50+ problèmes résolus | [docs/goad/troubleshooting.md](goad/troubleshooting.md) |
 | Roadmap Lab AD | Suivi de progression GOAD | [docs/labs/ad-lab/ROADMAP.md](labs/ad-lab/ROADMAP.md) |
+| Diagramme réseau GOAD | Topologie complète du lab (image) | [docs/goad/GOAD-Network-Diagram.md](goad/GOAD-Network-Diagram.md) |
 
 ## Alignement certifications
 
@@ -122,6 +123,13 @@ Chaque scénario suit un format professionnel standardisé :
 | Phase 2 | Cloud + IA + SOC + Guacamole | 🔧 En cours |
 | Phase 3 | DFIR + OT/ICS + Mobile | 📋 Prévu |
 | Phase 4 | Documentation GitBook FR/EN | 📋 Prévu |
+
+## Écosystème HikenRoot Forge
+
+Autres dépôts du projet :
+
+- [ad-hardening-baseline](https://github.com/hikenroot/ad-hardening-baseline) — Boîte à outils PowerShell de durcissement AD (CIS / NIST 800-53 / ISO 27001 / MITRE ATT&CK), testée sur GOAD.
+- [m365-admin-toolkit](https://github.com/hikenroot/m365-admin-toolkit) — Scripts PowerShell d'administration, d'audit et de durcissement Microsoft 365.
 
 ## Auteur
 

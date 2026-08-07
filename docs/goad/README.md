@@ -78,6 +78,7 @@ All write-ups in [`docs/labs/ad-lab/`](../labs/ad-lab/README.md)
 | Document | Description |
 |----------|-------------|
 | [HLD_GOAD_EN.md](HLD_GOAD_EN.md) | Architecture document (English) |
+| [GOAD-Network-Diagram.md](GOAD-Network-Diagram.md) | Network topology diagram (rendered image) |
 | [HLD_GOAD_FR.md](HLD_GOAD_FR.md) | Architecture document (French) |
 | [GOAD_Network_Diagram.html](GOAD_Network_Diagram.html) | Interactive network topology |
 | [backup-strategy.md](backup-strategy.md) | Golden snapshots & automated backups |
