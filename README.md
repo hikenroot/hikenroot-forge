@@ -4,6 +4,10 @@
 
 **Enterprise-grade cybersecurity lab built around a realistic company simulation**
 
+[![HikenRoot Forge — Global Architecture](docs/architecture-globale.png)](docs/architecture-globale.md)
+
+> **Global architecture** — 3 physical nodes · 6 VLANs · 4 active labs · GPU compute (Blackwell + RTX 5080). Full diagram → [docs/architecture-globale.md](docs/architecture-globale.md)
+
 ## About
 
 HikenRoot Forge is a private cybersecurity training platform designed to simulate real-world enterprise attacks and defenses. Unlike typical CTF labs, every scenario is built around **MediaTech Groupe SA**, a fictional digital press group with realistic departments (IT, Legal, Finance, HR, Editorial), Active Directory infrastructure, cloud services, and business workflows.

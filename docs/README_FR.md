@@ -2,6 +2,10 @@
 
 **Cyber range professionnel construit autour d'une simulation d'entreprise réaliste**
 
+[![HikenRoot Forge — Architecture Globale](architecture-globale.png)](architecture-globale.md)
+
+> **Architecture globale** — 3 nœuds physiques · 6 VLANs · 4 labs actifs · GPU (Blackwell + RTX 5080). Diagramme complet → [architecture-globale.md](architecture-globale.md)
+
 ## Présentation
 
 HikenRoot Forge est une plateforme privée d'entraînement en cybersécurité conçue pour simuler des attaques et des défenses en conditions réelles d'entreprise. Contrairement aux labs CTF classiques, chaque scénario est construit autour de **MediaTech Groupe SA**, un groupe de presse numérique fictif avec des départements réalistes (DSI, Juridique, Finance, RH, Production éditoriale), une infrastructure Active Directory, des services cloud et des flux métiers.

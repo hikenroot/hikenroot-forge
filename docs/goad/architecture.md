@@ -77,7 +77,7 @@
 |-----------|--------------|
 | Model | Beelink EQR6 Mini PC |
 | CPU | AMD Ryzen 9 6900HX |
-| RAM | 128 GB DDR5 |
+| RAM | 64 GB DDR5 |
 | Storage | 1 TB NVMe SSD |
 | OS | Proxmox VE 8.x |
 | IP | 192.168.50.227 |
