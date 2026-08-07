@@ -302,7 +302,7 @@ En abusant d'une **relation d'approbation inter-forêt sans SID Filtering** (inj
 | Event ID | Source | Description |
 |----------|--------|-------------|
 | 4769 | Security | TGS request cross-realm — ticket inter-forêt |
-| 4768 | Security | TGT request avec extra-sid — Golden Ticket cross-forest |
+| 4769 | Security | TGS cross-realm (referral) — le Golden Ticket forgé ne génère pas de 4768 ; l'usage cross-forest se voit sur les 4769 |
 | 4724 | Security | Password reset cross-domain — foreign group abuse |
 | 4662 | Security | DCSync via raiseChild |
 
@@ -318,7 +318,7 @@ logsource:
     service: security
 detection:
     selection:
-        EventID: 4768
+        EventID: 4769
     filter:
         TargetDomainName: '*'
     condition: selection

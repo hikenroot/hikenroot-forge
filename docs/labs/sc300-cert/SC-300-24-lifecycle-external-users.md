@@ -164,7 +164,7 @@ Le déprovisionnement automatique des invités supprime une classe entière de c
 ```kql
 // 1. Invités actifs sans connexion récente (candidats orphelins)
 SigninLogs
-| where UserType == "Guest"
+| where UserPrincipalName has "#EXT#"   // SigninLogs n'a pas de colonne UserType (invités = UPN #EXT#)
 | summarize LastSignIn = max(TimeGenerated) by UserPrincipalName
 | where LastSignIn < ago(60d)
 | sort by LastSignIn asc
@@ -174,7 +174,7 @@ SigninLogs
 // 2. Suppressions/blocages d'invités (cycle de vie en action)
 AuditLogs
 | where TargetResources has "Guest" or ActivityDisplayName has_any ("Delete user","Disable account")
-| where TargetResources[0].userType == "Guest"
+| where tostring(TargetResources[0].userPrincipalName) has "#EXT#"   // TargetResources n'expose pas userType
 | project TimeGenerated, ActivityDisplayName,
           Target = tostring(TargetResources[0].userPrincipalName)
 | sort by TimeGenerated desc

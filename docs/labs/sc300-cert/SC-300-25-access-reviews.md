@@ -139,7 +139,7 @@ Get-MgIdentityGovernanceAccessReviewDefinitionInstance -AccessReviewScheduleDefi
   Select-Object Status, StartDateTime, EndDateTime
 ```
 
-Attendu : `Recurrence = annual`, `AutoApply = true`, `DefaultDecision = None` (aucune modification si non-réponse).
+Attendu : `Recurrence = absoluteYearly`, `AutoApply = true`, `DefaultDecision = None` (aucune modification si non-réponse).
 
 ---
 

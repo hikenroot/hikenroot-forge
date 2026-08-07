@@ -277,7 +277,7 @@ Le service `metadata-db` simule le **metadata API** des cloud providers. En prod
 |---------------|-------------|-----------------|
 | **AWS** | `http://169.254.169.254/latest/meta-data/` | IAM credentials, tokens, user-data |
 | **GCP** | `http://metadata.google.internal/computeMetadata/v1/` | Service account tokens, project info |
-| **Azure** | `http://169.254.169.254/metadata/instance` | Managed identity tokens, subscription info |
+| **Azure** | `http://169.254.169.254/metadata/instance?api-version=2021-02-01` (en-tête `Metadata: true` requis) | Managed identity tokens, subscription info |
 | **Kubernetes** | `https://kubernetes.default.svc/api/v1/` | Service account tokens, secrets, configs |
 
 Avec un token IAM récupéré via SSRF, un attaquant peut :

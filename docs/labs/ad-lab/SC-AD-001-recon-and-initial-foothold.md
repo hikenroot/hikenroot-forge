@@ -286,8 +286,7 @@ bloodhound-python -u samwell.tarly -p 'Heartsbane' \
   -d north.sevenkingdoms.local \
   -ns 192.168.10.11 \
   -c All \
-  --zip \
-  -o ./bloodhound/
+  --zip
 ```
 
 ### Import et analyse
@@ -454,7 +453,7 @@ Get-ChildItem -Path "\\$env:USERDNSDOMAIN\SYSVOL" -Recurse -Include *.ps1,*.bat,
 ```powershell
 # Sur chaque DC
 Set-ADObject -Identity "CN=Directory Service,CN=Windows NT,CN=Services,CN=Configuration,DC=..." `
-  -Replace @{dsHeuristics="0000002"}
+  -Replace @{dsHeuristics="0000000"}  # 7e caractère = 0 => bloque l'anonyme (2 l'AUTORISE)
 ```
 
 ### Court terme (1 semaine)

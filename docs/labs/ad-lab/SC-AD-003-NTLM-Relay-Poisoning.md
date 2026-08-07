@@ -290,8 +290,8 @@ En empoisonnant les résolutions de noms (LLMNR / NBT-NS actifs par défaut) pui
 |----------|--------|-------------|
 | 4624 | Security | Logon réussi — Type 3 (réseau) depuis IP inattendue |
 | 4648 | Security | Logon avec credentials explicites |
-| 7045 | System | Nouveau service installé (RemoteRegistry démarré par ntlmrelayx) |
-| 4657 | Security | Modification registre (lecture SAM) |
+| 7036 / 7040 | System | Service RemoteRegistry démarré / type de démarrage modifié (par ntlmrelayx) |
+| 4663 | Security | Accès objet — lecture des ruches SAM/SECURITY (4657 = modif de valeur, pas lecture) |
 
 ### Règle Sigma — NTLM Relay Detection
 
@@ -303,7 +303,7 @@ logsource:
   service: system
 detection:
   selection:
-    EventID: 7045
+    EventID: 7040
     ServiceName: RemoteRegistry
   timeframe: 5m
   condition: selection

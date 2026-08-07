@@ -117,7 +117,7 @@ Le SID du domaine est nécessaire pour forger les tickets Kerberos. Chaque domai
 **1. SID sevenkingdoms.local**
 
 ```bash
-impacket-lookupsid 'sevenkingdoms.local/administrator@192.168.10.10' -hashes 'aad3b435b51404eeaad3b435b51404ee:c66d72021a2d4744409969a581a1705e' -domain-sids
+impacket-lookupsid 'sevenkingdoms.local/administrator@192.168.10.10' -hashes 'aad3b435b51404eeaad3b435b51404ee:c66d72021a2d4744409969a581a1705e'
 ```
 
 ```
@@ -127,7 +127,7 @@ impacket-lookupsid 'sevenkingdoms.local/administrator@192.168.10.10' -hashes 'aa
 **2. SID north.sevenkingdoms.local**
 
 ```bash
-impacket-lookupsid 'north.sevenkingdoms.local/administrator@192.168.10.11' -hashes 'aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4' -domain-sids
+impacket-lookupsid 'north.sevenkingdoms.local/administrator@192.168.10.11' -hashes 'aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4'
 ```
 
 ```
@@ -137,7 +137,7 @@ impacket-lookupsid 'north.sevenkingdoms.local/administrator@192.168.10.11' -hash
 **3. SID essos.local**
 
 ```bash
-impacket-lookupsid 'essos.local/administrator@192.168.10.12' -hashes 'aad3b435b51404eeaad3b435b51404ee:54296a48cd30259cc88095373cec24da' -domain-sids
+impacket-lookupsid 'essos.local/administrator@192.168.10.12' -hashes 'aad3b435b51404eeaad3b435b51404ee:54296a48cd30259cc88095373cec24da'
 ```
 
 ```
@@ -441,7 +441,7 @@ AdminSDHolder cleaned
 
 | Event ID | Source | Description |
 |----------|--------|-------------|
-| 4768 | Security | TGT request — comparer avec les créations de compte connues |
+| 4769 | Security | TGS request — un Golden Ticket forgé hors-ligne ne génère **pas** de 4768 ; il se détecte à l'usage (4769, RC4/horodatage anormaux) |
 | 4769 | Security | TGS request — absent pour Silver Tickets (point de détection négatif) |
 | 5136 | Security | Modification AdminSDHolder |
 | 4662 | Security | DCSync — accès aux attributs de réplication |
@@ -459,7 +459,7 @@ logsource:
     service: security
 detection:
     selection:
-        EventID: 4768
+        EventID: 4769
         TicketOptions: '0x40810010'
     condition: selection
 level: high
@@ -564,7 +564,7 @@ ntdsutil "set dsrm password" "reset password on server null" q q
 ### 1 semaine
 
 - Rotation des mots de passe de tous les comptes machine
-- Monitoring SIEM Event IDs 4768, 5136, 4662
+- Monitoring SIEM Event IDs 4769, 5136, 4662
 - Revue des trust keys inter-forêts
 
 ### 1 mois
@@ -591,7 +591,7 @@ graph TB
     end
     
     subgraph "Monitoring"
-        SIEM["SIEM / Wazuh<br/>4768 TGT anomalies<br/>5136 AdminSDHolder<br/>4662 DCSync<br/>Corrélation Silver Ticket"]
+        SIEM["SIEM / Wazuh<br/>4769 TGS anomalies<br/>5136 AdminSDHolder<br/>4662 DCSync<br/>Corrélation Silver Ticket"]
     end
     
     KRBTGT --> SIEM

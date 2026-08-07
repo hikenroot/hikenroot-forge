@@ -140,7 +140,7 @@ L'authentification Microsoft Graph depuis PowerShell 5.1 sur Windows Server 2019
 
 **Solution :** utiliser PowerShell 7 sur WSL avec :
 ```powershell
-Set-MgGraphOption -DisableLoginByWAM $true
+# Set-MgGraphOption n'existe pas. Sous PowerShell 7 / Linux (pas de WAM) : Connect-MgGraph -UseDeviceCode
 Connect-MgGraph -UseDeviceCode -TenantId "eea0e92c-..."
 ```
 

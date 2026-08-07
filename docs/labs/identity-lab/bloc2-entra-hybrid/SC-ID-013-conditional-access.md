@@ -128,7 +128,7 @@ graph TB
 | Paramètre | Valeur |
 |---|---|
 | **Utilisateurs** | Rôle : Administrateur général — Exclure : breakglass01, breakglass02 |
-| **Ressources** | Microsoft Admin Portals |
+| **Ressources** | Microsoft Azure Management (GUID 797f4846-… = Azure Management, cohérent avec le script Deploy) |
 | **Session** | Fréquence de connexion : 1 heure (réauthentification périodique) |
 | **Mode** | Report-only |
 

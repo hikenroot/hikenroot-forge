@@ -35,7 +35,7 @@ Ce scénario démontre l'exploitation de **3 vulnérabilités ADCS avancées** c
 
 ### Pour un RSSI
 
-ESC5 est le scénario cauchemar pour une PKI : si un attaquant est admin du serveur CA, il peut extraire la clé privée et forger des certificats à volonté — c'est l'équivalent du Golden Ticket mais pour les certificats, sans expiration tant que la CA n'est pas reconstruite. ESC9 est subtil : le flag NoSecurityExtension supprime le SID du certificat, permettant l'usurpation via swap de UPN. ESC11 est une variante de relay qui contourne les protections mises en place contre ESC8. Recommandation immédiate : déployer un HSM pour la clé CA, supprimer le flag NoSecurityExtension des templates, et forcer le chiffrement ICPR.
+ESC5 est le scénario cauchemar pour une PKI : si un attaquant est admin du serveur CA, il peut extraire la clé privée et forger des certificats à volonté — c'est l'équivalent du Golden Ticket mais pour les certificats, sans expiration tant que la CA n'est pas reconstruite. ESC9 est subtil : le flag NoSecurityExtension supprime le SID du certificat, permettant l'usurpation via swap de UPN — **à condition** que `StrongCertificateBindingEnforcement` ≠ 2 sur les DC (le full enforcement de KB5014754 neutralise ESC9). ESC11 est une variante de relay qui contourne les protections mises en place contre ESC8. Recommandation immédiate : déployer un HSM pour la clé CA, supprimer le flag NoSecurityExtension des templates, et forcer le chiffrement ICPR.
 
 ---
 

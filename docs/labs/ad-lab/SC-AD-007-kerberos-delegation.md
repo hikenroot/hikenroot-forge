@@ -24,7 +24,7 @@
 
 ### Pour un recruteur
 
-Ce scénario démontre que les mécanismes de **délégation Kerberos** — conçus pour permettre aux services d'agir au nom des utilisateurs — peuvent être détournés pour obtenir Domain Admin. Contrairement à [SC-AD-004](SC-AD-004-acl-abuse-chain.md) qui exploite une chaîne d'ACL, ici c'est le **protocole Kerberos lui-même** (S4U2Self, S4U2Proxy, RBCD) qui constitue le vecteur d'attaque. Quatre vecteurs sont testés : la délégation non contrainte (bloquée par les patches WS2019 — constat réaliste 2026), la délégation contrainte avec et sans protocol transition, et la RBCD. Les trois derniers aboutissent à un contrôle total de deux domaines. L'ensemble est réalisé depuis Linux avec Impacket, sans aucun exploit CVE ni écriture disque sur les cibles.
+Ce scénario démontre que les mécanismes de **délégation Kerberos** — conçus pour permettre aux services d'agir au nom des utilisateurs — peuvent être détournés pour obtenir Domain Admin. Contrairement à [SC-AD-004](SC-AD-004-acl-abuse-chain.md) qui exploite une chaîne d'ACL, ici c'est le **protocole Kerberos lui-même** (S4U2Self, S4U2Proxy, RBCD) qui constitue le vecteur d'attaque. Quatre vecteurs sont testés : la délégation non contrainte (échoue ICI car la coercion visait un listener désigné par IP → repli NTLM ; aucun patch ne neutralise l'unconstrained delegation), la délégation contrainte avec et sans protocol transition, et la RBCD. Les trois derniers aboutissent à un contrôle total de deux domaines. L'ensemble est réalisé depuis Linux avec Impacket, sans aucun exploit CVE ni écriture disque sur les cibles.
 
 ### Pour un auditeur ISO 27001 / NIS2
 
@@ -35,7 +35,7 @@ Ce scénario démontre que les mécanismes de **délégation Kerberos** — con�
 
 ### Pour un RSSI
 
-Quatre vecteurs de délégation Kerberos testés. La délégation non contrainte (Vecteur 1) est bloquée par le patch level WS2019 — les coercions ne génèrent que du NTLM, pas de Kerberos, empêchant le dépôt de TGT. Les trois autres vecteurs aboutissent tous à Domain Admin : la constrained delegation avec protocol transition (une commande Impacket suffit), la constrained delegation sans protocol transition (chaînage RBCD intermédiaire requis — technique CRTE), et la RBCD directe sur un DC. Le risque principal est l'altservice : même une délégation restreinte à un seul SPN donne accès à tous les services de la cible. Recommandation immédiate : Protected Users pour tous les comptes sensibles + MachineAccountQuota à 0.
+Quatre vecteurs de délégation Kerberos testés. La délégation non contrainte (Vecteur 1) échoue ICI parce que la coercion ciblait un listener désigné par IP : Windows bascule alors en NTLM (pas de Kerberos), donc aucun TGT déposé. Avec un FQDN/nom de service, la capture de TGT via unconstrained reste possible — aucun patch ne la neutralise. Les trois autres vecteurs aboutissent tous à Domain Admin : la constrained delegation avec protocol transition (une commande Impacket suffit), la constrained delegation sans protocol transition (chaînage RBCD intermédiaire requis — technique CRTE), et la RBCD directe sur un DC. Le risque principal est l'altservice : même une délégation restreinte à un seul SPN donne accès à tous les services de la cible. Recommandation immédiate : Protected Users pour tous les comptes sensibles + MachineAccountQuota à 0.
 
 ---
 
@@ -77,7 +77,7 @@ graph TB
 
 ## Kill Chains
 
-### Vecteur 1 — Unconstrained Delegation (bloqué par patch WS2019)
+### Vecteur 1 — Unconstrained Delegation (échec ici : coercion par IP → NTLM)
 
 ```mermaid
 graph LR
@@ -168,7 +168,7 @@ LDAP  192.168.10.11  389  WINTERFELL  WINTERFELL$
 
 ---
 
-### Phase 2 — Vecteur 1 : Unconstrained Delegation (bloqué)
+### Phase 2 — Vecteur 1 : Unconstrained Delegation (échec : coercion par IP)
 
 **Objectif** : forcer KINGSLANDING$ à s'authentifier en Kerberos vers WINTERFELL pour capturer son TGT.
 
@@ -208,9 +208,9 @@ python3 /opt_test/krbrelayx/printerbug.py north.sevenkingdoms.local/eddard.stark
 
 Résultat : `Got handle` → `Triggered RPC backconnect` mais Rubeus monitor (`/interval:1 /filtuser:KINGSLANDING$ /nowrap`) ne capture aucun TGT.
 
-**Conclusion Vecteur 1** : WS2019 patché — les coercions ne déclenchent que du NTLM. Sans Kerberos auth, pas de TGT déposé. Vecteur **bloqué par le patch level** — constat réaliste 2026.
+**Conclusion Vecteur 1** : la coercion ciblait un listener par IP → Windows répond en NTLM (pas de Kerberos), donc pas de TGT déposé. Ce n'est **pas** un blocage par patch : avec un FQDN/nom de service, l'unconstrained delegation reste exploitable. À retenir : coercer un endpoint **par son nom**, pas par IP.
 
-> **Note** : sur WS2012R2/WS2016 non patchés, cette attaque reste viable.
+> **Note** : l'unconstrained delegation n'est pas corrigée par un patch — le facteur déterminant est Kerberos vs NTLM (FQDN vs IP lors de la coercion).
 
 ---
 

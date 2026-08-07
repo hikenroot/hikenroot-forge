@@ -196,7 +196,7 @@ SCUFFY   192.168.10.22   445   CASTELBLACK   [+] Created SCF file on the all sha
 [SMB] NTLMv2-SSP Hash     : catelyn.stark::NORTH:867d179d749ceb90:0E9EC5ACB4A3DAE5EE729106F00427CF:0101...
 ```
 
-Confirmé fonctionnel sur Windows Server 2019.
+Fonctionne sur hôte **non patché** (comme GOAD) : la résolution auto de l'icône UNC du .scf est mitigée par Microsoft depuis 2017, donc inopérante sur un Windows à jour.
 
 **7. Nettoyage**
 
@@ -358,7 +358,7 @@ python3 /opt_test/krbrelayx/dnstool.py \
 | # | Technique | Outil | Victime | Hash capturé | Protocole | Particularité |
 |---|-----------|-------|---------|-------------|-----------|---------------|
 | 1 | .lnk | netexec slinky | catelyn.stark (NORTH) | NTLMv2 user | SMB | Auto-trigger sur visite dossier |
-| 2 | .scf | netexec scuffy | catelyn.stark (NORTH) | NTLMv2 user | SMB | Confirmé WS2019 |
+| 2 | .scf | netexec scuffy | catelyn.stark (NORTH) | NTLMv2 user | SMB | Hôte non patché |
 | 3 | .url | upload manuel | catelyn.stark (NORTH) | NTLMv2 user | SMB | Pas de module netexec |
 | 4 | .searchConnector-ms | netexec drop-sc | khal.drogo (ESSOS) | NTLMv2 user | SMB | **Démarre WebClient** + inter-domaines |
 | 5 | WebDAV coerce | coercer + dnstool | BRAAVOS$ (ESSOS) | NTLMv2 machine | **HTTP** | Relayable vers LDAP |
@@ -373,7 +373,7 @@ python3 /opt_test/krbrelayx/dnstool.py \
 |----------|--------|-------------|
 | 5145 | Security | Detailed File Share — création de fichiers sur les partages |
 | 7036 | System | Changement d'état de service — WebClient start/stop |
-| 8001 | DNS Server | Création d'enregistrement DNS via LDAP |
+| 5137 / 5136 | Directory Service | Création/modif d'un objet dnsNode via LDAP (dnstool) — pas un event DNS Server |
 
 ### Sigma Rules
 
@@ -436,7 +436,7 @@ logsource:
     service: dns-server
 detection:
     selection:
-        EventID: 8001
+        EventID: 5137
     filter:
         SubjectUserName|endswith: '$'
     condition: selection and not filter

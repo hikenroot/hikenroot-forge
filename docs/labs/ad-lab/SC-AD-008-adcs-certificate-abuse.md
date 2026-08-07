@@ -474,7 +474,7 @@ En exploitant des templates de certificats mal configurés (ESC1/ESC6) ou le web
 - **ISO 27001 A.8.24** (cryptographie — **cœur du sujet PKI/certificats**), **A.5.16** (gestion des identités — un certificat EST une identité), **A.8.2** (accès privilégiés).
 
 ### Décision COMEX
-- **Mandater un durcissement ADCS immédiat** : audit `certipy find -vulnerable`, désactivation d'`EnrolleeSuppliesSubject`, retrait du flag `EDITF_ATTRIBUTESUBJECTALTNAME2`, passage du web enrollment en **HTTPS + Extended Protection for Authentication** (neutralise ESC1/ESC6/ESC8) — arbitrage DSI sous 1 semaine.
+- **Mandater un durcissement ADCS immédiat** : audit `certipy find -vulnerable`, désactivation d'`EnrolleeSuppliesSubject`, retrait du flag `EDITF_ATTRIBUTESUBJECTALTNAME2`, passage du web enrollment en **HTTPS + Extended Protection for Authentication** (neutralise **ESC8** ; ESC1/ESC6 sont déjà couverts par les deux points précédents) — arbitrage DSI sous 1 semaine.
 - **Valider un plan de révocation/réémission PKI** et la **rotation de la clé de CA** en cas de compromission avérée, avec **audit PKI trimestriel** — les certificats déjà forgés ne se neutralisent pas par un reset, seulement par la révocation.
 
 ## Détection SOC / SIEM
