@@ -108,6 +108,14 @@ Chaque scénario suit un format professionnel standardisé :
 | Roadmap Lab AD | Suivi de progression GOAD | [docs/labs/ad-lab/ROADMAP.md](labs/ad-lab/ROADMAP.md) |
 | Diagramme réseau GOAD | Topologie complète du lab (image) | [docs/goad/GOAD-Network-Diagram.md](goad/GOAD-Network-Diagram.md) |
 
+## Ingénierie assistée par IA
+
+L'IA est utilisée dans ce projet comme un **outil d'ingénierie** — souverain, local, et sous contrôle humain :
+
+- **Lab LLM souverain (VLAN 40) :** les modèles sont servis localement via **Ollama** sur le nœud MS-02 Ultra (RTX PRO 4000 Blackwell) et orchestrés avec **n8n** — les opérations du lab ne dépendent d'aucune API IA externe.
+- **RAG local sur les notes de pentest :** un pipeline de recherche indexe les write-ups, notes de méthodologie et documentation du lab pour accélérer la recherche et croiser les découvertes entre scénarios.
+- **Conventions repo pour assistants IA :** le fichier [`CLAUDE.md`](../CLAUDE.md) à la racine encode la structure, le format des write-ups et les conventions du dépôt afin que tout assistant IA utilisé en maintenance reste cohérent. Chaque sortie est **relue et validée par l'humain** avant commit — l'IA accélère la rédaction et le croisement, l'auteur assume chaque affirmation technique.
+
 ## Alignement certifications
 
 | Certification | Labs couverts |
@@ -133,7 +141,7 @@ Chaque scénario suit un format professionnel standardisé :
 Autres dépôts du projet :
 
 - [ad-hardening-baseline](https://github.com/hikenroot/ad-hardening-baseline) — Boîte à outils PowerShell de durcissement AD (CIS / NIST 800-53 / ISO 27001 / MITRE ATT&CK), testée sur GOAD.
-- [m365-admin-toolkit](https://github.com/hikenroot/m365-admin-toolkit) — Scripts PowerShell d'administration, d'audit et de durcissement Microsoft 365.
+- [m365-admin-toolkit](https://github.com/hikenroot/m365-admin-toolkit) — scripts d'audit Microsoft 365 en lecture seule (exfiltration Exchange, délégation de boîtes, Conditional Access / MFA) mappés CIS / NIST 800-53 / Purview Unified Audit Log.
 
 ## Auteur
 

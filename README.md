@@ -109,6 +109,14 @@ Every scenario follows a standardized professional format:
 | Troubleshooting | 50+ resolved issues | [docs/goad/troubleshooting.md](docs/goad/troubleshooting.md) |
 | AD Lab Roadmap | GOAD progression tracker | [docs/labs/ad-lab/ROADMAP.md](docs/labs/ad-lab/ROADMAP.md) |
 
+## AI-Assisted Engineering
+
+AI is used in this project as an **engineering tool** — sovereign, local, and under human control:
+
+- **Sovereign LLM lab (VLAN 40):** models are served locally with **Ollama** on the MS-02 Ultra node (RTX PRO 4000 Blackwell) and orchestrated through **n8n** — lab operations do not depend on external AI APIs.
+- **Local RAG over pentest notes:** a retrieval pipeline indexes personal write-ups, methodology notes and lab documentation to accelerate research and cross-reference findings across scenarios.
+- **Repo conventions for AI assistants:** the [`CLAUDE.md`](CLAUDE.md) file at the root encodes the repository's structure, write-up format and conventions so any AI coding assistant used during maintenance stays consistent. Every output is **human-reviewed and validated** before commit — AI accelerates drafting and cross-referencing, the author owns every technical claim.
+
 ## Certifications Alignment
 
 | Certification | Lab Coverage |
@@ -134,7 +142,7 @@ Every scenario follows a standardized professional format:
 Part of the **HikenRoot Forge** ecosystem:
 
 - [ad-hardening-baseline](https://github.com/hikenroot/ad-hardening-baseline) — PowerShell AD hardening toolkit (CIS Benchmark / NIST 800-53 / ISO 27001 / MITRE ATT&CK), tested on GOAD.
-- [m365-admin-toolkit](https://github.com/hikenroot/m365-admin-toolkit) — PowerShell scripts for Microsoft 365 administration, auditing and security hardening.
+- [m365-admin-toolkit](https://github.com/hikenroot/m365-admin-toolkit) — read-only Microsoft 365 audit scripts (Exchange exfiltration, mailbox delegation, Conditional Access / MFA) mapped to CIS / NIST 800-53 / Purview Unified Audit Log.
 
 ## Author
 
