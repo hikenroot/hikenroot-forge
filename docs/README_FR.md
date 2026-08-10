@@ -8,7 +8,7 @@
 
 ## Présentation
 
-HikenRoot Forge est une plateforme privée d'entraînement en cybersécurité conçue pour simuler des attaques et des défenses en conditions réelles d'entreprise. Contrairement aux labs CTF classiques, chaque scénario est construit autour de **MediaTech Groupe SA**, un groupe de presse numérique fictif avec des départements réalistes (DSI, Juridique, Finance, RH, Production éditoriale), une infrastructure Active Directory, des services cloud et des flux métiers.
+HikenRoot Forge est une plateforme auto-hébergée d'entraînement en cybersécurité conçue pour simuler des attaques et des défenses en conditions réelles d'entreprise. Contrairement aux labs CTF classiques, chaque scénario est construit autour de **MediaTech Groupe SA**, un groupe de presse numérique fictif avec des départements réalistes (DSI, Juridique, Finance, RH, Production éditoriale), une infrastructure Active Directory, des services cloud et des flux métiers.
 
 Cette approche fait le lien entre l'exploitation technique et l'impact business — chaque write-up inclut un scoring CVSS, un mapping MITRE ATT&CK, une estimation de risque financier, une analyse réglementaire (RGPD/NIS2/ISO 27001) et des recommandations de remédiation à destination du COMEX.
 
@@ -145,7 +145,7 @@ Autres dépôts du projet :
 
 ## Auteur
 
-**hik3nR00t** — Professionnel en cybersécurité avec plus de 20 ans d'expérience en infrastructures.
+**hik3nR00t** — 21 ans d'ingénierie d'infrastructure d'entreprise, désormais spécialisé en sécurité Active Directory & identité (offensif + défensif). OSCP+ · ISO 27001 Lead Implementer · SC-300 · CRTP (en cours).
 
 ---
 
