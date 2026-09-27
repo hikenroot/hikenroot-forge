@@ -11,11 +11,11 @@ Exploitation scenarios against **Kubernetes Goat** (cluster Kubernetes volontair
 
 | Scénario | Technique | Cible | Sévérité | CVSS | Statut |
 |----------|-----------|-------|----------|------|--------|
-| [SC-CLD-001](SC-CLD-001-sensitive-keys-in-codebases.md) | Sensitive Keys in Codebases | `build-code-service` → image Docker avec `.git` | 🔴 Critique | 9.1 | Done |
-| [SC-CLD-002](SC-CLD-002-ssrf-in-the-kubernetes-world.md) | SSRF → Metadata cluster | `internal-proxy-info-app` → `metadata-db` | 🔴 Critique | 9.3 | Done |
-| [SC-CLD-003](SC-CLD-003-container-escape-to-host-system.md) | Container Escape to Host | `system-monitor` pod → worker node | 🔴 Critique | 9.8 | Done |
-| [SC-CLD-004](SC-CLD-004-rbac-least-privileges-misconfiguration.md) | RBAC Misconfiguration | `hunger-check` pod → secrets `big-monolith` | 🟠 Élevée | 8.8 | Done |
-| [SC-CLD-005](SC-CLD-005-attacking-private-registry.md) | Attacking Private Registry | `poor-registry-service` → Docker Registry v2 | 🔴 Critique | 9.8 | Done |
+| [SC-CLD-001](fr/SC-CLD-001-sensitive-keys-in-codebases.md) | Sensitive Keys in Codebases | `build-code-service` → image Docker avec `.git` | 🔴 Critique | 9.1 | Done |
+| [SC-CLD-002](fr/SC-CLD-002-ssrf-in-the-kubernetes-world.md) | SSRF → Metadata cluster | `internal-proxy-info-app` → `metadata-db` | 🔴 Critique | 9.3 | Done |
+| [SC-CLD-003](fr/SC-CLD-003-container-escape-to-host-system.md) | Container Escape to Host | `system-monitor` pod → worker node | 🔴 Critique | 9.8 | Done |
+| [SC-CLD-004](fr/SC-CLD-004-rbac-least-privileges-misconfiguration.md) | RBAC Misconfiguration | `hunger-check` pod → secrets `big-monolith` | 🟠 Élevée | 8.8 | Done |
+| [SC-CLD-005](fr/SC-CLD-005-attacking-private-registry.md) | Attacking Private Registry | `poor-registry-service` → Docker Registry v2 | 🔴 Critique | 9.8 | Done |
 
 ---
 

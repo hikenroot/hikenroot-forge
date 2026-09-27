@@ -13,25 +13,25 @@ Tenant : Microsoft Entra ID **P2** (domaine custom).
 
 | # | Lab | Statut | Write-up |
 |---|-----|--------|----------|
-| 01 | Manage User Roles | ✅ | [lien](SC-300-01-manage-user-roles.md) |
-| 02 | Working with Tenant Properties (domaine custom) | ✅ | [lien](SC-300-02-tenant-custom-domain.md) |
-| 03 | Assign Licenses by Group Membership | ✅ | [lien](SC-300-03-licenses-group-membership.md) |
-| 04 | Configure External Collaboration | ✅ | [lien](SC-300-04-external-collaboration.md) |
-| 05 | Add Guest Users | ✅ | [lien](SC-300-05-guest-users.md) |
-| 06 | Add a Federated Identity Provider | ✅ | [lien](SC-300-06-federated-idp.md) |
+| 01 | Manage User Roles | ✅ | [lien](fr/SC-300-01-manage-user-roles.md) |
+| 02 | Working with Tenant Properties (domaine custom) | ✅ | [lien](fr/SC-300-02-tenant-custom-domain.md) |
+| 03 | Assign Licenses by Group Membership | ✅ | [lien](fr/SC-300-03-licenses-group-membership.md) |
+| 04 | Configure External Collaboration | ✅ | [lien](fr/SC-300-04-external-collaboration.md) |
+| 05 | Add Guest Users | ✅ | [lien](fr/SC-300-05-guest-users.md) |
+| 06 | Add a Federated Identity Provider | ✅ | [lien](fr/SC-300-06-federated-idp.md) |
 | 07 | Hybrid Identity (Entra Connect) | `[→]` AZ-500 | — (AD on-prem + Azure requis) |
 
 ## D2 — Authentification & gestion des accès (25-30 %)
 
 | # | Lab | Statut | Write-up |
 |---|-----|--------|----------|
-| 08 | Enable Multi-Factor Authentication | ✅ | [lien](SC-300-08-enable-mfa.md) |
-| 09 | Self-Service Password Reset | ✅ | [lien](SC-300-09-sspr.md) |
+| 08 | Enable Multi-Factor Authentication | ✅ | [lien](fr/SC-300-08-enable-mfa.md) |
+| 09 | Self-Service Password Reset | ✅ | [lien](fr/SC-300-09-sspr.md) |
 | 10 | Entra Auth for Windows & Linux VMs | `[→]` AZ-500 | — (abo Azure requis) |
-| 12 | Manage Smart Lockout Values | ✅ | [lien](SC-300-12-smart-lockout.md) |
-| 13 | Implement & Test a Conditional Access Policy | ✅ | [lien](SC-300-13-conditional-access.md) |
-| 14 | Enable Sign-in & User Risk Policies | ✅ | [lien](SC-300-14-risk-policies.md) |
-| 15 | Configure an MFA Registration Policy | ✅ | [lien](SC-300-15-mfa-registration-policy.md) |
+| 12 | Manage Smart Lockout Values | ✅ | [lien](fr/SC-300-12-smart-lockout.md) |
+| 13 | Implement & Test a Conditional Access Policy | ✅ | [lien](fr/SC-300-13-conditional-access.md) |
+| 14 | Enable Sign-in & User Risk Policies | ✅ | [lien](fr/SC-300-14-risk-policies.md) |
+| 15 | Configure an MFA Registration Policy | ✅ | [lien](fr/SC-300-15-mfa-registration-policy.md) |
 
 ## D3 — Gestion des accès aux applications (10-15 %)
 
@@ -40,19 +40,19 @@ Tenant : Microsoft Entra ID **P2** (domaine custom).
 | 16 | Azure Key Vault for Managed Identities | `[→]` AZ-500 | — (abo Azure requis) |
 | 17 | Defender for Cloud Apps — Discovery | `[→]` SC-200 | — (licence MDCA requise) |
 | 18 | Defender for Cloud Apps — Access Policies | `[→]` SC-200 | — (licence MDCA requise) |
-| 19 | Register an Application | ✅ | [lien](SC-300-19-register-application.md) |
-| 20 | Implement Access Management for Apps | ✅ | [lien](SC-300-20-access-management-apps.md) |
-| 21 | Grant Tenant-Wide Admin Consent | ✅ | [lien](SC-300-21-admin-consent.md) |
+| 19 | Register an Application | ✅ | [lien](fr/SC-300-19-register-application.md) |
+| 20 | Implement Access Management for Apps | ✅ | [lien](fr/SC-300-20-access-management-apps.md) |
+| 21 | Grant Tenant-Wide Admin Consent | ✅ | [lien](fr/SC-300-21-admin-consent.md) |
 
 ## D4 — Gouvernance des identités (20-25 %)
 
 | # | Lab | Statut | Write-up |
 |---|-----|--------|----------|
 | 11 | Assign Azure Resource Roles in PIM | `[→]` AZ-500 | — (ressources Azure ≠ rôles Entra) |
-| 22 | Catalog in Entitlement Management | ✅ | [lien](SC-300-22-entitlement-catalog.md) |
-| 23 | Add Terms of Use & Acceptance Reporting | ✅ | [lien](SC-300-23-terms-of-use.md) |
-| 24 | Lifecycle of External Users | ✅ | [lien](SC-300-24-lifecycle-external-users.md) |
-| 25 | Creating Access Reviews | ✅ | [lien](SC-300-25-access-reviews.md) |
+| 22 | Catalog in Entitlement Management | ✅ | [lien](fr/SC-300-22-entitlement-catalog.md) |
+| 23 | Add Terms of Use & Acceptance Reporting | ✅ | [lien](fr/SC-300-23-terms-of-use.md) |
+| 24 | Lifecycle of External Users | ✅ | [lien](fr/SC-300-24-lifecycle-external-users.md) |
+| 25 | Creating Access Reviews | ✅ | [lien](fr/SC-300-25-access-reviews.md) |
 
 > Note : la configuration **PIM pour rôles Entra** (Lab 26 officiel) est couverte de façon consolidée dans le write-up **domaine custom + PIM** (SC-300-02).
 
@@ -61,7 +61,7 @@ Tenant : Microsoft Entra ID **P2** (domaine custom).
 | # | Lab | Statut | Write-up |
 |---|-----|--------|----------|
 | 27 | Sentinel Kusto Queries for Entra Data | `[→]` SC-200 | — (abo Azure + Sentinel requis) |
-| 28 | Monitor Posture with Identity Secure Score | ✅ | [lien](SC-300-28-identity-secure-score.md) |
+| 28 | Monitor Posture with Identity Secure Score | ✅ | [lien](fr/SC-300-28-identity-secure-score.md) |
 
 ---
 

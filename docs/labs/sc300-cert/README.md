@@ -43,42 +43,42 @@ Chaque write-up dépasse le lab officiel Microsoft : il ajoute les **pièges ter
 ### D1 — Implémenter les identités
 | # | Write-up | Sujet |
 |---|----------|-------|
-| 01 | [Manage User Roles](SC-300-01-manage-user-roles.md) | Attribution de rôles d'annuaire |
-| 02 | [Tenant & Custom Domain](SC-300-02-tenant-custom-domain.md) | Domaine personnalisé + vérification DNS |
-| 03 | [Licenses by Group Membership](SC-300-03-licenses-group-membership.md) | Licences par appartenance de groupe |
-| 04 | [External Collaboration](SC-300-04-external-collaboration.md) | Paramètres de collaboration externe |
-| 05 | [Guest Users](SC-300-05-guest-users.md) | Ajout d'invités à l'annuaire |
-| 06 | [Federated IdP](SC-300-06-federated-idp.md) | Fournisseur d'identité fédéré |
+| 01 | [Manage User Roles](fr/SC-300-01-manage-user-roles.md) | Attribution de rôles d'annuaire |
+| 02 | [Tenant & Custom Domain](fr/SC-300-02-tenant-custom-domain.md) | Domaine personnalisé + vérification DNS |
+| 03 | [Licenses by Group Membership](fr/SC-300-03-licenses-group-membership.md) | Licences par appartenance de groupe |
+| 04 | [External Collaboration](fr/SC-300-04-external-collaboration.md) | Paramètres de collaboration externe |
+| 05 | [Guest Users](fr/SC-300-05-guest-users.md) | Ajout d'invités à l'annuaire |
+| 06 | [Federated IdP](fr/SC-300-06-federated-idp.md) | Fournisseur d'identité fédéré |
 
 ### D2 — Authentification & gestion des accès
 | # | Write-up | Sujet |
 |---|----------|-------|
-| 08 | [Enable MFA](SC-300-08-enable-mfa.md) | MFA via Conditional Access + per-user |
-| 09 | [Self-Service Password Reset](SC-300-09-sspr.md) | SSPR ciblé par groupe |
-| 12 | [Smart Lockout](SC-300-12-smart-lockout.md) | Verrouillage intelligent |
-| 13 | [Conditional Access](SC-300-13-conditional-access.md) | Blocage app + What If + fréquence de connexion |
-| 14 | [Risk Policies](SC-300-14-risk-policies.md) | Risque utilisateur & connexion (via CA) |
-| 15 | [MFA Registration Policy](SC-300-15-mfa-registration-policy.md) | Inscription MFA forcée |
+| 08 | [Enable MFA](fr/SC-300-08-enable-mfa.md) | MFA via Conditional Access + per-user |
+| 09 | [Self-Service Password Reset](fr/SC-300-09-sspr.md) | SSPR ciblé par groupe |
+| 12 | [Smart Lockout](fr/SC-300-12-smart-lockout.md) | Verrouillage intelligent |
+| 13 | [Conditional Access](fr/SC-300-13-conditional-access.md) | Blocage app + What If + fréquence de connexion |
+| 14 | [Risk Policies](fr/SC-300-14-risk-policies.md) | Risque utilisateur & connexion (via CA) |
+| 15 | [MFA Registration Policy](fr/SC-300-15-mfa-registration-policy.md) | Inscription MFA forcée |
 
 ### D3 — Gestion des accès aux applications
 | # | Write-up | Sujet |
 |---|----------|-------|
-| 19 | [Register an Application](SC-300-19-register-application.md) | Enregistrement d'application |
-| 20 | [Access Management for Apps](SC-300-20-access-management-apps.md) | Gestion des accès applicatifs |
-| 21 | [Tenant-Wide Admin Consent](SC-300-21-admin-consent.md) | Consentement administrateur |
+| 19 | [Register an Application](fr/SC-300-19-register-application.md) | Enregistrement d'application |
+| 20 | [Access Management for Apps](fr/SC-300-20-access-management-apps.md) | Gestion des accès applicatifs |
+| 21 | [Tenant-Wide Admin Consent](fr/SC-300-21-admin-consent.md) | Consentement administrateur |
 
 ### D4 — Gouvernance des identités
 | # | Write-up | Sujet |
 |---|----------|-------|
-| 22 | [Entitlement Management Catalog](SC-300-22-entitlement-catalog.md) | Catalogue de ressources + délégation |
-| 23 | [Terms of Use](SC-300-23-terms-of-use.md) | Conditions d'utilisation imposées via CA |
-| 24 | [Lifecycle of External Users](SC-300-24-lifecycle-external-users.md) | Déprovisionnement automatique des invités |
-| 25 | [Access Reviews](SC-300-25-access-reviews.md) | Revues d'accès récurrentes |
+| 22 | [Entitlement Management Catalog](fr/SC-300-22-entitlement-catalog.md) | Catalogue de ressources + délégation |
+| 23 | [Terms of Use](fr/SC-300-23-terms-of-use.md) | Conditions d'utilisation imposées via CA |
+| 24 | [Lifecycle of External Users](fr/SC-300-24-lifecycle-external-users.md) | Déprovisionnement automatique des invités |
+| 25 | [Access Reviews](fr/SC-300-25-access-reviews.md) | Revues d'accès récurrentes |
 
 ### Monitoring & posture (transversal)
 | # | Write-up | Sujet |
 |---|----------|-------|
-| 28 | [Identity Secure Score](SC-300-28-identity-secure-score.md) | Surveillance de la posture d'identité |
+| 28 | [Identity Secure Score](fr/SC-300-28-identity-secure-score.md) | Surveillance de la posture d'identité |
 
 ---
 

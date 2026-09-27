@@ -130,18 +130,18 @@ Part 14   → SC-AD-012  ✅ Fait
 
 | Fichier | Technique | Statut |
 |---------|-----------|--------|
-| [SC-AD-001](./SC-AD-001-recon-and-initial-foothold.md) | Recon & Initial Foothold | ✅ |
-| [SC-AD-002](./SC-AD-002-credential-harvesting.md) | Credential Harvesting | ✅ |
-| [SC-AD-003](./SC-AD-003-NTLM-Relay-Poisoning.md) | NTLM Relay & Poisoning | ✅ |
-| [SC-AD-004](./SC-AD-004-acl-abuse-chain.md) | ACL Abuse Chain | ✅ |
-| [SC-AD-005](./SC-AD-005-nopac-samaccountname-spoofing.md) | noPac + PrintNightmare | ✅ |
-| [SC-AD-006](./SC-AD-006-mssql-pivot.md) | MSSQL Pivot | ✅ |
-| [SC-AD-007](./SC-AD-007-kerberos-delegation.md) | Kerberos Delegation | ✅ |
-| [SC-AD-008](./SC-AD-008-adcs-certificate-abuse.md) | ADCS Attacks | ✅ |
-| [SC-AD-009](./SC-AD-009-domain-dominance.md) | Domain Dominance | ✅ |
-| [SC-AD-010](./SC-AD-010-cross-forest-trusts.md) | Cross-Forest Trusts | ✅ |
-| [SC-AD-011](./SC-AD-011-coerce-file-based-attacks.md) | Coerce & File-based | ✅ |
-| [SC-AD-012](./SC-AD-012-adcs-advanced.md) | ADCS Avancé | ✅ |
+| [SC-AD-001](./fr/SC-AD-001-recon-and-initial-foothold.md) | Recon & Initial Foothold | ✅ |
+| [SC-AD-002](./fr/SC-AD-002-credential-harvesting.md) | Credential Harvesting | ✅ |
+| [SC-AD-003](./fr/SC-AD-003-NTLM-Relay-Poisoning.md) | NTLM Relay & Poisoning | ✅ |
+| [SC-AD-004](./fr/SC-AD-004-acl-abuse-chain.md) | ACL Abuse Chain | ✅ |
+| [SC-AD-005](./fr/SC-AD-005-nopac-samaccountname-spoofing.md) | noPac + PrintNightmare | ✅ |
+| [SC-AD-006](./fr/SC-AD-006-mssql-pivot.md) | MSSQL Pivot | ✅ |
+| [SC-AD-007](./fr/SC-AD-007-kerberos-delegation.md) | Kerberos Delegation | ✅ |
+| [SC-AD-008](./fr/SC-AD-008-adcs-certificate-abuse.md) | ADCS Attacks | ✅ |
+| [SC-AD-009](./fr/SC-AD-009-domain-dominance.md) | Domain Dominance | ✅ |
+| [SC-AD-010](./fr/SC-AD-010-cross-forest-trusts.md) | Cross-Forest Trusts | ✅ |
+| [SC-AD-011](./fr/SC-AD-011-coerce-file-based-attacks.md) | Coerce & File-based | ✅ |
+| [SC-AD-012](./fr/SC-AD-012-adcs-advanced.md) | ADCS Avancé | ✅ |
 
 ---
 

@@ -160,30 +160,34 @@ L'objectif est de démontrer les compétences attendues pour des missions **Expe
 ```
 docs/labs/identity-lab/
 ├── README.md                          ← vous êtes ici
-├── bloc1-ad-onprem/                   # 9 write-ups AD On-Prem
-│   ├── SC-ID-001-cartographie-ad.md
-│   ├── SC-ID-002-sante-replication.md
-│   ├── SC-ID-003-sites-services.md
-│   ├── SC-ID-004-tiering-model.md
-│   ├── SC-ID-005-pingcastle-audit.md
-│   ├── SC-ID-006-bloodhound.md
-│   ├── SC-ID-007-gpo-cis-baseline.md
-│   ├── SC-ID-008-remediation-kerberos.md
-│   ├── SC-ID-009-pingcastle-post-hardening.md
-│   └── assets/                        # 43 screenshots
-├── bloc2-entra-hybrid/                # 5 write-ups Entra ID
-│   ├── SC-ID-010-tenant-breakglass.md
-│   ├── SC-ID-011-vm-adconnect.md
-│   ├── SC-ID-012-adconnect-hybrid.md
-│   ├── SC-ID-013-conditional-access.md
-│   ├── SC-ID-014-pim.md
-│   └── assets/                        # 21 screenshots
-└── bloc3-packaging/
-    ├── runbooks/
-    │   ├── runbook-adconnect-operations.md
-    │   └── runbook-ad-incidents-n3.md
-    └── diagrams/
-        └── architecture-complete.md
+└── fr/
+    ├── bloc1-ad-onprem/                   # 9 write-ups AD On-Prem
+    │   ├── SC-ID-001-cartographie-ad.md
+    │   ├── SC-ID-002-sante-replication.md
+    │   ├── SC-ID-003-sites-services.md
+    │   ├── SC-ID-004-tiering-model.md
+    │   ├── SC-ID-005-pingcastle-audit.md
+    │   ├── SC-ID-006-bloodhound.md
+    │   ├── SC-ID-007-gpo-cis-baseline.md
+    │   ├── SC-ID-008-remediation-kerberos.md
+    │   ├── SC-ID-009-pingcastle-post-hardening.md
+    │   └── assets/                        # 43 screenshots
+    ├── bloc2-entra-hybrid/                # 5 write-ups Entra ID
+    │   ├── SC-ID-010-tenant-breakglass.md
+    │   ├── SC-ID-011-vm-adconnect.md
+    │   ├── SC-ID-012-adconnect-hybrid.md
+    │   ├── SC-ID-013-conditional-access.md
+    │   ├── SC-ID-014-pim.md
+    │   └── assets/                        # 21 screenshots
+    └── bloc3-packaging/
+        ├── runbooks/
+        │   ├── runbook-adconnect-operations.md
+        │   └── runbook-ad-incidents-n3.md
+        ├── diagrams/
+        │   └── architecture-complete.md
+        └── scripts/
+            ├── Deploy-ConditionalAccess.ps1
+            └── Verify-IdentityLab.ps1
 ```
 
 ---
@@ -194,25 +198,25 @@ docs/labs/identity-lab/
 
 | # | Scénario | Phase | Outils | Write-up |
 |---|---|---|---|---|
-| SC-ID-001 | [Cartographie AD Multi-Forêts](bloc1-ad-onprem/SC-ID-001-cartographie-ad.md) | Auditer | netexec, Get-AD* | 7 findings identifiés |
-| SC-ID-002 | [Santé Réplication](bloc1-ad-onprem/SC-ID-002-sante-replication.md) | Auditer | repadmin, dcdiag | 0 erreurs, MEEREEN isolé |
-| SC-ID-003 | [Redesign Sites & Services](bloc1-ad-onprem/SC-ID-003-sites-services.md) | Concevoir | PowerShell AD Sites | 4 sites, 5 subnets, 2 links |
-| SC-ID-004 | [Tiering Model](bloc1-ad-onprem/SC-ID-004-tiering-model.md) | Implémenter | OUs, GPO Deny Logon | 3 tiers, cross-tier bloqué |
-| SC-ID-005 | [Audit PingCastle](bloc1-ad-onprem/SC-ID-005-pingcastle-audit.md) | Auditer | PingCastle 3.5 | Score initial : 57/100 |
-| SC-ID-006 | [BloodHound — Chemins d'Attaque](bloc1-ad-onprem/SC-ID-006-bloodhound.md) | Auditer | SharpHound, BloodHound | 4 attack paths identifiés |
-| SC-ID-007 | [GPO CIS Baseline](bloc1-ad-onprem/SC-ID-007-gpo-cis-baseline.md) | Durcir | GPO, CIS L1 DC | 5 Security Options + Audit |
-| SC-ID-008 | [Remédiations Kerberos](bloc1-ad-onprem/SC-ID-008-remediation-kerberos.md) | Durcir | krbtgt, AS-REP, gMSA | 3 remédiations appliquées |
-| SC-ID-009 | [PingCastle Post-Hardening](bloc1-ad-onprem/SC-ID-009-pingcastle-post-hardening.md) | Vérifier | PingCastle avant/après | Anomalies : 72→62 |
+| SC-ID-001 | [Cartographie AD Multi-Forêts](fr/bloc1-ad-onprem/SC-ID-001-cartographie-ad.md) | Auditer | netexec, Get-AD* | 7 findings identifiés |
+| SC-ID-002 | [Santé Réplication](fr/bloc1-ad-onprem/SC-ID-002-sante-replication.md) | Auditer | repadmin, dcdiag | 0 erreurs, MEEREEN isolé |
+| SC-ID-003 | [Redesign Sites & Services](fr/bloc1-ad-onprem/SC-ID-003-sites-services.md) | Concevoir | PowerShell AD Sites | 4 sites, 5 subnets, 2 links |
+| SC-ID-004 | [Tiering Model](fr/bloc1-ad-onprem/SC-ID-004-tiering-model.md) | Implémenter | OUs, GPO Deny Logon | 3 tiers, cross-tier bloqué |
+| SC-ID-005 | [Audit PingCastle](fr/bloc1-ad-onprem/SC-ID-005-pingcastle-audit.md) | Auditer | PingCastle 3.5 | Score initial : 57/100 |
+| SC-ID-006 | [BloodHound — Chemins d'Attaque](fr/bloc1-ad-onprem/SC-ID-006-bloodhound.md) | Auditer | SharpHound, BloodHound | 4 attack paths identifiés |
+| SC-ID-007 | [GPO CIS Baseline](fr/bloc1-ad-onprem/SC-ID-007-gpo-cis-baseline.md) | Durcir | GPO, CIS L1 DC | 5 Security Options + Audit |
+| SC-ID-008 | [Remédiations Kerberos](fr/bloc1-ad-onprem/SC-ID-008-remediation-kerberos.md) | Durcir | krbtgt, AS-REP, gMSA | 3 remédiations appliquées |
+| SC-ID-009 | [PingCastle Post-Hardening](fr/bloc1-ad-onprem/SC-ID-009-pingcastle-post-hardening.md) | Vérifier | PingCastle avant/après | Anomalies : 72→62 |
 
 ### Bloc 2 — Entra ID Hybrid (Design & Implémentation)
 
 | # | Scénario | Phase | Outils | Write-up |
 |---|---|---|---|---|
-| SC-ID-010 | [Tenant Azure & Break Glass](bloc2-entra-hybrid/SC-ID-010-tenant-breakglass.md) | Concevoir | Portail Entra, M365 | 2 BG accounts, P2 active |
-| SC-ID-011 | [VM AD Connect (IaC)](bloc2-entra-hybrid/SC-ID-011-vm-adconnect.md) | Implémenter | Terraform, Proxmox | VM provisionned via IaC |
-| SC-ID-012 | [AD Connect — Hybrid Identity](bloc2-entra-hybrid/SC-ID-012-adconnect-hybrid.md) | Implémenter | PHS, SSO, Writeback | 2 forêts synchronisées |
-| SC-ID-013 | [Conditional Access](bloc2-entra-hybrid/SC-ID-013-conditional-access.md) | Gouverner | CA policies, Named Loc. | 4 policies Report-only |
-| SC-ID-014 | [PIM — Privileged Access](bloc2-entra-hybrid/SC-ID-014-pim.md) | Gouverner | PIM, JIT, MFA | 4h max, approbation BG01 |
+| SC-ID-010 | [Tenant Azure & Break Glass](fr/bloc2-entra-hybrid/SC-ID-010-tenant-breakglass.md) | Concevoir | Portail Entra, M365 | 2 BG accounts, P2 active |
+| SC-ID-011 | [VM AD Connect (IaC)](fr/bloc2-entra-hybrid/SC-ID-011-vm-adconnect.md) | Implémenter | Terraform, Proxmox | VM provisionned via IaC |
+| SC-ID-012 | [AD Connect — Hybrid Identity](fr/bloc2-entra-hybrid/SC-ID-012-adconnect-hybrid.md) | Implémenter | PHS, SSO, Writeback | 2 forêts synchronisées |
+| SC-ID-013 | [Conditional Access](fr/bloc2-entra-hybrid/SC-ID-013-conditional-access.md) | Gouverner | CA policies, Named Loc. | 4 policies Report-only |
+| SC-ID-014 | [PIM — Privileged Access](fr/bloc2-entra-hybrid/SC-ID-014-pim.md) | Gouverner | PIM, JIT, MFA | 4h max, approbation BG01 |
 
 ---
 

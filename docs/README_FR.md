@@ -59,28 +59,28 @@ Environnement AD multi-forêts réaliste (sevenkingdoms.local, north.sevenkingdo
 
 | Scénario | Titre | Techniques | Statut |
 |---|---|---|---|
-| SC-AD-001 | [Recon & Initial Foothold](labs/ad-lab/SC-AD-001-recon-and-initial-foothold.md) | nmap, LDAP anonyme, BloodHound, SYSVOL | ✅ |
-| SC-AD-002 | [Credential Harvesting](labs/ad-lab/SC-AD-002-credential-harvesting.md) | AS-REP Roasting, Kerberoasting, Password Spray | ✅ |
-| SC-AD-003 | [NTLM Relay & Poisoning](labs/ad-lab/SC-AD-003-NTLM-Relay-Poisoning.md) | Responder, ntlmrelayx, SMB relay | ✅ |
-| SC-AD-004 | [ACL Abuse Chain](labs/ad-lab/SC-AD-004-acl-abuse-chain.md) | ForceChangePwd → GenericWrite → WriteDACL → DA | ✅ |
-| SC-AD-005 | [noPac / SamAccountName Spoofing](labs/ad-lab/SC-AD-005-nopac-samaccountname-spoofing.md) | CVE-2021-42278/42287, PrintNightmare | ✅ |
-| SC-AD-006 | [MSSQL Pivot](labs/ad-lab/SC-AD-006-mssql-pivot.md) | Impersonate, linked servers, xp_cmdshell | ✅ |
-| SC-AD-007 | [Kerberos Delegation](labs/ad-lab/SC-AD-007-kerberos-delegation.md) | Unconstrained, Constrained, RBCD, Shadow Creds | ✅ |
-| SC-AD-008 | [ADCS Certificate Abuse](labs/ad-lab/SC-AD-008-adcs-certificate-abuse.md) | ESC1/2/3/4/6/8, certipy, PetitPotam | ✅ |
-| SC-AD-009 | [Domain Dominance](labs/ad-lab/SC-AD-009-domain-dominance.md) | Golden/Silver Ticket, AdminSDHolder, DCSync | ✅ |
-| SC-AD-010 | [Cross-Forest Trusts](labs/ad-lab/SC-AD-010-cross-forest-trusts.md) | raiseChild, SID History, foreign groups | ✅ |
-| SC-AD-011 | [Coerce & File-based Attacks](labs/ad-lab/SC-AD-011-coerce-file-based-attacks.md) | .lnk, .scf, .url, searchConnector-ms, WebDAV | ✅ |
-| SC-AD-012 | [ADCS Avancé](labs/ad-lab/SC-AD-012-adcs-advanced.md) | ESC5 Golden Certificate, ESC9, ESC11 RPC Relay | ✅ |
+| SC-AD-001 | [Recon & Initial Foothold](labs/ad-lab/fr/SC-AD-001-recon-and-initial-foothold.md) | nmap, LDAP anonyme, BloodHound, SYSVOL | ✅ |
+| SC-AD-002 | [Credential Harvesting](labs/ad-lab/fr/SC-AD-002-credential-harvesting.md) | AS-REP Roasting, Kerberoasting, Password Spray | ✅ |
+| SC-AD-003 | [NTLM Relay & Poisoning](labs/ad-lab/fr/SC-AD-003-NTLM-Relay-Poisoning.md) | Responder, ntlmrelayx, SMB relay | ✅ |
+| SC-AD-004 | [ACL Abuse Chain](labs/ad-lab/fr/SC-AD-004-acl-abuse-chain.md) | ForceChangePwd → GenericWrite → WriteDACL → DA | ✅ |
+| SC-AD-005 | [noPac / SamAccountName Spoofing](labs/ad-lab/fr/SC-AD-005-nopac-samaccountname-spoofing.md) | CVE-2021-42278/42287, PrintNightmare | ✅ |
+| SC-AD-006 | [MSSQL Pivot](labs/ad-lab/fr/SC-AD-006-mssql-pivot.md) | Impersonate, linked servers, xp_cmdshell | ✅ |
+| SC-AD-007 | [Kerberos Delegation](labs/ad-lab/fr/SC-AD-007-kerberos-delegation.md) | Unconstrained, Constrained, RBCD, Shadow Creds | ✅ |
+| SC-AD-008 | [ADCS Certificate Abuse](labs/ad-lab/fr/SC-AD-008-adcs-certificate-abuse.md) | ESC1/2/3/4/6/8, certipy, PetitPotam | ✅ |
+| SC-AD-009 | [Domain Dominance](labs/ad-lab/fr/SC-AD-009-domain-dominance.md) | Golden/Silver Ticket, AdminSDHolder, DCSync | ✅ |
+| SC-AD-010 | [Cross-Forest Trusts](labs/ad-lab/fr/SC-AD-010-cross-forest-trusts.md) | raiseChild, SID History, foreign groups | ✅ |
+| SC-AD-011 | [Coerce & File-based Attacks](labs/ad-lab/fr/SC-AD-011-coerce-file-based-attacks.md) | .lnk, .scf, .url, searchConnector-ms, WebDAV | ✅ |
+| SC-AD-012 | [ADCS Avancé](labs/ad-lab/fr/SC-AD-012-adcs-advanced.md) | ESC5 Golden Certificate, ESC9, ESC11 RPC Relay | ✅ |
 
 ### Lab Cloud & Kubernetes
 
 | Scénario | Titre | Techniques | Statut |
 |---|---|---|---|
-| SC-CLD-001 | [Sensitive Keys in Codebases](labs/cloud-lab/SC-CLD-001-sensitive-keys-in-codebases.md) | Secrets Git, fuites env, exposition registry | ✅ |
-| SC-CLD-002 | [SSRF in the Kubernetes World](labs/cloud-lab/SC-CLD-002-ssrf-in-the-kubernetes-world.md) | SSRF → metadata, tokens service account | ✅ |
-| SC-CLD-003 | [Container Escape to Host](labs/cloud-lab/SC-CLD-003-container-escape-to-host-system.md) | Container privilégié, montage host, nsenter | ✅ |
-| SC-CLD-004 | [RBAC Misconfiguration](labs/cloud-lab/SC-CLD-004-rbac-least-privileges-misconfiguration.md) | Abus ClusterRole, vol de token, mouvement latéral | ✅ |
-| SC-CLD-005 | [Attacking Private Registry](labs/cloud-lab/SC-CLD-005-attacking-private-registry.md) | Énumération registry, altération d'images | ✅ |
+| SC-CLD-001 | [Sensitive Keys in Codebases](labs/cloud-lab/fr/SC-CLD-001-sensitive-keys-in-codebases.md) | Secrets Git, fuites env, exposition registry | ✅ |
+| SC-CLD-002 | [SSRF in the Kubernetes World](labs/cloud-lab/fr/SC-CLD-002-ssrf-in-the-kubernetes-world.md) | SSRF → metadata, tokens service account | ✅ |
+| SC-CLD-003 | [Container Escape to Host](labs/cloud-lab/fr/SC-CLD-003-container-escape-to-host-system.md) | Container privilégié, montage host, nsenter | ✅ |
+| SC-CLD-004 | [RBAC Misconfiguration](labs/cloud-lab/fr/SC-CLD-004-rbac-least-privileges-misconfiguration.md) | Abus ClusterRole, vol de token, mouvement latéral | ✅ |
+| SC-CLD-005 | [Attacking Private Registry](labs/cloud-lab/fr/SC-CLD-005-attacking-private-registry.md) | Énumération registry, altération d'images | ✅ |
 
 ### Format des write-ups
 
